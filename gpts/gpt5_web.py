@@ -108,7 +108,7 @@ class WebAgent():
         # 2. TOOL DETECTOR
 
         calls = maybe_route_to_action(new_user_query, self.client, self.model)
-
+        
         if calls: #if no action detected, normal proccess
         # 3. PIPELINE CALL
             for call in calls:

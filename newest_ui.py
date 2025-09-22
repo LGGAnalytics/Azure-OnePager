@@ -13,7 +13,7 @@ dev      = st.Page("pages/06_DEV.py", title="Developer Mode", icon=":material/te
 autos    = st.Page("pages/07_Automations.py", title="Automations", icon=":material/robot_2:")
 
 # Hide default sidebar nav if you want fully custom navigation
-pg = st.navigation([home, chat, profile, chouse, websearch, pdf, dev, autos])
+pg = st.navigation([home, chat, profile, chouse, websearch, pdf, dev, autos], position="hidden")
 
 # IMPORTANT: don't render any other UI in app.py
 pg.run()  # run the currently selected page

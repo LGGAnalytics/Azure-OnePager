@@ -140,7 +140,7 @@ class HybridEngine:
             "Element: {element}"
         )
         prompt = ChatPromptTemplate.from_template(prompt_text)
-        model = ChatOpenAI(model="gpt-4o-mini", temperature=0.1)
+        model = ChatOpenAI(model="gpt-4o", temperature=0.1)
         summarize_chain = {"element": lambda x: x} | prompt | model | StrOutputParser()
 
         # Only summarize long chunks; keep short ones as-is (saves many LLM calls)
