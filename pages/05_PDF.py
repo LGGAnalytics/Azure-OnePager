@@ -3,6 +3,8 @@ from typing import Tuple, Annotated, TypedDict
 import time
 import streamlit as st
 import sys, pathlib
+from openai import OpenAI
+
 
 # Ensure repo root is importable
 repo_root = pathlib.Path(__file__).resolve().parent.parent
@@ -42,9 +44,13 @@ def build_graph(engine: HybridEngine):
     def pdf_search(query: str) -> str:
         """Retrieve top snippets from the indexed PDFs for a query."""
         docs = engine.hybrid.get_relevant_documents(query)
+        st.write(f"[DEBUG] pdf_search query: {query}")
+        st.write(f"[DEBUG] Retrieved docs: {len(docs) if docs else 0}")
         if not docs:
             return "NO_MATCH"
         return "\n---\n".join([d.page_content[:500] for d in docs[:3]])
+        
+        
     
     @tool
     def web_search(query: str) -> str:
@@ -156,6 +162,8 @@ def main():
                         import time
                         st.session_state.thread_id = f"ui-{int(time.time())}"
                     st.success("OCR index ready.")
+                    st.json(st.session_state.get("ocr_timings", {})) # to be removed later
+                    st.write("Texts:", len(engine.texts), "Tables:", len(engine.tables), "Images:", len(engine.images)) # to be removed later
                     st.session_state.processed = True
                 except Exception as e:
                     st.error("Build failed")
@@ -169,15 +177,43 @@ def main():
         if question:
             state = {
                 "messages": [
-                    {"role": "system", "content": "You are a financial assistant."},
+                    {
+                        "role": "system",
+                        "content":(
+                            "You are a financial assistant. "
+                            "For any question about the uploaded PDFs, you must always call the `pdf_search` tool first. "
+                            "Only if it returns NO_MATCH may you call `web_search`. "
+                            "Use `calc_script` only when a numeric result must be computed from retrieved figures. "
+                            "Once you receive tool results, compose a final answer and STOP CALLING TOOLS for this turn. "
+                            "If a tool returns NO_MATCH or WEB_NO_RESULTS, state that clearly and STOP."
+                           
+                            )
+                    },
                     {"role": "user", "content": question},
                 ]
             }
-            out = st.session_state.graph.invoke(
-                state,
-                {"configurable": {"thread_id": st.session_state.thread_id}}
-                )
-            st.write(out["messages"][-1].content)
+
+            try:
+                out = st.session_state.graph.invoke(
+                    state,
+                    {"configurable": {"thread_id": st.session_state.thread_id}}
+                    )
+                st.write(out["messages"][-1].content)
+                st.write("[DEBUG] Assistant reply (first 200 chars):", out["messages"][-1].content[:200])
+            except Exception as e:
+                err_msg = str(e)
+                if ("tool_call_id" in err_msg 
+                    or "An assistant message with 'tool_calls'" in err_msg
+                    or "did not have response messages" in err_msg):
+                    st.warning("⚠️ Session expired. I’ve reset your chat. Please try again.")
+                    # Reset the thread so the next run starts clean
+                    import time
+                    st.session_state.thread_id = f"ui-{int(time.time())}"
+                else:
+                    st.error("An unexpected error occurred.")
+                    st.exception(e)  # optional: log details for yourself
+
+
 
 # Streamlit runs the script top-level, but keeping this is fine
 if __name__ == "__main__":
