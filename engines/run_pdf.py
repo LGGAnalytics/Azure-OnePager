@@ -10,16 +10,16 @@ if str(repo_root) not in sys.path:
 # --- engine ---
 from engines.engine import HybridEngine
 
-pdf_path = repo_root / "engines" / "report.pdf"
-with open(pdf_path, "rb") as f:
-    pdf_bytes = io.BytesIO(f.read())
+# pdf_path = repo_root / "engines" / "report.pdf"
+# with open(pdf_path, "rb") as f:
+#     pdf_bytes = io.BytesIO(f.read())
 
-print(f"[DEBUG] Loading file: {pdf_path.name}, size={len(pdf_bytes.getbuffer())} bytes")
-engine = HybridEngine()
-engine.add_file(pdf_bytes, pdf_path.name)
-print("[DEBUG] Running engine.main() ...")
-engine.main()
-print("[DEBUG] Engine build complete ✅")
+# print(f"[DEBUG] Loading file: {pdf_path.name}, size={len(pdf_bytes.getbuffer())} bytes")
+# engine = HybridEngine()
+# engine.add_file(pdf_bytes, pdf_path.name)
+# print("[DEBUG] Running engine.main() ...")
+# engine.main()
+# print("[DEBUG] Engine build complete ✅")
 
 # --- prompts & graph wiring ---
 from typing import Annotated, TypedDict, List

@@ -19,15 +19,20 @@ from unstructured.partition.pdf import partition_pdf
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.output_parsers import StrOutputParser
-from langchain.vectorstores import Chroma  # v0.2 import
+
+from langchain_community.vectorstores import Chroma
 from langchain.storage import InMemoryStore
 from langchain_core.documents import Document
 from langchain.retrievers.multi_vector import MultiVectorRetriever
-from langchain.retrievers import BM25Retriever, EnsembleRetriever
+
+from langchain_community.retrievers import BM25Retriever
+from langchain.retrievers import EnsembleRetriever
+
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_core.messages import SystemMessage, HumanMessage
-# import pysqlite3
+
 from engines.prompts import system_finance_prompt
+
 
 load_dotenv()
 
@@ -69,7 +74,7 @@ class HybridEngine:
             vectorstore=self.vectorstore,
             docstore=self.store,
             id_key=self.id_key,
-            search_kwargs={"k": 16},  # changed from 12 to 24
+            search_kwargs={"k": 16},  # changed from 12 to 16
         )
 
         # Retrievers & chains
@@ -97,8 +102,8 @@ class HybridEngine:
             f_like.seek(0)
             chunks = partition_pdf(
                 file=f_like,
-                infer_table_structure=False,   # big speed win; still keeps text
-                strategy="hi_res",             # OCR for scanned PDFs
+                infer_table_structure=False,   
+                strategy="hi_res",             
                 extract_image_block_types=["Image"],
                 extract_image_block_to_payload=True,
                 chunking_strategy="by_title",
