@@ -109,7 +109,7 @@ class profileAgent():
             slots = {"must_have_phrases": [prompt], "metric": [], "statement": [], "synonyms": {}}
         return self.assemble_bm25_from_llm(slots)
 
-    def _retrieve_hybrid_enhanced(self, query_nl, query_kw, k: int = 50, top_n = 30, fields=VECTOR_FIELD, max_text_recall_size:int = 800):
+    def _retrieve_hybrid_enhanced(self, query_nl, k: int = 50, top_n = 30, fields=VECTOR_FIELD, max_text_recall_size:int = 800):
         sc = self.search_client
         flt = self._company_filter()
         
@@ -207,7 +207,7 @@ class profileAgent():
         nums = set(int(n) for n in re.findall(r"\[#?(\d+)\]", answer))
         return sorted(nums)
 
-    def _rag_answer(self, rag_nl, rag_kw, question, k: int = 5, temperature: float = 0.2):
+    def _rag_answer(self, rag_nl, question, k: int = 5, temperature: float = 0.2):
 
 
         # question = f'CREATE A SECTION OF COMPANY PROFILE USING LAST YEARS OF ANNUAL REPORT PRESENT IN THE CONTEXT FOR {self.company_name}. IF ANY INFORMATION IS NOT FOUND STATE AS n.a. .\n\n THIS IS THE SECTION TO BE BUILT: \n {section7}  \n USE THIS TO GUIDE YOURSELF ON SEMANTIC TERMS AND HOW TO CALCULATE: \n {finance_calculations}'
@@ -215,7 +215,6 @@ class profileAgent():
         mode, hits = self._retrieve_hybrid_enhanced(
             # query=rag_q, 
             query_nl=rag_nl,
-            query_kw=rag_kw,
             k=25
             )
         ctx_text, ctx_items = self._build_context(hits)

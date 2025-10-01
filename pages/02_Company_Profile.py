@@ -191,7 +191,7 @@ def stream_answer(prompt: str):
             finance_calculations= st.session_state.calculations
         )
 
-        resp = agent._rag_answer(rag_q = st.session_state.rag, question= prompt)
+        resp = agent._rag_answer(rag_nl = st.session_state.rag, question= prompt)
         answer_text = resp['answer']
 
     except Exception as e:
