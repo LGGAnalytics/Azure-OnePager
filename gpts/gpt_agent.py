@@ -4,6 +4,7 @@ import io
 from typing import List, Dict, Optional
 from xml.sax.saxutils import escape
 
+from gpts.gpt_assistants import general_assistant
 from dotenv import load_dotenv, find_dotenv
 from azure.identity import DefaultAzureCredential
 from azure.core.credentials import AzureKeyCredential
@@ -18,7 +19,8 @@ from prompts import new_system_finance_prompt
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from prompts4 import finance_calculations
+
+import re 
 load_dotenv(find_dotenv(), override=True)
 
 # ---- Config (expects the same envs you already used) ----
@@ -32,6 +34,7 @@ AOAI_ENDPOINT   = os.environ["AZURE_OPENAI_ENDPOINT"]            # https://<reso
 AOAI_API_VER    = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-10-21")
 AOAI_DEPLOYMENT = os.environ["AZURE_OPENAI_DEPLOYMENT"]          # e.g., gpt-4o-mini / o3-mini / gpt-5 preview
 AOAI_KEY        = os.getenv("AZURE_OPENAI_API_KEY")              # omit if using AAD
+OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY")        # required
 
 # ------------------ CODE
 
@@ -63,15 +66,57 @@ class profileAgent():
         v = (self.company_name or "").replace("'", "''").strip()
         return f"company_name eq '{v}'" if v else None
     
-    def _retrieve_hybrid_enhanced(self, query: str, k: int = 50, top_n = 30, fields=VECTOR_FIELD, max_text_recall_size:int = 800):
+    def assemble_bm25_from_llm(self, slots: dict) -> str:
+        def q(s: str) -> str:
+            # sanitize: remove internal quotes and trim
+            s = (s or "").strip().replace('"', ' ')
+            return f"\"{s}\"" if s else ""
+        groups = []
+
+        # must-have phrases (ANDed)
+        for p in slots.get("must_have_phrases", []):
+            qp = q(p)
+            if qp:
+                groups.append(qp)
+
+        # metric / statement synonym groups (ORed within each group)
+        for key in ["metric", "statement"]:
+            syns = slots.get("synonyms", {}).get(key, []) or slots.get(key, [])
+            syns = [q(s) for s in syns if s]
+            if syns:
+                groups.append("(" + " OR ".join(syns) + ")")
+
+        return " AND ".join(groups) if groups else "\"financial statements\""
+
+
+    def bm25_creator(self, prompt):
+
+        instruction = (
+            "Extract finance search slots for Azure AI Search. "
+            "Return strict JSON: {\"metric\":[], \"statement\":[], \"synonyms\":{}, \"must_have_phrases\":[]} "
+            "(include IFRS/US GAAP variants)."
+        )
+        resp = general_assistant(instruction, prompt, OPENAI_API_KEY, 'gpt-4o')
+
+        try:
+            slots = getattr(resp, "output_json", None)
+            if slots is None:
+                import json
+                slots = json.loads(resp.output_text)
+        except Exception:
+            # fallback: minimal anchors from prompt
+            slots = {"must_have_phrases": [prompt], "metric": [], "statement": [], "synonyms": {}}
+        return self.assemble_bm25_from_llm(slots)
+
+    def _retrieve_hybrid_enhanced(self, query_nl, query_kw, k: int = 50, top_n = 30, fields=VECTOR_FIELD, max_text_recall_size:int = 800):
         sc = self.search_client
         flt = self._company_filter()
         
         try:
-            vq = VectorizableTextQuery(text=query, k=k, fields=VECTOR_FIELD)
+            vq = VectorizableTextQuery(text=query_nl, k=k, fields=VECTOR_FIELD)
             # Prefer vector-only search (integrated vectorization). If your index isn't set up for it, this raises.
             results = sc.search(
-                search_text=query, 
+                search_text=self.bm25_creator(query_nl), 
                 vector_queries=[vq], 
                 top=top_n, 
                 query_type="semantic",
@@ -83,7 +128,7 @@ class profileAgent():
             mode = "hybrid + semantic"
         except HttpResponseError as e:
             # Fall back to lexical so you still get results while fixing vector config
-            results = sc.search(search_text=query, top=k)
+            results = sc.search(search_text=self.bm25_creator(query_nl), top=k)
             mode = f"lexical (fallback due to: {e.__class__.__name__})"
 
         hits: List[Dict] = []
@@ -98,24 +143,46 @@ class profileAgent():
         return mode, hits
 
 
-    def _build_context(self, hits: List[Dict], text_field: str = TEXT_FIELD, max_chars: int = 20000) -> str:
-        """Build a compact, numbered context block to feed the model."""
+    def _build_context(self, hits: List[Dict], text_field: str = TEXT_FIELD, max_chars: int = 20000):
+        """Build a compact, numbered context block and also return the selected chunk metadata."""
         lines = []
         total = 0
+        selected = []  # <- we'll return this
+
         for i, h in enumerate(hits, 1):
             title     = h.get("title")
             chunk_id  = h.get("chunk_id")
-            snippet   = (h.get(text_field) or "")
-            if not snippet:
+            full_text = (h.get(text_field) or "")
+            if not full_text:
                 continue
-            snippet = textwrap.shorten(snippet, width=700, placeholder=" ...")
-            block = f"[{i}] title={title!r} | chunk_id={chunk_id} | score={h.get('score'):.4f}\n{snippet}"
+
+            preview = textwrap.shorten(full_text, width=700, placeholder=" ...")
+            block = f"[{i}] title={title!r} | chunk_id={chunk_id} | score={h.get('score'):.4f}\n{full_text}"
+
             if total + len(block) > self.max_chars:
                 break
+
             total += len(block)
             lines.append(block)
-        return "\n\n---\n\n".join(lines)
-    
+
+            # keep rich metadata so you can show or log it later
+            selected.append({
+                "i": i,
+                "title": title,
+                "chunk_id": chunk_id,
+                "score": h.get("score"),
+                "caption": h.get("caption"),
+                "preview": preview,
+                "text": full_text,  # full chunk text (not shortened)
+                # include any other fields you index, if available:
+                "metadata_storage_path": h.get("metadata_storage_path"),
+                "page_number": h.get("page_number"),
+                "doc_type": h.get("doc_type"),
+            })
+
+        return "\n\n---\n\n".join(lines), selected
+
+        
     def _generate_pdf(self, text: str) -> bytes:
 
         buf = io.BytesIO()
@@ -133,22 +200,30 @@ class profileAgent():
         doc.build(story)
         buf.seek(0)
         return buf.getvalue()
+    
+    def _extract_cited_idxs(self, answer: str) -> list[int]:
+        # Matches [#1], [#12], etc. (also tolerates stray [1])
+        nums = set(int(n) for n in re.findall(r"\[#?(\d+)\]", answer))
+        return sorted(nums)
 
-    def _rag_answer(self, rag_q, question, k: int = 5, temperature: float = 0.2):
+    def _rag_answer(self, rag_nl, rag_kw, question, k: int = 5, temperature: float = 0.2):
 
 
         # question = f'CREATE A SECTION OF COMPANY PROFILE USING LAST YEARS OF ANNUAL REPORT PRESENT IN THE CONTEXT FOR {self.company_name}. IF ANY INFORMATION IS NOT FOUND STATE AS n.a. .\n\n THIS IS THE SECTION TO BE BUILT: \n {section7}  \n USE THIS TO GUIDE YOURSELF ON SEMANTIC TERMS AND HOW TO CALCULATE: \n {finance_calculations}'
         
         mode, hits = self._retrieve_hybrid_enhanced(
-            query=rag_q, 
-            k=50
+            # query=rag_q, 
+            query_nl=rag_nl,
+            query_kw=rag_kw,
+            k=25
             )
-        ctx = self._build_context(hits)
+        ctx_text, ctx_items = self._build_context(hits)
 
-        system_msg = (
-            self.profile_prompt
+        system_msg = self.profile_prompt + (
+            "\nWhen you use a fact from the context, add citations like [#1], [#2]."
+            "\nOnly rely on the numbered context; if a value is missing, say 'n.a.'."
         )
-        user_msg = f"Question:\n{question}\n\nContext snippets (numbered):\n{ctx}"
+        user_msg = f"Question:\n{question}\n\nContext snippets (numbered):\n{ctx_text}"
 
         client = self.az_openai
         messages = [
@@ -166,5 +241,14 @@ class profileAgent():
         answer = resp.choices[0].message.content
         mode_model = "non-streaming (fallback)"
 
+        cited = self._extract_cited_idxs(answer)
+        used_chunks = [c for c in ctx_items if c["i"] in cited]
+
         # return self._generate_pdf(answer)
-        return answer
+        return {
+            "answer": answer,
+            "citations": cited,          # [1, 3, 7]
+            "used_chunks": used_chunks,  # detailed dicts for each cited snippet
+            "all_chunks": ctx_items,     # everything you sent (optional)
+            "mode": mode                 # retrieval mode info (optional)
+        }

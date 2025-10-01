@@ -49,7 +49,7 @@ if "pending_prompt" not in st.session_state:
 if "theme" not in st.session_state:
     st.session_state.theme = "white"   # default: Dark Mode
 if "rag" not in st.session_state:
-    st.session_state.rag = "Cash Flow Statement. FILES FROM 2024."
+    st.session_state.rag = "FIND THE VARIABLES 'Net cash from operating activities' and 'Net cash used in investing activities' in the statement of cash flows. FILES FROM 2024."
 if "sys_message_mod" not in st.session_state:
     st.session_state.sys_message_mod = system_mod
 if "calculations" not in st.session_state:
@@ -184,14 +184,16 @@ def stream_answer(prompt: str):
         agent = profileAgent(
             company_name = st.session_state.company_name,
             k=50, 
-            max_text_recall_size=5000, 
-            max_chars=3000,
+            max_text_recall_size=35, 
+            max_chars=10000,
             model='gpt-5', 
             profile_prompt= st.session_state.sys_message_mod, 
             finance_calculations= st.session_state.calculations
         )
 
-        answer_text = agent._rag_answer(rag_q = st.session_state.rag, question= prompt)
+        resp = agent._rag_answer(rag_q = st.session_state.rag, question= prompt)
+        answer_text = resp['answer']
+
     except Exception as e:
         answer_text = f"ERROR. \n {e}"
 
