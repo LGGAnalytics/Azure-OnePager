@@ -20,6 +20,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
+from prompts4 import finance_calculations
 import re 
 load_dotenv(find_dotenv(), override=True)
 
