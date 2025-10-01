@@ -26,7 +26,7 @@ from typing import Tuple
 import time
 from engines.hybrig_eng_enhanced import HybridEngine
 from gpts.gpt_assistants import general_assistant
-from prompts4 import section8, finance_calculations
+from prompts4 import section7, finance_calculations
 
 
 load_dotenv(find_dotenv(), override=True)
@@ -51,7 +51,7 @@ if "theme" not in st.session_state:
 if "rag" not in st.session_state:
     st.session_state.rag = "Cash Flow Statement. FILES FROM 2024."
 if "sys_message_mod" not in st.session_state:
-    st.session_state.sys_message_mod = section8
+    st.session_state.sys_message_mod = section7
 if "calculations" not in st.session_state:
     st.session_state.calculations = finance_calculations
 if "company_name" not in st.session_state:
