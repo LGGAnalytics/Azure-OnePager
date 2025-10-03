@@ -32,6 +32,7 @@ from io import BytesIO
 from typing import Tuple
 import time
 from engines.hybrig_eng_enhanced import HybridEngine
+from pages.dev_mode import k, ts, cs, reasoning_effort, verbosity, do_stream
 
 
 load_dotenv(find_dotenv(), override=True)
@@ -49,9 +50,9 @@ load_dotenv(find_dotenv(), override=True)
 
 # =====================================================
 
-st.set_page_config(page_title="Oraculum v2", layout="wide")
-st.title("📄 Oraculum v2.1 (Azure Version)")
-
+# st.set_page_config(page_title="Oraculum v2", layout="wide")
+# st.title("📄 Oraculum v2.1 (Azure Version)")
+RUN_UI = os.getenv("RUN_CHAT_UI", "0") == "1"
 # -------- Session state --------
 if "history" not in st.session_state:
     st.session_state.history = []
@@ -87,15 +88,17 @@ if "ocr_chain_with_sources" not in st.session_state:
 if "ocr_timings" not in st.session_state:
     st.session_state.ocr_timings = None
 
-output_placeholder = st.empty()
-apply_theme(st.session_state.theme)
+client = get_aoai_client()
+
+# output_placeholder = st.empty()
+# apply_theme(st.session_state.theme)
 
 # =====================================================
 
 # -------- Left sidebar with collapsible sections --------
 
 
-client = get_aoai_client()
+
 
 # ========================================
 def check_actions(prompt, client, deployment, k, ts, cs, model_profile) -> bool:
@@ -188,34 +191,38 @@ def stream_answer(prompt: str):
     else:
         ph.write(answer_text)
 
-
+# -------- UI (only if RUN_UI=1) --------
+if RUN_UI:
+    st.set_page_config(page_title="Oraculum v2", layout="wide")
+    st.title("📄 Oraculum v2.1 (Azure Version)")
+    apply_theme(st.session_state.theme)
 # Render prior turns every run so the conversation persists
-for turn in st.session_state.history:
-    with st.chat_message("user"):
-        st.write(turn["q"])
-    with st.chat_message("assistant"):
-        st.write(turn["a"])
+    for turn in st.session_state.history:
+        with st.chat_message("user"):
+            st.write(turn["q"])
+        with st.chat_message("assistant"):
+            st.write(turn["a"])
 
-if st.session_state.just_ingested:
-    with st.chat_message("assistant"):
-        st.write(st.session_state.just_ingested_msg)
-    # Reset so it shows only once
-    st.session_state.just_ingested = False
+    if st.session_state.just_ingested:
+        with st.chat_message("assistant"):
+            st.write(st.session_state.just_ingested_msg)
+        # Reset so it shows only once
+        st.session_state.just_ingested = False
 
 # Accept either a typed prompt or an injected one from sidebar suggestions
-placeholder = "Ask a question about your PDFs…" if st.session_state.pdf_mod else "Ask about the ingested PDFs…"
-typed = st.chat_input(placeholder)
-pending = st.session_state.pop("pending_prompt", None)
-prompt = typed or pending
+    placeholder = "Ask a question about your PDFs…" if st.session_state.pdf_mod else "Ask about the ingested PDFs…"
+    typed = st.chat_input(placeholder)
+    pending = st.session_state.pop("pending_prompt", None)
+    prompt = typed or pending
 
 # question = st.text_input("Ask a question about your PDFs:")
 # if question:
 #     res = st.session_state.ocr_chain_with_sources.invoke(question)
 #     st.write(res["response"])
 
-if prompt:
-    with st.chat_message("user"):
-        st.write(prompt)
+    if prompt:
+        with st.chat_message("user"):
+            st.write(prompt)
 
     # if st.session_state.pdf_mod and st.session_state.ocr_chain_with_sources:
     #     # ==== PDF PIPELINE ====
@@ -228,12 +235,14 @@ if prompt:
     #     # Persist in chat history so it shows up next rerun
     #     st.session_state.history.append({"q": prompt, "a": answer_text})
 
-    with st.chat_message("assistant"):
-        # Try tool routing first
-        model_profile = "gpt-5" #if model_profile_mod else "o3"
-        if check_actions(
-                prompt, client, AOAI_DEPLOYMENT,
-                k=k, ts=ts, cs=cs, model_profile=model_profile):
-            pass
-        else:
-            stream_answer(prompt)
+        with st.chat_message("assistant"):
+            # Try tool routing first
+            model_profile = "gpt-5" #if model_profile_mod else "o3"
+            if check_actions(
+                    prompt, client, AOAI_DEPLOYMENT,
+                    k=k, ts=ts, cs=cs, model_profile=model_profile):
+                pass
+            else:
+                stream_answer(prompt)
+
+
