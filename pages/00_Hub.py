@@ -3,6 +3,17 @@ import sys, pathlib, importlib
 import streamlit as st
 from uuid import uuid4 
 
+
+repo_root = pathlib.Path(__file__).resolve().parent.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
+from theme_mod import apply_theme
+
+st.set_page_config(page_title="Oraculum", layout="wide")
+
+
+
 if "history" not in st.session_state:
     st.session_state.history = []
 if "pending_prompt" not in st.session_state:
@@ -10,6 +21,12 @@ if "pending_prompt" not in st.session_state:
 if "thread_id_pdf" not in st.session_state:               
     st.session_state.thread_id_pdf = str(uuid4())
 
+
+if "convos" not in st.session_state:
+    cid = str(uuid4())
+    st.session_state.convos = {cid: {"title": "New chat", "messages": []}}
+    st.session_state.current_cid = cid
+    
 # ---------- read tile clicks via query param (no new tab) ----------
 params = st.query_params
 clicked = params.get("tile")
@@ -27,7 +44,6 @@ from theme_mod import apply_theme
 
 # ---------- page / theme ----------
 apply_theme("light")
-st.set_page_config(page_title="Oraculum", layout="wide")
 
 # ---------- default route: open chat ----------
 if "active_tile" not in st.session_state or not st.session_state.active_tile:
@@ -86,40 +102,64 @@ with c2: tile("Web Search", "Search the web and summarize", ic_search(), "web")
 with c3: tile("Developer Mode", "Access advanced API features", ic_dev(), "dev")
 with c4: tile("Create Automation", "Set up automated workflows", ic_auto(), "auto")
 
+# ---------- Chat History----------
+with st.sidebar:
+    if st.button("╋ New chat", use_container_width=True):
+        cid = str(uuid4())
+        st.session_state.convos[cid] = {"title": "New chat", "messages": []}
+        st.session_state.current_cid = cid
+        st.rerun()
+
+    ids = list(st.session_state.convos.keys())
+    titles = [st.session_state.convos[i]["title"] for i in ids]
+    pick = st.radio("Chats", options=ids, format_func=lambda x: st.session_state.convos[x]["title"])
+    st.session_state.current_cid = pick
+
+cur = st.session_state.convos[st.session_state.current_cid]
+messages = cur["messages"]
+
+
 # ===========================
 # CHAT AREA (compact welcome + history)
 # ===========================
-if "messages" not in st.session_state:
-    st.session_state.messages = []  # list[{"role": "user"|"assistant", "content": str}]
-if "greeted" not in st.session_state:
-    st.session_state.greeted = False
+# if "messages" not in st.session_state:
+#     st.session_state.messages = []  # list[{"role": "user"|"assistant", "content": str}]
+# if "greeted" not in st.session_state:
+#     st.session_state.greeted = False
 
 # show a small one-time welcome *bubble* when conversation is empty
-if not st.session_state.messages and not st.session_state.greeted:
+if not messages:  # first time in this chat
     with st.chat_message("assistant"):
-        st.write(
-            "Hi, welcome! I’m a financial assistant with access to a list of companies that can be retrieved from Companies House. "
-            "Do you want me to list all companies I already have, add a new company, or answer any question about a specific company?"
-        )
-    st.session_state.greeted = True
+        st.write("Hi, welcome! I’m a financial assistant with access to a list of companies that can be retrieved from Companies House. "
+                 "Do you want me to list all companies I already have, add a new company, or answer any question about a specific company?")
 
 # render history
-for msg in st.session_state.messages:
+for msg in messages:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
 
 # one input at the bottom (single source of truth)
+prefill = st.session_state.pop("prefill", "")
+
+
+
 typed = st.chat_input("Type your message here...", key="main_chat")
-injected = st.session_state.pop("pending_prompt", None)
-query = injected or typed
+query = typed or prefill  # if user didn't type anything, use the prefill
+# Make sure query is always a string, not None
+# if injected:
+#     query = injected
+# elif typed:
+#     query = typed
+# else:
+#     query = None
 
 
 # ===========================
 # IMPORT SUBPAGES (functions only; no UI)
 # ===========================
 chat_module     = importlib.import_module("pages.chat_with_GPT5")
-profile_module  = importlib.import_module("pages.company_profile")          # used only if you route to "profile" later
-chouse_module   = importlib.import_module("pages.add_from_company_house")   # used only if you route to "chouse" later
+profile_module  = importlib.import_module("pages.company_profile")          
+chouse_module   = importlib.import_module("pages.add_from_company_house") 
 web_module      = importlib.import_module("pages.web_search")
 pdf_module      = importlib.import_module("pages.PDF")
 dev_module      = importlib.import_module("pages.dev_mode")
@@ -129,56 +169,57 @@ auto_module     = importlib.import_module("pages.automations")
 # ROUTE THE MESSAGE + APPEND REPLY
 # ===========================
 if query:
-    st.session_state.messages.append({"role": "user", "content": query})
+    messages.append({"role": "user", "content": query})
+
+    # auto-title if still "New chat"
+    if cur["title"] == "New chat":
+        cur["title"] = query[:30] + ("…" if len(query) > 30 else "")
 
     answer = None
     view = st.session_state.active_tile
 
     if view == "chat":
-        # default screen — call your chat functions if you want (or leave as basic echo)
-        if not chat_module.check_actions(typed, chat_module.client, chat_module.AOAI_DEPLOYMENT,
+        if not chat_module.check_actions(query, chat_module.client, chat_module.AOAI_DEPLOYMENT,
                                          k=50, ts=35, cs=8000, model_profile="gpt-5"):
-            answer = chat_module.stream_answer(typed)
+            answer = chat_module.stream_answer(query)
 
     elif view == "web":
-        answer = web_module.answer_web(typed)
+        answer = web_module.answer_web(query)
 
     elif view == "pdf":
-        # requires OCR graph to be built (see PDF sidebar below)
         if st.session_state.get("graph"):
-            state = {"messages": [{"role": "user", "content": typed}]}
+            state = {"messages": [{"role": "user", "content": query}]}
             out = st.session_state.graph.invoke(
                 state,
                 config={"configurable": {
                     "thread_id": st.session_state.thread_id_pdf,
                     "checkpoint_ns": "pdf"
-                    }}
-                )
+                }}
+            )
             answer = out["messages"][-1].content
         else:
             answer = "⚠️ Please upload a PDF and build index first."
 
     elif view == "dev":
-        # dev_mode has tool routing; stream_answer writes to page; still add a stub
-        if not dev_module.check_actions(typed, dev_module.client, dev_module.AOAI_DEPLOYMENT,
+        if not dev_module.check_actions(query, dev_module.client, dev_module.AOAI_DEPLOYMENT,
                                         k=100, ts=200, cs=8000, model_profile="gpt-5"):
-            answer = dev_module.stream_answer(typed) or "…"
+            answer = dev_module.stream_answer(query) or "…"
 
     elif view == "auto":
-        answer = auto_module.create_automation(typed)
+        answer = auto_module.create_automation(query)
 
     elif view == "profile":
-        answer = profile_module.stream_answer(typed)
+        answer = profile_module.stream_answer(query)
 
     elif view == "chouse":
-        answer = chouse_module.add_company(typed)
+        answer = chouse_module.add_company(query)
 
     else:
         answer = "⚠️ Select a tile first."
 
     if answer is None:
         answer = "OK."
-    st.session_state.messages.append({"role": "assistant", "content": answer})
+    messages.append({"role": "assistant", "content": answer})
     st.rerun()
 
 # ===========================
@@ -202,58 +243,45 @@ if st.session_state.get("active_tile") == "pdf":
             st.session_state.graph = pdf_module.build_graph(engine)
             st.success("✅ OCR index ready — ask your question below.")
 
-# ---------- QUICK ACTIONS  ----------
-PROMPT_KEY_FIGURES = (
-    "Extract key financial figures from the current context. Prefer the uploaded PDF "
-    "(if indexed) and cite page numbers. Return a compact table with columns:\n"
-    "Metric | Value | Unit | Period | Page\n"
-    "Cover at least: Revenue, Gross Profit, Operating Income (EBIT), Net Income, EPS, "
-    "Cash from Operations, CapEx, Free Cash Flow, Total Assets, Total Liabilities, "
-    "Shareholders’ Equity. If a number isn’t found, write '—'."
-)
-
-PROMPT_BUSINESS_OVERVIEW = (
-    "Give a concise business overview of the company using the current context "
-    "(prefer PDF if present). Bullet points only (5–8 bullets). Include: what the "
-    "company does, key products/services, geographies, customer segments, main "
-    "business units, leadership highlights, strategy themes, and notable risks. "
-    "Cite page numbers where possible."
-)
-
-PROMPT_RECENT_NEWS = (
-    "Find recent news (last 90 days) about the company. Return 5 bullets in the form:\n"
-    "[Date] Title — one-line takeaway (include link if available)\n"
-    "Then add a 2–3 sentence summary of the overall theme. Prefer official sources, "
-    "filings, and major outlets."
-)
+# ---------- QUICK ACTIONS ----------
+if "prefill" not in st.session_state:
+    st.session_state.prefill = ""
 
 st.markdown("**Quick actions**")
 qa_cols = st.columns(6)
 
 with qa_cols[0]:
     if st.button("🔵 Extract Key Figures", key="qa_figs"):
-        st.session_state.pending_prompt = PROMPT_KEY_FIGURES
-        st.rerun()
+        st.session_state.prefill = (
+            "Can you extract the key financial figures from the uploaded PDF, "
+            "including Revenue, Gross Profit, Operating Income, Net Income, EPS, "
+            "Cash Flow, Total Assets, and Liabilities?"
+        )
 
 with qa_cols[1]:
     if st.button("📑 Summarize Overview", key="qa_overview"):
-        st.session_state.pending_prompt = PROMPT_BUSINESS_OVERVIEW
-        st.rerun()
+        st.session_state.prefill = (
+            "Can you give me a concise business overview of the company from the PDF? "
+            "Please include what the company does, main products/services, geographies, "
+            "key business units, and strategy themes."
+        )
 
 with qa_cols[2]:
     if st.button("🗞️ Show Recent News", key="qa_news"):
-        st.session_state.pending_prompt = PROMPT_RECENT_NEWS
-        st.rerun()
+        st.session_state.prefill = (
+            "Can you show me recent news (last 90 days) about this company with dates, titles, "
+            "short takeaways, and links if possible?"
+        )
 
-# Stubs / inactive for now (Felipe will wire later)
+# --- Felipe’s future actions (not available now) ---
 with qa_cols[3]:
     if st.button("📋 List Companies", key="qa_list_companies"):
-        st.toast("List Companies — coming soon", icon="🛠️")
+        st.info("📋 List Companies — not available now")
 
 with qa_cols[4]:
     if st.button("✚ Add Company", key="qa_add_company"):
-        st.toast("Add Company — coming soon", icon="🛠️")
+        st.info("✚ Add Company — not available now")
 
 with qa_cols[5]:
     if st.button("⚙️ Create Profile", key="qa_create_profile"):
-        st.toast("Create Profile — coming soon", icon="🛠️")
+        st.info("⚙️ Create Profile — not available now")
