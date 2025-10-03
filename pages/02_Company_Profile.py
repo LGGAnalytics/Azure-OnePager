@@ -59,7 +59,9 @@ if "company_name" not in st.session_state:
 if "companies_name" not in st.session_state:
     st.session_state.companies_name = ['Seaport Topco Limited']
 if "companies_name_dic" not in st.session_state:
-    st.session_state.companies_name_dic = {'Seaport Topco Limited':"SEAPORT_TOPCO_LIMITED"}
+    st.session_state.companies_name_dic = {'Seaport Topco Limited':"SEAPORT_TOPCO_LIMITED",
+                                           'Radley Co': 'RADLEY_+_CO._LIMITED',
+                                           'James Donaldson': 'JAMES_DONALDSON_GROUP_LTD'}
 if "profile_mod" not in st.session_state:
     st.session_state.profile_mod = new_system_finance_prompt
 if "profile_mod_web" not in st.session_state:
@@ -119,6 +121,8 @@ with st.sidebar.expander("Companies Selection", expanded=False):
     st.write('This section allows you to select the company you are debugging')
     suggestions = [
         "Seaport Topco Limited",
+        "Radley Co",
+        "James Donaldson"
     ]
     for i, s in enumerate(suggestions):
         if st.button(s, key=f"sb_sugg_{i}", use_container_width=True):
