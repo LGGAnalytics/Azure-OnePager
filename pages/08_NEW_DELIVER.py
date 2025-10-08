@@ -34,6 +34,11 @@ from prompts4 import section7, finance_calculations, system_mod
 
 from gpts.gpt5_web import WebAgent
 
+from gpts.gpt_assistants import maybe_route_to_action
+from azure.blob_functions import companyHouseListAdd
+from azure.adf_functions import trigger_function
+from azure.search_functions import run_indexer
+
 load_dotenv(find_dotenv(), override=True)
 OPENAI_API_KEY  = os.getenv("FELIPE_OPENAI_API_KEY")        # required
 
@@ -121,7 +126,8 @@ def stream_answer(prompt: str, section_build = False, section = ''):
             answer_text = agent._generate_section(section = section)
 
         else:
-            resp = agent._rag_answer(rag_nl = st.session_state.rag, question= prompt)
+            
+            resp = agent._rag_answer(rag_nl = prompt, question= prompt)
             answer_text = resp['answer']
 
     except Exception as e:
@@ -257,6 +263,7 @@ if st.session_state.websearch or st.session_state.mixsource:
     pass
 else:
     with st.sidebar.expander("Profile Sections", expanded=False):
+        st.write('Take in mind that building a section might take between 11-25 minutes in average')
         if st.button("1.Get Business Overview", use_container_width=True, key="overview_btn"):
             if not st.session_state.company_name:
                 with st.chat_message("assistant"):
@@ -322,7 +329,71 @@ if not st.session_state.greeted:
 # =====================================================
 
 
+def check_actions(prompt, client, deployment, k, ts, cs, model_profile) -> bool:
+
+    calls = maybe_route_to_action(prompt, client, deployment)
+
+    if not calls:
+        return False
+
+    for call in calls:
+        if call.function.name == "create_company_profile":
+            args = json.loads(call.function.arguments or "{}")
+            company = args.get("companyName") or "(unknown)"
+
+            agent1 = profileAgent(
+                company,
+                k=k, max_text_recall_size=ts, max_chars=cs,
+                model=model_profile, profile_prompt=st.session_state.profile_mod_web
+            )
+
+            out_pdf = agent1._rag_answer()
+
+            st.download_button(
+                "Download Profile PDF",
+                data=out_pdf,
+                file_name=f"{company}_profile.pdf",
+                mime="application/pdf",
+            )
+            st.success("Profile creation done.")
+            st.markdown(f"**Functionality in construction..**  (requested company: `{company}`)")
+
+            # Also persist this turn in the chat history so it shows up on rerun
+            st.session_state.history.append({
+                "q": prompt,
+                "a": f"Created a company profile for **{company}**. Use the button above to download the PDF."
+            })
+            return True
+        elif call.function.name == 'add_company':
+            args = json.loads(call.function.arguments or "{}")
+            companyNumber = args.get("companyNumber") or "(unknown)"
+            
+            try:
+                companyHouseListAdd(CompanyNumber = companyNumber)
+                st.success(f"Added {companyNumber} to internal list...")
+            except Exception as e:
+                print(f'Adding to internal list problem \n{e}')
+
+            try:
+                trigger_function(companyNumber = companyNumber)
+                st.success(f"Downloaded {companyNumber} files...")
+            except Exception as e:
+                print(f'Downloading file problem \n{e}')
+
+            try:
+                st.success("Running OCR and Vectorization, come back in 10 minutes ... ")
+                run_indexer()
+            except Exception as e:
+                print(f'OCR and Vector problem \n{e}')
+            
+            return True
+
+
+    return False
+
 client = get_aoai_client()
+
+
 
 # Render prior turns every run so the conversation persists
 for turn in st.session_state.history:

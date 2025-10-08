@@ -4,7 +4,8 @@ import pandas as pd
 from docx import Document
 from docx.enum.text import WD_BREAK
 from azure.blob_functions import get_file_blob
-
+from pathlib import Path
+from docx import Document
 
 # ---------- tile helper (the tile itself is the click target) ----------
 def tile(title: str, subtitle: str, icon_svg: str, key: str):
@@ -28,7 +29,7 @@ def tile(title: str, subtitle: str, icon_svg: str, key: str):
         unsafe_allow_html=True
     )
 
-def insert_finance(gpt_output, company):
+def insert_finance(gpt_output, doc):
    
   # =========================
   # 1) Extract CSV + SUMMARY
@@ -70,14 +71,15 @@ def insert_finance(gpt_output, company):
   # 3) Open DOCX, find the Financial Performance table
   # ==============================================
   
-  doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
+  # doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
 
-  buf = io.BytesIO(doc_raw)
-  buf.seek(0) 
+  # buf = io.BytesIO(doc_raw)
+  # buf.seek(0) 
   
 
   # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
-  doc = Document(buf)
+  # doc = Document(buf)
+  doc = doc
 
   def norm(s: str) -> str:
       return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
@@ -235,16 +237,18 @@ def insert_finance(gpt_output, company):
   # ==============================================
   # 7) Save
   # ==============================================
-  out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
-  doc.save(out_path)
-  print(f"Updated document written to: {out_path}")
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  print(f"Updated document written")
 
   if not_found:
       print("WARNING — CSV metrics not matched to any row:")
       for m in not_found:
           print(" -", m)
+  
+  return doc
 
-def insert_stakeholders(gpt_output, company):
+def insert_stakeholders(gpt_output, doc):
     
   # =========================
   # 1) Extract CSV + SUMMARY
@@ -279,11 +283,12 @@ def insert_stakeholders(gpt_output, company):
   # 3) Open DOCX, find the "Key Stakeholders" table
   # ==============================================
   # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
-  doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
-  buf = io.BytesIO(doc_raw)
-  buf.seek(0) 
-  # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
-  doc = Document(buf)
+  # doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
+  # buf = io.BytesIO(doc_raw)
+  # buf.seek(0) 
+  # # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
+  # doc = Document(buf)
+  doc = doc
 
   def norm(s: str) -> str:
       return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
@@ -422,11 +427,13 @@ def insert_stakeholders(gpt_output, company):
   # ==============================================
   # 9) Save
   # ==============================================
-  out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
-  doc.save(out_path)
-  print(f"Updated document written to: {out_path}")
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  
+  print(f"Updated document written")
+  return doc
 
-def insert_capital_structure(gpt_output):
+def insert_capital_structure(gpt_output, doc):
 
   # =========================
   # 1) Extract CSV + SUMMARY  (KEEP sources)
@@ -463,12 +470,13 @@ def insert_capital_structure(gpt_output):
   # =========================
   # 3) Open DOCX, locate the Capital Structure table
   # =========================
-  doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
-  buf = io.BytesIO(doc_raw)
-  buf.seek(0) 
-  # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
-  doc = Document(buf)
-
+  # doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
+  # buf = io.BytesIO(doc_raw)
+  # buf.seek(0) 
+  # TEMPLATE_PATH = Path(__file__).parent / "templates" / "CompanyProfile (1).docx"
+  # # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
+  # doc = Document(TEMPLATE_PATH)
+  doc = doc
   # ----------------- helpers -----------------
   def norm(s: str) -> str:
       return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
@@ -729,25 +737,34 @@ def insert_capital_structure(gpt_output):
   # =========================
   # 7) Save + (optional) debug
   # =========================
-  out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
-  doc.save(out_path)
-  print(f"Updated document written to: {out_path}")
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  print(f"Updated document written")
 
   if unmapped_metrics:
       print("NOTE — CSV metrics that couldn't be matched to any row (check your template labels):")
       for m in unmapped_metrics:
           print(" -", m)
+  
+  return doc
 
 def insert_biz_overview(gpt_output):
 
   # =========================
   # 1) Open DOCX
   # =========================
-  doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
-  buf = io.BytesIO(doc_raw)
-  buf.seek(0) 
+  # doc_raw = get_file_blob(CONTAINER = 'templates', BLOB_NAME = 'CompaniesProfile.docx')
+  # buf = io.BytesIO(doc_raw)
+  # buf.seek(0) 
+  # # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
+  # doc = Document(buf)
+
+  ROOT = Path(__file__).resolve().parents[2]  # …/Azure-OnePager
+  TEMPLATE_PATH = ROOT / "templates" / "CompanyProfile (1).docx"
+  doc = Document(TEMPLATE_PATH)
+  # TEMPLATE_PATH = Path(__file__).parent / "templates" / "CompanyProfile (1).docx"
   # doc_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile (1).docx"
-  doc = Document(buf)
+ 
 
   PLACEHOLDER = "[INSERT BUSINESS OVERVIEW]"
 
@@ -793,6 +810,7 @@ def insert_biz_overview(gpt_output):
   # =========================
   # 3) Save
   # =========================
-  out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
-  doc.save(out_path)
-  print(f"Updated document written to: {out_path}")
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  return doc
+  print(f"Updated document written")

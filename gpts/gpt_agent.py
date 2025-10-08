@@ -331,58 +331,55 @@ class profileAgent():
             # =========== GENERATE BUSINESS OVERVIEW
             biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
             section1 = self._sections(pairs = biz_overview_pairs_flat)
-            resp = self._answer(question=business_overview_formatting, ctx_text=section1)
-            return resp['answer']
+            # resp = self._answer(question=business_overview_formatting, ctx_text=section1)
+            return section1[0]
         elif section == 'GENERATE KEY STAKEHOLDERS':
         # =========== GENERATE KEY STAKEHOLDERS
             stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
             section2 = self._sections(pairs= stakeholders_pairs_flat)
-            resp = self._answer(question=stakeholders_formatting, ctx_text=section2)
-            return resp['answer']
+            # resp = self._answer(question=stakeholders_formatting, ctx_text=section2)
+            return section2[0]
         elif section == 'GENERATE FINANCIAL HIGHLIGHTS':
             # =========== GENERATE FINANCIAL HIGHLIGHTS
             finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
             section3 = self._sections(pairs=finance_pairs_flat)
-            resp = self._answer(question=finance_formatting, ctx_text=section3)
-            return resp['answer']
+            # resp = self._answer(question=finance_formatting, ctx_text=section3)
+            return section3[0]
         elif section == 'GENERATE CAPITAL STRUCTURE':
             # =========== GENERATE CAPITAL STRUCTURE
             capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
             section4 = self._sections(pairs= capital_pairs_flat)
-            resp = self._answer(question=capital_structure_formatting, ctx_text=section4)
-            return resp['answer']
+            # resp = self._answer(question=capital_structure_formatting, ctx_text=section4)
+            return section4[0]
 
 
-    def generate_company_profile(self,company):
+    def generate_company_profile(self):
 
         # =========== GENERATE BUSINESS OVERVIEW
         biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
-        section1 = self._sections(pairs = biz_overview_pairs_flat, company=company)
+        section1 = self._sections(pairs = biz_overview_pairs_flat)
         resp = self._answer(question=business_overview_formatting, ctx_text=section1)
         insert_biz_overview(resp['answer'])
 
         time.sleep(60)
         # =========== GENERATE KEY STAKEHOLDERS
         stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
-        section2 = self._sections(pairs= stakeholders_pairs_flat, company=company)
+        section2 = self._sections(pairs= stakeholders_pairs_flat)
         resp = self._answer(question=stakeholders_formatting, ctx_text=section2)
         insert_stakeholders(resp['answer'])
         
         time.sleep(60)
         # =========== GENERATE FINANCIAL HIGHLIGHTS
         finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
-        section3 = self._sections(pairs=finance_pairs_flat, company=company)
+        section3 = self._sections(pairs=finance_pairs_flat)
         resp = self._answer(question=finance_formatting, ctx_text=section3)
         insert_finance(resp['answer'])
 
         time.sleep(60)
         # =========== GENERATE CAPITAL STRUCTURE
         capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
-        section4 = self._sections(pairs= capital_pairs_flat, company=company)
+        section4 = self._sections(pairs= capital_pairs_flat)
         resp = self._answer(question=capital_structure_formatting, ctx_text=section4)
         insert_capital_structure(resp['answer'])
 
         # =========== UNION
-
-        
-        pass
