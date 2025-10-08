@@ -299,7 +299,8 @@ class profileAgent():
         answers = []
 
         max_extra_na_retries = 2        # try again at most 2 times (total <= 3 calls per item)
-        base_delay_seconds = 30.0        # polite delay between attempts
+        base_delay_seconds = 1.0        # polite delay between attempts
+
 
         for r, q in pairs:
             tries = 0
@@ -320,7 +321,7 @@ class profileAgent():
                 tries += 1
 
             # optional small gap between different (r,q) items
-            time.sleep(1.0)
+            time.sleep(50.0)
         
         return answers
     
