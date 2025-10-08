@@ -23,3 +23,15 @@ def run_indexer():
         if getattr(st.last_result, "status", None) in ("success", "transientFailure", "persistentFailure"):
             break
         time.sleep(10)
+
+def get_companies():
+    
+    client = SearchIndexerClient(SEARCH_ENDPOINT, AzureKeyCredential(ADMIN_KEY))
+
+    results = client.search(
+    search_text="*",
+    facets=["company_name,count:1000"],
+    top=0  # return only facets
+    )
+
+    unique_companies = [f["value"] for f in results.get_facets().get("company_name", [])]

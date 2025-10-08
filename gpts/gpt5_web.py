@@ -24,7 +24,7 @@ VECTOR_FIELD    = os.getenv("VECTOR_FIELD")
 TEXT_FIELD      = os.getenv("TEXT_FIELD")
 
 # ---- OpenAI (standard) config ----
-OPENAI_API_KEY  = os.getenv("FELIPE_OPENAI_API_KEY")        # required
+OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY")        # required
 OPENAI_MODEL    = os.getenv("FELIPE_OPENAI_MODEL", "gpt-5")  # e.g., "gpt-5" or "gpt-5-mini"
 
 
@@ -84,6 +84,7 @@ class WebAgent():
             reasoning={"effort": self.reasoning_effort},
             text={"verbosity": self.verbosity},
         )
+        
         return resp.output_text
     
     def _web_off(self, messages):

@@ -16,6 +16,7 @@ websearch = st.Page("pages/04_Web_Search.py",          title="Web Search",      
 pdf       = st.Page("pages/05_PDF.py",                 title="Chat with your PDF",   icon=":material/picture_as_pdf:")
 dev       = st.Page("pages/06_DEV.py",                 title="Developer Mode",       icon=":material/terminal:")
 autos     = st.Page("pages/07_Automations.py",         title="Automations",          icon=":material/robot_2:")
+dev     = st.Page("pages/08_NEW_DELIVER.py",         title="Deliver",          icon=":material/robot_2:")
 
 
 # ---------- Utils & State ----------
@@ -71,6 +72,7 @@ apps = [
     {"label": "📕  Chat with Your PDF",      "subtitle": "Ingest + chat",           "page": pdf},
     {"label": "💻  Developer Mode",          "subtitle": "Tweaking + chat",         "page": dev},
     {"label": "🤖  Create Automation",       "subtitle": "Not available yet",       "page": autos},
+    {"label": "🏛️   New Delivery",       "subtitle": "Not available yet",       "page": dev},
     ]
 st.markdown('<div id="gallery">', unsafe_allow_html=True)
 # 2x2 grid

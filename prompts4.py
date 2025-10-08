@@ -93,7 +93,6 @@ section2 = """
  
 - Notes for this section: 
 -- If information for any of the bullet point is not available in the report, do not include that specific bullet point as incorrect information is strictly prohibited 
-|
 """
 
 section2_json = {
@@ -863,4 +862,110 @@ Financial Highlights Table Metrics and Calculations:
 -- Leverage (Always Calculate Manually): Net Debt / EBITDA (put n.m. if it is negative)
 - For the table, provide data from the last three fiscal years (e.g. FY22, FY23, FY24). All values must be shown in millions, rounded to 1 decimal point (e.g. £1.2m). Leverage must be reported in the following format e.g. 1.2x. Show the values as they are reported and calculated e.g. If capex is in negative, it should be reported in negative in the table.
 """
+
+# FINANCE HIGHLIGHT
+
+finance_pairs = [
+    (
+        ["FIND THE VARIABLES 'Net cash from operating activities' and 'Net cash used in investing activities' in the statement of cash flows. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Revenue'/'Turnover'/'Turn Over' in the Income statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Gross Profit' and 'Cost of Goods Sold' in the Income statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'EBITDA' and 'Adjusted EBITDA' and 'Operating Profit' and 'Depreciation and Amortization' in the Income statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Revenue'/'Turnover'/'Turn over' and 'RevenueT0' and 'RevenueT' and 'Revenue Growth' in the Income statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Gross Profit' and 'Revenue'/Turnover/Turn over and 'Gross Margin' in the Income statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'EBITDA' and 'Revenue'/Turnover/Turn over  and 'Gross Margin' in the income statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Net Cash Flow from Operating Activities' and 'Net Working Capital' in the cash flow statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Debtors/Receivables' and 'Inventory/Stock' and 'Creditors/Payables' in Cash Flows from Operating Activities. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Acquisition of Property' and 'Acquisition of Intangible Assets' in Investing Activities in Cash Flows Statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Net Cash Flow from Investing Activities' and 'Net Cash Flow from Operating Activities' in Cash Flows Statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Net Cash Flow from Financing Activities' and 'debt repayment' and 'debt issuance' and 'share issuance' in Cash Flows Statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'opening cash' in the cash flow statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'change in cash' in the cash flow statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'closing cash' in the cash flow statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Bank Debt' and 'Lease Liabilities' from Debt/Bank Debt/Borrowings/Creditors section. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Total Debt' and 'Net Debt' and 'Closing Cash'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Leverage' and 'Net Debt' and 'EBITDA'. FILES FROM 2024."],
+    ),
+    (
+        ['CFADS (calc. Net cash from operating activities + Net cash used in investing activities). Show me the formula with values and final result.'],
+        ['Revenue/Turnover/Turn over (Use Income Statement – Always Given)'],
+        ['Gross Profit (Use Income Statement – Always Given): Revenue/Turnover/Turn over – Cost of Goods Sold (ONLY use this formula if the report does not already provide the gross profit value)'],
+        ['EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value) — Revenue Growth % (Always Calculate Manually): (RevenueT0÷RevenueT−1)−1'],
+        ['Revenue/Turnover/Turn over Growth % (Always Calculate Manually): (RevenueT0÷RevenueT−1)−1'],
+        ['Gross Margin % (Always Calculate Manually): Gross Profit / Revenue aka Turnover or Turn Over'],
+        ['EBITDA Margin % (Always Calculate Manually): EBITDA / Revenue (put n.m. if it is negative)'],
+        ['Cash Flow from Operating Activities excl. Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities – Net Working Capital (Net Working Capital should be the one calculated below)'],
+        ['Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Increase/Decrease in Debtors/Receivables + Increase/Decrease in Inventory/Stock + Increase/Decrease in Creditors/Payables (These values are usually provided under Cash flows from Operating Activities section of Cash Flow Statement and should be used as it is for calculation (do not change its signs e.g. change from negative to positive))'],
+        ['Capex (Use Cash Flow Statement – Always Calculate Manually): Acquisition of Property, Plant, Equipment/Tangible Assets + Acquisition of Intangible Assets (These values are usually provided under Cash flows from Investing Activities section of Cash Flow Statement)'],
+        ['Other Cash Flow from Investing Activities (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Investing Activities – Capex (Capex should be the one calculated above)'],
+        ['Cash Flow from Financing Activities (Use Cash Flow Statement – Always Given): This should include the breakdown of sub-items and their contribution to this net number e.g. debt repayment, debt issuance, share issuance etc.'],
+        ['Opening Cash (Use Cash Flow Statement – Always Given)'],
+        ['Change in Cash (Use Cash Flow Statement – Always Given)'],
+        ['Closing Cash (Use Cash Flow Statement – Always Given).'],
+        ['Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt + Lease Liabilities (This only includes external debt e.g. bank loans, bonds, RCFs etc. and lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.)) '],
+        ['Net Debt (Always Calculate Manually): Net Debt: Total Debt – Closing Cash'],
+        ['Leverage (Always Calculate Manually): Net Debt / EBITDA (put n.m. if it is negative)'],
+    )
+]
+
+
+# CAPITAL STRUCTURE
+
+capital_pairs = [
+    (
+        ["FIND THE VARIABLES 'Term Loan' and 'Senior Secured Notes' and 'debt facilities' and 'RCF'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Interest Rate' and 'EURIBOR'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Debt Facility' and 'Maturity'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Debt Facility' and 'Maturity' and 'Amount Outstanding'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Gross External Debt' and 'Debt' and 'debt facilities' and 'facility'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Cash' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Gross Debt' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Closing Cash' and 'RCF' and 'facilities' and 'facility'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'EBITDA' and 'facilities' and 'facility'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'EBITDA' and 'Net Debt' and 'facilities' and 'facility'. FILES FROM 2024."]
+    ),
+    (
+        ['Name of the Facility (e.g. £300m Term loan, $200m RCF, £100m Senior Secured Notes etc.)'],
+        ['Interest Rate (e.g. 5.25%, EURIBOR + 3.75% etc.)'],
+        ['Maturity (This is the latest repayment date of the debt facility. It should be provided in the format mmm-yy e.g. Jun-25)'],
+        ['Amount Outstanding (Provide it in millions, rounded to 1 decimal point e.g. £1.2m)'],
+        ['Gross External Debt (Sum of amount outstanding for all debt facilities). Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'],
+        ['Closing Cash . Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'],
+        ['Net External Debt (Gross Debt – Closing Cash). Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'], 
+        ['Liquidity (Closing cash + any undrawn facilities, e.g. undrawn amount of RCF, credit lines or overdrafts). Provide this in millions, rounded to 1 decimal place (e.g. £1.2m)'],
+        ['EBITDA'],
+        ['Leverage (Net Debt / EBITDA)']
+    )
+]
+
+
+stakeholders_pairs = [
+    (
+        ["FIND THE VARIABLES 'Parent' and 'Ultimate Parent' and 'Immediate Parent'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Directors' and 'Company Information' FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Bank loans' and 'loan' and 'borrowings' and 'bank' and 'creditors' and 'bank borrowings' and 'bonds' and 'syndicate' and 'secured notes' and 'unsecured notes' and 'facility agent'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Auditor' and 'Independent Auditor' and 'Company Information'. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Company Information' and 'Solicitors' and 'Bankers' and 'Facility Agent'. FILES FROM 2024."],
+        ),
+    (
+        ['Shareholders (Provide the immediate parent company and ultimate parent company of the target company in the case of a private company. In the case of a public company, provide top 5 shareholders of the company with % owned) '],
+        ['Management (Include the name of the chairman, Chief Executive Officer and Chief Financial Officer. If these three are not available provide the name of the Directors listed in the report) '],
+        ['Lenders (Include the name of the lenders of the company for each of the debt facility, if reported). No need to add lenders for internal debt (shareholder loans, loans from related parties etc.)'],
+        ['Auditors (Provide the name of the independent auditor/auditor of the company mentioned in the report)'],
+        ['Advisors (Provide any financial or legal advisors, solicitors, bankers, facility agent listed in the report). Do not include lenders'],
+    )
+]
+
+
+
+
+biz_overview_pairs = [
+    (
+        ["Find the variables 'Primary Activity', 'Business Review', 'Introduction', 'Bank Debt/Borrowings/Creditors'"],
+        ),
+    (
+        ["This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 5-6 bullet points with sentences, using the latest available annual reports/financial statements of the company — Include 1-2 bullet point sentences on what the company does — Include 1 bullet point on the products/services the company offers — Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers) — Include 1 bullet point on who are the customers of the company — Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs etc.)"],
+    )
+]
+
 

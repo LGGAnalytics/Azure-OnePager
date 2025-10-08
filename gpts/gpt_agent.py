@@ -252,3 +252,34 @@ class profileAgent():
             "all_chunks": ctx_items,     # everything you sent (optional)
             "mode": mode                 # retrieval mode info (optional)
         }
+    
+    def _answer(self, question, ctx_text, k: int = 5, temperature: float = 0.2):
+
+        system_msg = self.profile_prompt + (
+            "\nWhen you use a fact from the context, add citations like [#1], [#2]."
+            "\nOnly rely on the numbered context; if a value is missing, say 'n.a.'."
+        )
+        user_msg = f"Question:\n{question}\n\nContext snippets (numbered):\n{ctx_text}"
+
+        client = self.az_openai
+        messages = [
+            {"role": "system", "content": system_msg},
+            {"role": "user",   "content": user_msg},
+        ]
+
+        # Try streaming first (SSE). Some networks/proxies block streaming; if so, fall back.
+        
+        resp = client.chat.completions.create(
+            model=AOAI_DEPLOYMENT,
+            messages=messages,
+            reasoning_effort="high"
+        )
+        answer = resp.choices[0].message.content
+
+        cited = self._extract_cited_idxs(answer)
+
+        # return self._generate_pdf(answer)
+        return {
+            "answer": answer,
+            "citations": cited,          # [1, 3, 7]
+        }   

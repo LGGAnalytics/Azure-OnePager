@@ -25,15 +25,17 @@ def get_file_blob(CONTAINER, BLOB_NAME):
                                          blob_name=BLOB_NAME)
 
 
-    excel_bytes = blob.download_blob().readall()
+    data = blob.download_blob().readall()
 
-    df = pd.read_excel(BytesIO(excel_bytes), sheet_name="IDs")
-
-    return df
+    return data
 
 def companyHouseListAdd(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.xlsx', CompanyNumber = None):
 
     df = get_file_blob(CONTAINER, BLOB_NAME)
+
+    excel_bytes = get_file_blob(CONTAINER, BLOB_NAME)
+
+    df = pd.read_excel(BytesIO(excel_bytes), sheet_name="IDs")
 
     # 2) Append at the end (assumes single column)
     col = df.columns[0]
@@ -51,6 +53,28 @@ def companyHouseListAdd(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouse
                                          blob_name=BLOB_NAME)
     blob.upload_blob(buf, overwrite=True)
 
+def upload_blob(CONTAINER, BLOB_NAME, file, company):
+    blob = BlobClient.from_connection_string(conn_str=AZURE_STORAGE_CONNECTION_STRING,
+                                        container_name=CONTAINER,
+                                        blob_name=BLOB_NAME)
+        
+    pass
+
+def get_companies(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.xlsx'):
+
+
+    excel_bytes = get_file_blob(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.xlsx')
+    df = pd.read_excel(BytesIO(excel_bytes), sheet_name="IDs")
+    names = df['NAMES'].copy()
+    clean = (names.astype(str)
+                .str.replace(r'_+', ' ', regex=True)  # "_" -> " "
+                .str.replace(r'\s+', ' ', regex=True) # collapse double spaces
+                .str.strip())
+
+    name_map = dict(zip(names.tolist(), clean.tolist()))
+    clean_in_order = [name_map[orig] for orig in names] 
 
 
 
+
+    return name_map, clean_in_order
