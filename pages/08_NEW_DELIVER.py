@@ -203,8 +203,7 @@ with st.sidebar.expander("Company Selection", expanded=False):
         # Use a stable, unique key (avoid spaces)
         key = f"company_btn_{i}"
         if st.button(clean_name, key=key):
-            st.session_state.company_name = clean_name
-            st.session_state.company_orig = reverse_map.get(clean_name, clean_name)
+            st.session_state.company_name = reverse_map.get(clean_name, clean_name)
 
             answer_text = f"You have selected the \n {clean_name}"
             st.session_state.history.append({"a": answer_text})
@@ -324,35 +323,6 @@ if not st.session_state.greeted:
 
 
 client = get_aoai_client()
-
-# def get_company(prompt: str):
-
-#     offline_question = ''
-#     _ , names = get_companies()
-#     try:
-        
-#         instruction = f"""
-#         You are an ASSISTANT which PURPOSE is to understand the company name from user prompt, and give out the correct equivalent name from the system list.
-#         \n List of official company names: \n {names}. \n RETURN THE COMPANY NAME GIVEN IN THE PREVIOUS LIST WHICH IS SIMILAR TO USER PROMPT.\n
-#         IF THERE IS NO SIMILAR NAME, RETURN '' AND NOTHING MORE.
-#         """
-#         offline_question = general_assistant(instruction, prompt, OPENAI_API_KEY, 'gpt-5')
-#     except Exception as e:
-#         answer_text = 'The company you selected isnt in the list.'
-#         st.session_state.history.append({"q": prompt, "a": answer_text})
-#         ph = st.empty()
-#         ph.write(answer_text)
-
-#     if offline_question not in names:
-#         with st.chat_message("assistant"):
-#             st.write(f"Please select a correct company name before proceeding. Invalid {offline_question}")
-#     else:
-#         st.session_state.company_name = st.session_state.companies_name_dic[offline_question]
-#         with st.chat_message("assistant"):
-#             st.write(f"You have selected {st.session_state.company_name}")
-
-
-#     pass
 
 # Render prior turns every run so the conversation persists
 for turn in st.session_state.history:
