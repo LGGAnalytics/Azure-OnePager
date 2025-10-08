@@ -203,8 +203,15 @@ with st.sidebar.expander("Company Selection", expanded=False):
         # Use a stable, unique key (avoid spaces)
         key = f"company_btn_{i}"
         if st.button(clean_name, key=key):
-            st.session_state.company_clean = clean_name
+            st.session_state.company_name = clean_name
             st.session_state.company_orig = reverse_map.get(clean_name, clean_name)
+
+            answer_text = f"You have selected the \n {clean_name}"
+            st.session_state.history.append({"a": answer_text})
+
+            ph = st.empty()
+            ph.write(answer_text)
+            
             st.rerun() 
 
 
@@ -254,9 +261,8 @@ else:
         if st.button("1.Get Business Overview", use_container_width=True, key="overview_btn"):
             if not st.session_state.company_name:
                 with st.chat_message("assistant"):
-                    st.write("Please select a company in the sidebar before asking a question.")
-
-                st.stop()
+                    st.session_state.history.append({"q": f"1.Get Business Overview", "a": "Please select a company in the sidebar before asking a question."})
+                st.rerun()
             else:
                 st.session_state.section_build = "GENERATE BUSINESS OVERVIEW"
                 stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
@@ -264,9 +270,9 @@ else:
         if st.button("2.Get Key Stakeholders", use_container_width=True, key="stakeholder_btn"):
             if not st.session_state.company_name:
                 with st.chat_message("assistant"):
-                    st.write("Please select a company in the sidebar before asking a question.")
+                    st.session_state.history.append({"q": f"2.Get Key Stakeholders", "a": "Please select a company in the sidebar before asking a question."})
 
-                st.stop()
+                st.rerun()
             else:
                 st.session_state.section_build = "GENERATE KEY STAKEHOLDERS"
                 stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
@@ -274,9 +280,9 @@ else:
         if st.button("3.Get Financial Highlights", use_container_width=True, key="finance_btn"):
             if not st.session_state.company_name:
                 with st.chat_message("assistant"):
-                    st.write("Please select a company in the sidebar before asking a question.")
+                    st.session_state.history.append({"q": f"3.Get Financial Highlights", "a": "Please select a company in the sidebar before asking a question."})
                 
-                st.stop()
+                st.rerun()
             else:
                 st.session_state.section_build = "GENERATE FINANCIAL HIGHLIGHTS"
                 stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
@@ -284,9 +290,9 @@ else:
         if st.button("4.Get Capital Structure", use_container_width=True, key="capital_btn"):
             if not st.session_state.company_name:
                 with st.chat_message("assistant"):
-                    st.write("Please select a company in the sidebar before asking a question.")
+                    st.session_state.history.append({"q": f"4.Get Capital Structure", "a": "Please select a company in the sidebar before asking a question."})
                 
-                st.stop()
+                st.rerun()
             else:
                 st.session_state.section_build = "GENERATE CAPITAL STRUCTURE"
                 stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
