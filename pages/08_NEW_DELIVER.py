@@ -109,6 +109,62 @@ apply_theme(st.session_state.theme)
 
 # =====================================================
 
+def check_actions(prompt, client, deployment) -> bool:
+
+    calls = maybe_route_to_action(prompt, client.az_openai, deployment)
+
+    if not calls:
+        return False
+
+    for call in calls:
+        if call.function.name == "create_company_profile":
+            args = json.loads(call.function.arguments or "{}")
+            company = args.get("companyName") or "(unknown)"
+
+            out_pdf = client.generate_company_profile()
+
+            st.download_button(
+                "Download Profile PDF",
+                data=out_pdf,
+                file_name=f"{company}_profile.pdf",
+                mime="application/pdf",
+            )
+            st.success("Profile creation done.")
+            st.markdown(f"**Functionality in construction..**  (requested company: `{company}`)")
+
+            # Also persist this turn in the chat history so it shows up on rerun
+            st.session_state.history.append({
+                "q": prompt,
+                "a": f"Created a company profile for **{company}**. Use the button above to download the PDF."
+            })
+            return True
+        elif call.function.name == 'add_company':
+            args = json.loads(call.function.arguments or "{}")
+            companyNumber = args.get("companyNumber") or "(unknown)"
+            
+            try:
+                companyHouseListAdd(CompanyNumber = companyNumber)
+                st.success(f"Added {companyNumber} to internal list...")
+            except Exception as e:
+                print(f'Adding to internal list problem \n{e}')
+
+            try:
+                trigger_function(companyNumber = companyNumber)
+                st.success(f"Downloaded {companyNumber} files...")
+            except Exception as e:
+                print(f'Downloading file problem \n{e}')
+
+            try:
+                st.success("Running OCR and Vectorization, come back in 10 minutes ... ")
+                run_indexer()
+            except Exception as e:
+                print(f'OCR and Vector problem \n{e}')
+            
+            return True
+
+
+    return False
+
 def stream_answer(prompt: str, section_build = False, section = ''):
 
     try:
@@ -126,9 +182,14 @@ def stream_answer(prompt: str, section_build = False, section = ''):
             answer_text = agent._generate_section(section = section)
 
         else:
-            
-            resp = agent._rag_answer(rag_nl = prompt, question= prompt)
-            answer_text = resp['answer']
+            if check_actions(prompt,
+                             agent, 
+                             'gpt-5'
+                             ):
+                pass
+            else:
+                resp = agent._rag_answer(rag_nl = prompt, question= prompt)
+                answer_text = resp['answer']
 
     except Exception as e:
         answer_text = f"ERROR. \n {e}"
@@ -329,67 +390,7 @@ if not st.session_state.greeted:
 # =====================================================
 
 
-def check_actions(prompt, client, deployment, k, ts, cs, model_profile) -> bool:
 
-    calls = maybe_route_to_action(prompt, client, deployment)
-
-    if not calls:
-        return False
-
-    for call in calls:
-        if call.function.name == "create_company_profile":
-            args = json.loads(call.function.arguments or "{}")
-            company = args.get("companyName") or "(unknown)"
-
-            agent1 = profileAgent(
-                company,
-                k=k, max_text_recall_size=ts, max_chars=cs,
-                model=model_profile, profile_prompt=st.session_state.profile_mod_web
-            )
-
-            out_pdf = agent1._rag_answer()
-
-            st.download_button(
-                "Download Profile PDF",
-                data=out_pdf,
-                file_name=f"{company}_profile.pdf",
-                mime="application/pdf",
-            )
-            st.success("Profile creation done.")
-            st.markdown(f"**Functionality in construction..**  (requested company: `{company}`)")
-
-            # Also persist this turn in the chat history so it shows up on rerun
-            st.session_state.history.append({
-                "q": prompt,
-                "a": f"Created a company profile for **{company}**. Use the button above to download the PDF."
-            })
-            return True
-        elif call.function.name == 'add_company':
-            args = json.loads(call.function.arguments or "{}")
-            companyNumber = args.get("companyNumber") or "(unknown)"
-            
-            try:
-                companyHouseListAdd(CompanyNumber = companyNumber)
-                st.success(f"Added {companyNumber} to internal list...")
-            except Exception as e:
-                print(f'Adding to internal list problem \n{e}')
-
-            try:
-                trigger_function(companyNumber = companyNumber)
-                st.success(f"Downloaded {companyNumber} files...")
-            except Exception as e:
-                print(f'Downloading file problem \n{e}')
-
-            try:
-                st.success("Running OCR and Vectorization, come back in 10 minutes ... ")
-                run_indexer()
-            except Exception as e:
-                print(f'OCR and Vector problem \n{e}')
-            
-            return True
-
-
-    return False
 
 client = get_aoai_client()
 

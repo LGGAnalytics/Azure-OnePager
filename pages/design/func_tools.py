@@ -6,7 +6,12 @@ from docx.enum.text import WD_BREAK
 from azure.blob_functions import get_file_blob
 from pathlib import Path
 from docx import Document
+import io, tempfile, subprocess, shutil
+from pathlib import Path
+from typing import Optional, Tuple, Union
 
+from docx import Document
+from docx.enum.text import WD_BREAK
 # ---------- tile helper (the tile itself is the click target) ----------
 def tile(title: str, subtitle: str, icon_svg: str, key: str):
     st.markdown(
@@ -81,6 +86,9 @@ def insert_finance(gpt_output, doc):
   # doc = Document(buf)
   doc = doc
 
+  # ==============================================
+  # 3) Open DOCX, find the Financial Performance table
+  # ==============================================
   def norm(s: str) -> str:
       return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
 
@@ -159,6 +167,20 @@ def insert_finance(gpt_output, doc):
       if label:
           doc_row_index[norm(label)] = r_idx  # norm = your doc normalizer (same idea as keynorm)
 
+  # Identify FY columns in header row (handles "FY 24" vs "FY24")
+  header_norm = [norm(c.text) for c in table.rows[0].cells]
+  try:
+      col_FY24 = header_norm.index("fy24")
+      col_FY23 = header_norm.index("fy23")
+      col_FY22 = header_norm.index("fy22")
+  except ValueError:
+      # If header is the second row in your template, try that
+      header_norm = [norm(c.text) for c in table.rows[1].cells]
+      col_FY24 = header_norm.index("fy24")
+      col_FY23 = header_norm.index("fy23")
+      col_FY22 = header_norm.index("fy22")
+
+
   # Populate table
   not_found = []
 
@@ -181,7 +203,7 @@ def insert_finance(gpt_output, doc):
   not_found = []
 
   for csv_metric, years in csv_rows.items():
-      target_label = metric_map.get(csv_metric, csv_metric)
+      target_label = metric_map_norm.get(csv_metric, csv_metric)
       r_idx = doc_row_index.get(norm(target_label))
       if r_idx is None:
           not_found.append(csv_metric)
@@ -814,3 +836,53 @@ def insert_biz_overview(gpt_output):
   # doc.save(out_path)
   return doc
   print(f"Updated document written")
+
+
+def _docx_bytes_to_pdf_bytes_with_docx2pdf(docx_bytes: bytes) -> Optional[bytes]:
+    """Try converting via docx2pdf (requires MS Word on Windows/macOS). Returns None if unavailable/fails."""
+    try:
+        from docx2pdf import convert  # type: ignore
+    except Exception:
+        return None
+
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            in_path  = Path(td) / "doc.docx"
+            out_path = Path(td) / "doc.pdf"
+            in_path.write_bytes(docx_bytes)
+            convert(str(in_path), str(out_path))  # uses Word/Automator
+            return out_path.read_bytes()
+    except Exception:
+        return None
+    
+def _docx_bytes_to_pdf_bytes_with_lo(docx_bytes: bytes) -> Optional[bytes]:
+    """Try converting via LibreOffice (soffice --headless). Returns None if not installed/fails."""
+    soffice = shutil.which("soffice") or shutil.which("libreoffice")
+    if not soffice:
+        return None
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            in_path  = Path(td) / "doc.docx"
+            out_dir  = Path(td) / "out"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            in_path.write_bytes(docx_bytes)
+            # Convert
+            subprocess.run(
+                [soffice, "--headless", "--convert-to", "pdf", "--outdir", str(out_dir), str(in_path)],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            out_path = out_dir / "doc.pdf"
+            if out_path.exists():
+                return out_path.read_bytes()
+            return None
+    except Exception:
+        return None
+    
+def docx_bytes_to_pdf_bytes(docx_bytes: bytes) -> Optional[bytes]:
+    """Best-effort conversion with two strategies."""
+    pdf = _docx_bytes_to_pdf_bytes_with_docx2pdf(docx_bytes)
+    if pdf:
+        return pdf
+    return _docx_bytes_to_pdf_bytes_with_lo(docx_bytes)

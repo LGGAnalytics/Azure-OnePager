@@ -23,6 +23,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from prompts4 import finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs
 from pages.design.func_tools import *
 from pages.design.formatting import *
+from pages.design.func_tools import docx_bytes_to_pdf_bytes
 import re, time
  
 load_dotenv(find_dotenv(), override=True)
@@ -359,27 +360,30 @@ class profileAgent():
         biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
         section1 = self._sections(pairs = biz_overview_pairs_flat)
         resp = self._answer(question=business_overview_formatting, ctx_text=section1)
-        insert_biz_overview(resp['answer'])
+        doc = insert_biz_overview(resp['answer'])
 
         time.sleep(60)
         # =========== GENERATE KEY STAKEHOLDERS
         stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
         section2 = self._sections(pairs= stakeholders_pairs_flat)
         resp = self._answer(question=stakeholders_formatting, ctx_text=section2)
-        insert_stakeholders(resp['answer'])
+        doc = insert_stakeholders(resp['answer'], doc=doc)
         
         time.sleep(60)
         # =========== GENERATE FINANCIAL HIGHLIGHTS
         finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
         section3 = self._sections(pairs=finance_pairs_flat)
         resp = self._answer(question=finance_formatting, ctx_text=section3)
-        insert_finance(resp['answer'])
+        doc = insert_finance(resp['answer'], doc=doc)
 
         time.sleep(60)
         # =========== GENERATE CAPITAL STRUCTURE
         capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
         section4 = self._sections(pairs= capital_pairs_flat)
         resp = self._answer(question=capital_structure_formatting, ctx_text=section4)
-        insert_capital_structure(resp['answer'])
+        doc = insert_capital_structure(resp['answer'], doc=doc)
 
+        pdf_bytes = docx_bytes_to_pdf_bytes(doc)
+
+        return pdf_bytes
         # =========== UNION
