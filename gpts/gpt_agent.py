@@ -20,8 +20,11 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
-from prompts4 import finance_calculations
-import re 
+from prompts4 import finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs
+from pages.design.func_tools import *
+from pages.design.formatting import *
+import re, time
+ 
 load_dotenv(find_dotenv(), override=True)
 
 # ---- Config (expects the same envs you already used) ----
@@ -49,6 +52,7 @@ class profileAgent():
     """
 
     def __init__(self, company_name, k, max_text_recall_size, max_chars, model, profile_prompt = new_system_finance_prompt, finance_calculations = finance_calculations):
+        
         self.company_name = company_name
 
         self.k = k
@@ -63,6 +67,7 @@ class profileAgent():
         self.profile_prompt = profile_prompt
 
         self.finance_calculations = finance_calculations
+
     def _company_filter(self) -> str:
         v = (self.company_name or "").replace("'", "''").strip()
         return f"company_name eq '{v}'" if v else None
@@ -283,3 +288,101 @@ class profileAgent():
             "answer": answer,
             "citations": cited,          # [1, 3, 7]
         }   
+    
+    @staticmethod
+    def has_na(text: str) -> bool:
+        # match "n.a." or "n/a" (case-insensitive)
+        return bool(re.search(r"\b(n\.a\.|n/a)\b", text, flags=re.I))
+
+    def _sections(self, pairs):
+
+        answers = []
+
+        max_extra_na_retries = 2        # try again at most 2 times (total <= 3 calls per item)
+        base_delay_seconds = 1.0        # polite delay between attempts
+
+
+        for r, q in pairs:
+            tries = 0
+            while True:
+                if tries > 0:
+                    # small incremental delay before re-trying
+                    time.sleep(base_delay_seconds + 0.5 * tries)
+
+                resp = self._rag_answer(rag_nl=r[0], question=q[0])
+                answer_text = resp["answer"]
+
+                # stop if good answer OR we've exhausted retries
+                if not profileAgent.has_na(answer_text) or tries >= max_extra_na_retries:
+                    answers.append(answer_text)
+                    break
+
+                # otherwise, try again
+                tries += 1
+
+            # optional small gap between different (r,q) items
+            time.sleep(1.0)
+        
+        return answers
+    
+    def _generate_section(self, section, company):
+
+        if section == 'GENERATE BUSINESS OVERVIEW':
+            # =========== GENERATE BUSINESS OVERVIEW
+            biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
+            section1 = self._sections(pairs = biz_overview_pairs_flat, company=company)
+            resp = self._answer(question=business_overview_formatting, ctx_text=section1)
+            return resp['answer']
+        elif section == 'GENERATE KEY STAKEHOLDERS':
+        # =========== GENERATE KEY STAKEHOLDERS
+            stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
+            section2 = self._sections(pairs= stakeholders_pairs_flat, company=company)
+            resp = self._answer(question=stakeholders_formatting, ctx_text=section2)
+            return resp['answer']
+        elif section == 'GENERATE FINANCIAL HIGHLIGHTS':
+            # =========== GENERATE FINANCIAL HIGHLIGHTS
+            finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
+            section3 = self._sections(pairs=finance_pairs_flat, company=company)
+            resp = self._answer(question=finance_formatting, ctx_text=section3)
+            return resp['answer']
+        elif section == 'GENERATE CAPITAL STRUCTURE':
+            # =========== GENERATE CAPITAL STRUCTURE
+            capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
+            section4 = self._sections(pairs= capital_pairs_flat, company=company)
+            resp = self._answer(question=capital_structure_formatting, ctx_text=section4)
+            return resp['answer']
+
+
+    def generate_company_profile(self,company):
+
+        # =========== GENERATE BUSINESS OVERVIEW
+        biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
+        section1 = self._sections(pairs = biz_overview_pairs_flat, company=company)
+        resp = self._answer(question=business_overview_formatting, ctx_text=section1)
+        insert_biz_overview(resp['answer'])
+
+        time.sleep(60)
+        # =========== GENERATE KEY STAKEHOLDERS
+        stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
+        section2 = self._sections(pairs= stakeholders_pairs_flat, company=company)
+        resp = self._answer(question=stakeholders_formatting, ctx_text=section2)
+        insert_stakeholders(resp['answer'])
+        
+        time.sleep(60)
+        # =========== GENERATE FINANCIAL HIGHLIGHTS
+        finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
+        section3 = self._sections(pairs=finance_pairs_flat, company=company)
+        resp = self._answer(question=finance_formatting, ctx_text=section3)
+        insert_finance(resp['answer'])
+
+        time.sleep(60)
+        # =========== GENERATE CAPITAL STRUCTURE
+        capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
+        section4 = self._sections(pairs= capital_pairs_flat, company=company)
+        resp = self._answer(question=capital_structure_formatting, ctx_text=section4)
+        insert_capital_structure(resp['answer'])
+
+        # =========== UNION
+
+        
+        pass

@@ -65,14 +65,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 apps = [
-    {"label": "🌐  Open Chat",               "subtitle": "Chat UI and tools",       "page": chat},
-    {"label": "🏢  Create Company Profile",  "subtitle": "Create & manage profiles","page": profile},
-    {"label": "🏛️  Add from Companies House","subtitle": "Ingest new companies",   "page": chouse},
-    {"label": "🔎  Web Search",              "subtitle": "Search + summarize",      "page": websearch},
-    {"label": "📕  Chat with Your PDF",      "subtitle": "Ingest + chat",           "page": pdf},
-    {"label": "💻  Developer Mode",          "subtitle": "Tweaking + chat",         "page": dev},
-    {"label": "🤖  Create Automation",       "subtitle": "Not available yet",       "page": autos},
-    {"label": "🏛️   New Delivery",       "subtitle": "Not available yet",       "page": dev},
+    # {"label": "🌐  Open Chat",               "subtitle": "Chat UI and tools",       "page": chat},
+    # {"label": "🏢  Create Company Profile",  "subtitle": "Create & manage profiles","page": profile},
+    # {"label": "🏛️  Add from Companies House","subtitle": "Ingest new companies",   "page": chouse},
+    # {"label": "🔎  Web Search",              "subtitle": "Search + summarize",      "page": websearch},
+    # {"label": "📕  Chat with Your PDF",      "subtitle": "Ingest + chat",           "page": pdf},
+    # {"label": "💻  Developer Mode",          "subtitle": "Tweaking + chat",         "page": dev},
+    # {"label": "🤖  Create Automation",       "subtitle": "Not available yet",       "page": autos},
+    {"label": "🏛️   Oraculum v2",       "subtitle": "Not available yet",       "page": dev},
     ]
 st.markdown('<div id="gallery">', unsafe_allow_html=True)
 # 2x2 grid

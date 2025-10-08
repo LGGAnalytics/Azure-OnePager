@@ -252,20 +252,44 @@ if st.session_state.websearch or st.session_state.mixsource:
 else:
     with st.sidebar.expander("Profile Sections", expanded=False):
         if st.button("1.Get Business Overview", use_container_width=True, key="overview_btn"):
-            st.session_state.section_build = "GENERATE BUSINESS OVERVIEW"
-            stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.write("Please select a company in the sidebar before asking a question.")
+
+                st.stop()
+            else:
+                st.session_state.section_build = "GENERATE BUSINESS OVERVIEW"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
             st.rerun()
         if st.button("2.Get Key Stakeholders", use_container_width=True, key="stakeholder_btn"):
-            st.session_state.section_build = "GENERATE KEY STAKEHOLDERS"
-            stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.write("Please select a company in the sidebar before asking a question.")
+
+                st.stop()
+            else:
+                st.session_state.section_build = "GENERATE KEY STAKEHOLDERS"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
             st.rerun()
         if st.button("3.Get Financial Highlights", use_container_width=True, key="finance_btn"):
-            st.session_state.section_build = "GENERATE FINANCIAL HIGHLIGHTS"
-            stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.write("Please select a company in the sidebar before asking a question.")
+                
+                st.stop()
+            else:
+                st.session_state.section_build = "GENERATE FINANCIAL HIGHLIGHTS"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
             st.rerun()
         if st.button("4.Get Capital Structure", use_container_width=True, key="capital_btn"):
-            st.session_state.section_build = "GENERATE CAPITAL STRUCTURE"
-            stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.write("Please select a company in the sidebar before asking a question.")
+                
+                st.stop()
+            else:
+                st.session_state.section_build = "GENERATE CAPITAL STRUCTURE"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
             st.rerun()
     
 
