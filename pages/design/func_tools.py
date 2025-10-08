@@ -834,9 +834,8 @@ def insert_biz_overview(gpt_output):
   # =========================
   # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
   # doc.save(out_path)
-  return doc
   print(f"Updated document written")
-
+  return doc
 
 def _docx_bytes_to_pdf_bytes_with_docx2pdf(docx_bytes: bytes) -> Optional[bytes]:
     """Try converting via docx2pdf (requires MS Word on Windows/macOS). Returns None if unavailable/fails."""

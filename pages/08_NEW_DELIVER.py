@@ -389,12 +389,7 @@ if not st.session_state.greeted:
     st.session_state.greeted = True
 # =====================================================
 
-
-
-
 client = get_aoai_client()
-
-
 
 # Render prior turns every run so the conversation persists
 for turn in st.session_state.history:

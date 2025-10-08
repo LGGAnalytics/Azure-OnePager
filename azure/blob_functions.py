@@ -4,6 +4,9 @@ from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobClient
 from dotenv import load_dotenv, find_dotenv
 import os 
+import requests
+from requests.auth import HTTPBasicAuth
+
 load_dotenv(find_dotenv(), override=True)
 
 
@@ -11,7 +14,7 @@ load_dotenv(find_dotenv(), override=True)
 ACCOUNT_URL   = os.getenv("BLOB_ACCOUNT_URL")
 AZURE_STORAGE_CONNECTION_STRING=os.getenv("BLOB_AZURE_STORAGE_CONNECTION_STRING")
 # BLOB_NAME     = "companieslist/CompaniesHouseList.xlsx"   # e.g., "reports/myfile.xlsx"
-
+UK_API_KEY = os.getenv("UK_API_KEY")
 
 
 def get_file_blob(CONTAINER, BLOB_NAME):
@@ -29,29 +32,81 @@ def get_file_blob(CONTAINER, BLOB_NAME):
 
     return data
 
-def companyHouseListAdd(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.xlsx', CompanyNumber = None):
+INVALID_CHARS = '<>:"/\\|?*'
+def sanitize(s: str) -> str:
+    s = s.replace(" ", "_")
+    for ch in INVALID_CHARS:
+        s = s.replace(ch, "_")
+    return s
 
-    df = get_file_blob(CONTAINER, BLOB_NAME)
+from io import BytesIO
+import pandas as pd
+import requests
+from requests.auth import HTTPBasicAuth
+from azure.storage.blob import BlobClient, ContentSettings
 
+def companyHouseListAdd(
+    CONTAINER='companieslist',
+    BLOB_NAME='CompaniesHouseList.xlsx',
+    CompanyNumber=None,
+    sheet_name='IDs'   # change if your sheet is named differently
+):
+    if CompanyNumber is None:
+        raise ValueError("CompanyNumber is required")
+
+    # 1) Download the Excel
     excel_bytes = get_file_blob(CONTAINER, BLOB_NAME)
 
-    df = pd.read_excel(BytesIO(excel_bytes), sheet_name="IDs")
+    # Try reading the sheet; if file/sheet doesn't exist, start a blank DF
+    try:
+        df = pd.read_excel(BytesIO(excel_bytes), sheet_name=sheet_name, dtype={'IDs': str, 'Names': str})
+    except Exception:
+        df = pd.DataFrame(columns=['IDs', 'Names'])
 
-    # 2) Append at the end (assumes single column)
-    col = df.columns[0]
-    df = pd.concat([df, pd.DataFrame({col: [CompanyNumber]})], ignore_index=True)
+    # Ensure required columns exist
+    for col in ('IDs', 'Names'):
+        if col not in df.columns:
+            df[col] = ""
 
-    # 3) Write back to Excel in-memory
+    # 2) Get the company display name (human-friendly; don't sanitize for Excel)
+    url = f"https://api.company-information.service.gov.uk/company/{CompanyNumber}"
+    r = requests.get(url, auth=HTTPBasicAuth(UK_API_KEY, ""))
+    r.raise_for_status()
+    name = r.json().get("company_name", "")
+
+    # 3) Upsert: if ID exists, update its name; else append new row
+    CompanyNumber = str(CompanyNumber)
+    mask = (df['IDs'].astype(str) == CompanyNumber)
+    if mask.any():
+        df.loc[mask, 'Names'] = name
+    else:
+        df = pd.concat(
+            [df, pd.DataFrame({'IDs': [CompanyNumber], 'Names': [name]})],
+            ignore_index=True
+        )
+
+    # Optional: dedupe on IDs keeping the last occurrence
+    df = df.drop_duplicates(subset=['IDs'], keep='last')
+
+    # 4) Write back to Excel in-memory
     buf = BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as xw:
-        df.to_excel(xw, index=False, sheet_name="IDs")
+        df.to_excel(xw, index=False, sheet_name=sheet_name)
     buf.seek(0)
 
-    # 4) Overwrite the blob
-    blob = BlobClient.from_connection_string(conn_str=AZURE_STORAGE_CONNECTION_STRING,
-                                         container_name=CONTAINER,
-                                         blob_name=BLOB_NAME)
-    blob.upload_blob(buf, overwrite=True)
+    # 5) Overwrite the blob
+    blob = BlobClient.from_connection_string(
+        conn_str=AZURE_STORAGE_CONNECTION_STRING,
+        container_name=CONTAINER,
+        blob_name=BLOB_NAME
+    )
+    blob.upload_blob(
+        buf.getvalue(),
+        overwrite=True,
+        content_settings=ContentSettings(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+    )
 
 def upload_blob(CONTAINER, BLOB_NAME, file, company):
     blob = BlobClient.from_connection_string(conn_str=AZURE_STORAGE_CONNECTION_STRING,
@@ -78,3 +133,5 @@ def get_companies(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.x
 
 
     return name_map, clean_in_order
+
+
