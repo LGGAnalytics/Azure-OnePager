@@ -215,7 +215,6 @@ class profileAgent():
 
     def _rag_answer(self, rag_nl, question, k: int = 5, temperature: float = 0.2):
 
-
         # question = f'CREATE A SECTION OF COMPANY PROFILE USING LAST YEARS OF ANNUAL REPORT PRESENT IN THE CONTEXT FOR {self.company_name}. IF ANY INFORMATION IS NOT FOUND STATE AS n.a. .\n\n THIS IS THE SECTION TO BE BUILT: \n {section7}  \n USE THIS TO GUIDE YOURSELF ON SEMANTIC TERMS AND HOW TO CALCULATE: \n {finance_calculations}'
         
         mode, hits = self._retrieve_hybrid_enhanced(
@@ -228,6 +227,7 @@ class profileAgent():
         system_msg = self.profile_prompt + (
             "\nWhen you use a fact from the context, add citations like [#1], [#2]."
             "\nOnly rely on the numbered context; if a value is missing, say 'n.a.'."
+            f"\nIF ANY INFORMATION IS NOT FOUND STATE AS n.a. .\n\n USE THIS TO GUIDE YOURSELF ON SEMANTIC TERMS AND HOW TO CALCULATE: \n {finance_calculations}"
         )
         user_msg = f"Question:\n{question}\n\nContext snippets (numbered):\n{ctx_text}"
 
@@ -303,7 +303,7 @@ class profileAgent():
         base_delay_seconds = 1.0        # polite delay between attempts
 
 
-        for r, q in pairs:
+        for q, r in pairs:
             tries = 0
             while True:
                 if tries > 0:
@@ -322,7 +322,7 @@ class profileAgent():
                 tries += 1
 
             # optional small gap between different (r,q) items
-            time.sleep(50.0)
+            time.sleep(10.0)
         
         return answers
     
