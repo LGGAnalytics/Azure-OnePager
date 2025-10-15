@@ -299,8 +299,8 @@ class profileAgent():
 
         answers = []
 
-        max_extra_na_retries = 2        # try again at most 2 times (total <= 3 calls per item)
-        base_delay_seconds = 1.0        # polite delay between attempts
+        max_extra_na_retries = 1        # try again at most 2 times (total <= 3 calls per item)
+        base_delay_seconds = 3.0        # polite delay between attempts
 
 
         for q, r in pairs:
@@ -322,7 +322,7 @@ class profileAgent():
                 tries += 1
 
             # optional small gap between different (r,q) items
-            time.sleep(10.0)
+            time.sleep(5.0)
         
         return answers
     
@@ -333,25 +333,25 @@ class profileAgent():
             biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
             section1 = self._sections(pairs = biz_overview_pairs_flat)
             resp = self._answer(question=business_overview_formatting, ctx_text=section1)
-            return resp
+            return resp['answers']
         elif section == 'GENERATE KEY STAKEHOLDERS':
         # =========== GENERATE KEY STAKEHOLDERS
             stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
             section2 = self._sections(pairs= stakeholders_pairs_flat)
             resp = self._answer(question=stakeholders_formatting_2, ctx_text=section2)
-            return resp
+            return resp['answers']
         elif section == 'GENERATE FINANCIAL HIGHLIGHTS':
             # =========== GENERATE FINANCIAL HIGHLIGHTS
             finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
             section3 = self._sections(pairs=finance_pairs_flat)
             resp = self._answer(question=finance_formatting_2, ctx_text=section3)
-            return resp
+            return resp['answers']
         elif section == 'GENERATE CAPITAL STRUCTURE':
             # =========== GENERATE CAPITAL STRUCTURE
             capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
             section4 = self._sections(pairs= capital_pairs_flat)
             resp = self._answer(question=capital_structure_formatting_2, ctx_text=section4)
-            return resp
+            return resp['answers']
 
 
     def generate_company_profile(self):
