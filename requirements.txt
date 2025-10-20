@@ -11,6 +11,7 @@ langchain-community
 langchain-openai
 langchain-chroma
 langchain-groq
+langchain-core
 pymupdf
 opencv-python
 reportlab
