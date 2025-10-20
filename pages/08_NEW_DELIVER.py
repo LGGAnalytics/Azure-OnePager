@@ -180,6 +180,7 @@ def stream_answer(prompt: str, section_build = False, section = ''):
 
         if section_build:
             answer_text = agent._generate_section(section = section)
+            answer_text = answer_text['answer']
 
         else:
             if check_actions(prompt,

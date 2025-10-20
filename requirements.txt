@@ -9,6 +9,7 @@ tiktoken
 langchain
 langchain-community
 langchain-openai
+langchain-chroma
 langchain-groq
 pymupdf
 opencv-python

@@ -5,3 +5,6 @@ libxext6
 libxrender1
 poppler-utils
 tesseract-ocr
+libreoffice
+fonts-dejavu-core
+fonts-noto
