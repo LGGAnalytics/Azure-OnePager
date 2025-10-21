@@ -357,14 +357,10 @@ if st.session_state.view == "home":
 
 
         st.markdown("</div>", unsafe_allow_html=True)
-elif st.session_state.view == "companies":
-    # st.markdown("<h2 class='page-h2'>Companies House Research</h2><p class='page-sub'>Search and manage company data.</p>", unsafe_allow_html=True)
-
-    if st.session_state.get("mixsource"):
-        uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
-        if uploaded_file:
-            st.success(f"Uploaded: {uploaded_file.name}")
-    
+elif st.session_state.view == "pdf":
+    uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
+    if uploaded_file:
+        st.success(f"Uploaded: {uploaded_file.name}")
 
 
 
@@ -413,7 +409,7 @@ if st.session_state.view != "home":
     typed = st.chat_input(placeholder)
     pending = st.session_state.pop("pending_prompt", None)
     prompt = typed or pending
-    if not st.session_state.websearch and not st.session_state.mixsource:
+    if st.session_state.view == "companies":
             qa1, qa2, qa3 = st.columns([0.5,0.5,0.5])
             with qa1:
                 if st.button("List Companies", use_container_width=True, key="list_companies_btn"):
