@@ -187,7 +187,7 @@ def stream_answer(prompt: str, section_build = False, section = ''):
                              agent, 
                              'gpt-5'
                              ):
-                pass
+                return
             else:
                 resp = agent._rag_answer(rag_nl = prompt, question= prompt)
                 answer_text = resp['answer']
