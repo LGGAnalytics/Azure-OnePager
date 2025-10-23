@@ -805,6 +805,7 @@ def insert_biz_overview(gpt_output):
           r.add_break(WD_BREAK.LINE)
           paragraph.add_run(ln)
 
+
   def replace_placeholder(document: Document, placeholder: str, new_text: str) -> bool:
       """Find placeholder in paragraphs/cells and replace it with new_text (multiline)."""
       # plain paragraphs
