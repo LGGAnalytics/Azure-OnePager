@@ -73,7 +73,40 @@ Other Important information:
 -- Fraud, Governance Failures or Related-party Transactions — heightened legal/contractual risk
 """
 
+
+default_gpt_prompt = """
+
+You are a restructuring analyst focused on identifying companies in financial distress that could be advisory targets for your company. 
+You prepare comprehensive, accurate and full analysis of companies highlighting liquidity issues, debt maturity risks and covenant pressure. 
+You rely on annual reports and financial statements of companies.
+
+WHEN the information is NOT FOUND in the context, you USE WEB SEARCH
+
+**Formatting and Editorial Standards**: 
+   - Always **cite sources** 
+   - Generate complete profile directly in the chat, take your time and don't compress important things 
+   - Always write dates in the format "Mmm-yy" (e.g. Jun-24), fiscal years as "FYXX" (e.g. FY24, LTM1H25), and currencies in millions in the format "£1.2m" 
+   - Always double-check revenue split 
+
+"""
+
 section1 = """
+1. Introduction Table (Company Snapshot):
+- This section provides a brief snapshot of the company. Include in a table format the following information of the target company, using the latest available annual reports/financial statements of the company: 
+-- Primary Industry (1–2-word label, e.g. automotive, gold mining, travel etc.)
+-- Incorporation Year (official incorporation/founding date of the company)
+-- Headquarters (include in the format: city, country)
+-- Number of Employees (average number for the year or the actual total number, whichever is disclosed)
+-- KPIs (These are usually operational and strategic KPIs which can vary for each company depending on what they report, but they cannot include financial KPIs e.g. revenue, ebitda or environmental KPIs e.g. carbon emissions. These need to be related to company’s operations or strategy e.g. fleet size, number of mines etc.)
+- Sources to be used for this section: 
+-- Primary Industry can be analyzed and included from company’s Primary Activity section of the report
+-- Company headquarters is available in the Company Information section of the report
+-- Incorporation year might be available on the report, but there is not a particular section
+-- Number of employees can be sourced from Staff Costs notes section of the latest report, where they usually report average number of employees for the year
+-- KPIs can be obtained from the Business Review or Introduction section of the report
+-- If any of the above source suggestions does not return results for any part, please scan and check other sections of the reports to see if relevant information can be found
+- Notes for this section:
+-- Put n/a for any part not available in the report, rather than reporting incorrect information
 """
 
 section2 = """
@@ -95,71 +128,66 @@ section2 = """
 -- If information for any of the bullet point is not available in the report, do not include that specific bullet point as incorrect information is strictly prohibited 
 """
 
-section2_json = {
-    "filters": {
-        "company_name": ""
-    },
-    "sections": {
-        "overview": {
-            "queries": [
-                "business overview primary activity",
-                "strategic report introduction",
-                "business review company description",
-            ],
-            "min_hits": 5,
-        },
-        "products_services": {
-            "queries": [
-                "products services offerings portfolio",
-                "product lines service lines",
-            ],
-            "min_hits": 3,
-        },
-        "operations_footprint": {
-            "queries": [
-                "operations locations facilities plants offices",
-                "manufacturing distribution footprint",
-                "geographic segments operations by region",
-            ],
-            "min_hits": 3,
-        },
-        "customers": {
-            "queries": [
-                "customers client base key customers end markets",
-                "sales channels customer concentration",
-            ],
-            "min_hits": 3,
-        },
-        "stress_triggers": {
-            "queries": [
-                "going concern material uncertainty liquidity",
-                "borrowings creditors bank debt covenants leverage",
-                "debt maturity profile interest coverage",
-                "impairment restructuring cost reduction layoffs",
-            ],
-            "min_hits": 4,
-        },
-    },
-    "backoff_rules": {
-        "if_section_hits_below": 2,
-        "broaden_to": [
-            {"drop_adj_keep_nouns": True},
-            {"add_alt_terms": {
-                "borrowings": ["loans", "debt", "notes payable"],
-                "customers":  ["revenue by customer", "concentration"],
-                "going concern": ["viability statement", "liquidity risk"],
-            }},
-        ],
-    },
-}
+
 
 section3 = """
+3. Revenue Split:
+- This section provides the revenue segmentation of the company’s latest available revenue/turnover in the form of a table, using the latest available annual report/financial statement of the company:
+-- This can be revenue by geography, customer geography, products, type of business, business segments or/and any other type of split. If any of this type is not available, include what the company reports, as it is
+-- If multiple types of revenue segmentations are available e.g. revenue split by geography and revenue split by business segments, provide both of them, as reported in the report
+-- For the revenue split, using the actual values of each segment, calculate percentage shares
+-- Report both actual values and the percentage shares for each
+-- Make sure the total of the split must always be the same as the total revenue/turnover of the latest year
+- Sources to be used for this section: 
+-- The revenue split is usually available in the Revenue/Turnover notes section of the report. Usually this is Note 2,3 or 4, but can vary
+-- If any of the above source suggestions does not return results for any part, please scan and check other sections of the reports to see if relevant information can be found
+- Notes for this section:
+-- If the split is not available, please suggest that it is not available, as not all companies will have this information, rather than including incorrect information
 """
 
-section4 = """
+revenue_pairs = [
+    (
+        ["FIND THE VARIABLES 'Revenue' and 'Turnover'. FILES FROM 2024."],
+    ),
+    (
+        ['This section provides the revenue segmentation of the company’s latest available revenue/turnover in the form of a table, using the latest available annual report/financial statement of the company: -- This can be revenue by geography, customer geography, products, type of business, business segments or/and any other type of split. If any of this type is not available, include what the company reports, as it is -- If multiple types of revenue segmentations are available e.g. revenue split by geography and revenue split by business segments, provide both of them, as reported in the report -- For the revenue split, using the actual values of each segment, calculate percentage shares -- Report both actual values and the percentage shares for each -- Make sure the total of the split must always be the same as the total revenue/turnover of the latest year']
+    )
+]
+
+section4a = """
+4a. Products/Services Overview:
+- This section details out all the products and service offering of the company, using the latest available annual reports/financial statements of the company as well as Web Search
+-- Include each product/service with a high-level brief description, in a sentence format
+- Sources to be used for this section: 
+-- This information should be sourced through Web Search, using company’s official website. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report
+-- If any of the above source suggestions does not return results for any part, please scan and check other sections of the reports or do Web Search to see if relevant information can be found
+- Notes for this section:
+-- If this information is unavailable, please suggest so, rather than including incorrect information
+"""
+
+section4b = """
+4b. Geographical Footprint:
+- This section details out all the facilities of the company including its offices, manufacturing facilities, sales offices etc., using the latest available annual reports/financial statements of the company as well as Web Search
+-- List down the countries the company operates in a table format, which indication of there is an office, manufacturing facility or sales office in that particular country
+- Sources to be used for this section: 
+-- This information should be sourced through Web Search, using company’s official website. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report 
+-- If any of the above source suggestions does not return results for any part, please scan and check other sections of the reports or do Web Search to see if relevant information can be found
+- Notes for this section:
+-- If this information is unavailable, please suggest so, rather than including incorrect information
 """
 
 section5 = """
+5. Key Recent Developments:
+- This section includes the latest 8-10 available news of the company in reverse chronological order of release date, using Web Search, complemented by annual reports/financial statements:
+-- These news must be formatted in bullet points, with each bullet starting with Mmm-yy (e.g. Jun-24: Ferrari acquired XYZ...), and must contain full proper sentences without the use of semi-colons
+-- Each bullet point must start with the company name (e.g. Jun-24: Ferrari acquired XYZ) 
+-- Include developments from the last three years maximum, not older than that
+-- Everything reported cannot be considered as news. For e.g. “In 2023, Company recorded a profit of £xx” is not considered as a news as it is a trading update. However, “In 2023, the company refinanced its loan maturing in Dec-24” is a news.
+-- Following news are priority, other news must not be included: (1) Debt issuance or debt refinancing (2) Restructuring, (3) Mergers/Acquisitions/Divestments, (5) Changes in management personnel, (6) Facility openings/closures, (7) Strategic partnerships, (8) Dividends payment/Share repurchase etc.
+- Sources to be used for this section: 
+-- Key news should be sourced using Web Search, particularly from the news sections on the company’s official website, as well as news articles posted by news outlet (e.g. Yahoo Finance, BBC etc.). Web Search can be complemented by any important news/developments reported in the annual reports/financial statements
+- Notes for this section:
+-- If key developments are limited, you can just provide a few of them, not 8-10, as long as they are relevant. However, if there is n
 """
 
 section6 = """
@@ -185,77 +213,6 @@ section6 = """
 - Notes for this section: 
 -- If for any of the part there isn’t information from the annual report/financial statements, put n/a instead of providing wrong/inaccurate information 
 """
-
-section6_json = {
-    "filters": {
-        "company_name": ""
-    },
-    "sections": {
-        # Run both shareholders branches; in generation, prefer the branch with stronger evidence.
-        "shareholders_private": {
-            "queries": [
-                "immediate parent ultimate parent ownership structure",
-                "group structure parent company ownership",
-                "related parties parent undertaking controlling party",
-            ],
-            "min_hits": 3,
-        },
-        "shareholders_public": {
-            "queries": [
-                "top shareholders major shareholders significant shareholders % ownership",
-                "shareholder register share capital ownership analysis",
-                "substantial shareholdings holdings above 3%",
-            ],
-            "min_hits": 4,
-        },
-        "management": {
-            "queries": [
-                "board of directors company information",
-                "chairman chief executive officer ceo chief financial officer cfo",
-                "key management personnel senior management directors",
-            ],
-            "min_hits": 4,
-        },
-        "lenders": {
-            "queries": [
-                "borrowings bank debt loans creditors loan facilities",
-                "revolving credit facility term loan maturity profile lenders",
-                "loan agreement facility agent syndicate lenders noteholders bondholders",
-            ],
-            "min_hits": 5,
-        },
-        "auditors": {
-            "queries": [
-                "independent auditor's report auditor appointed auditors",
-                "report of the independent auditors",
-                "auditor's opinion audit firm",
-            ],
-            "min_hits": 2,
-        },
-        "advisors": {
-            "queries": [
-                "company information advisors solicitors bankers",
-                "financial advisor legal advisor corporate broker nominated adviser",
-                "sponsors reporting accountants",
-            ],
-            "min_hits": 2,
-        },
-    },
-    "backoff_rules": {
-        "if_section_hits_below": 2,
-        "broaden_to": [
-            {"drop_adj_keep_nouns": True},
-            {"add_alt_terms": {
-                "shareholders": ["ownership", "equity holders", "share register"],
-                "management": ["executive directors", "non-executive directors", "leadership"],
-                "lenders": ["bank loans", "loan notes", "debentures", "secured loans", "RCF", "TLB"],
-                "auditors": ["audit report", "auditor's report", "registered auditor"],
-                "advisors": ["counsel", "solicitor", "bankers", "corporate finance advisor"],
-            }},
-        ],
-    },
-}
-
 
 section7 = """
 7. Financial Highlights: 
@@ -300,266 +257,8 @@ section7 = """
 -- EBITDA (EBITDA/Adjusted EBITDA) must always be checked in the annual report if it is provided directly. If it is not, then only calculate using the provided formula 
 -- If cash flow statement is not available, please put n.a. for the numbers that are not available or cannot be calculated 
 -- For values that are restated for a specific financial year, please always use the restated values 
--- If information on some specific topics of the commentary is not available, please do not include bullet points for them 
-
-
+-- If information on some specific topics of the commentary is not available, please do not include bullet points for them
 """
-
-section7_json = {
-    "filters": {
-        "company_name": ""
-    },
-    "sections": {
-        # Income statement sources
-        "income_statement": {
-            "queries": [
-                "income statement consolidated statement of profit or loss",
-                "statement of comprehensive income revenue cost of sales gross profit",
-                "operating profit depreciation amortisation expenses",
-                "alternative performance measures ebitda adjusted ebitda non gaap",
-            ],
-            "min_hits": 6,
-        },
-
-        # Cash flow statement sources (operating)
-        "cash_flow_operating": {
-            "queries": [
-                "cash flow statement net cash from operating activities",
-                "working capital changes increase decrease in receivables debtors",
-                "increase decrease in inventories stock",
-                "increase decrease in payables creditors",
-                "reconciliation of profit to cash from operations",
-            ],
-            "min_hits": 6,
-        },
-
-        # Cash flow statement sources (investing)
-        "cash_flow_investing": {
-            "queries": [
-                "cash flows from investing activities",
-                "purchase acquisition of property plant and equipment tangible assets",
-                "purchase acquisition of intangible assets capitalised development costs",
-                "proceeds disposals investments acquisitions",
-                "net cash used in investing activities",
-            ],
-            "min_hits": 5,
-        },
-
-        # Cash flow statement sources (financing)
-        "cash_flow_financing": {
-            "queries": [
-                "cash flows from financing activities",
-                "proceeds from borrowings issue of debt",
-                "repayment of borrowings debt repayment",
-                "dividends paid share buyback share issuance",
-                "lease payments interest paid",
-            ],
-            "min_hits": 5,
-        },
-
-        # Cash & FX reconciliation lines
-        "cash_fx_reconciliation": {
-            "queries": [
-                "cash and cash equivalents opening cash closing cash",
-                "effect of exchange rate changes on cash foreign exchange effect",
-                "net increase decrease in cash change in cash",
-            ],
-            "min_hits": 4,
-        },
-
-        # Debt & leases (notes)
-        "debt_and_leases_notes": {
-            "queries": [
-                "borrowings bank debt loans creditors interest bearing liabilities",
-                "revolving credit facility rcf term loan tlb bond notes payable",
-                "lease liabilities ifrs 16 finance leases",
-                "maturity profile covenants security",
-            ],
-            "min_hits": 5,
-        },
-
-        # Restatements / accounting policy changes (to prefer restated values)
-        "restatements": {
-            "queries": [
-                "restated figures restatement prior period adjustment",
-                "reclassification comparatives revised",
-                "change in accounting policy",
-            ],
-            "min_hits": 2,
-        },
-
-        # Narrative for commentary
-        "financial_review_commentary": {
-            "queries": [
-                "financial review business review management discussion analysis",
-                "results of operations performance overview",
-                "drivers of change variance analysis revenue gross margin ebitda",
-                "working capital capex cash flow commentary",
-                "debt leverage liquidity discussion",
-            ],
-            "min_hits": 6,
-        },
-    },
-
-    "backoff_rules": {
-        "if_section_hits_below": 2,
-        "broaden_to": [
-            {"drop_adj_keep_nouns": True},
-            {"add_alt_terms": {
-                "income statement": ["profit and loss", "statement of operations"],
-                "ebitda": ["operating profit before depreciation and amortization"],
-                "receivables": ["trade receivables", "debtors"],
-                "payables": ["trade payables", "creditors"],
-                "inventories": ["stock"],
-                "borrowings": ["interest-bearing loans and borrowings", "loans and overdrafts"],
-                "lease liabilities": ["IFRS 16 liabilities", "finance leases"],
-                "financial review": ["MD&A", "operating and financial review"],
-            }},
-        ],
-    },
-
-    # Hints for the generator/extractor stage
-    "format_hints": {
-        "part1": "table",     # numbers table
-        "part2": "bullets",   # commentary bullets
-        "table_unit": "millions",         # normalize to millions
-        "table_rounding_dp": 1,           # 1 decimal place
-        "year_labels": "FY",              # e.g., FY22, FY23, FY24
-        "percent_rounding_dp": 1,         # e.g., 12.3%
-        "leverage_suffix": "x",           # e.g., 2.1x
-        "na_token": "n.a.",
-        "not_meaningful_token": "n.m.",   # for negative margins/leverage
-        "preserve_signs": True,           # keep negatives as reported
-        "require_restated_if_available": True,
-    },
-
-    # Declarative calculation plan (deterministic)
-    "calculation_rules": {
-        "precedence": {
-            "gross_profit": ["disclosed:gross_profit", "calc:revenue - cost_of_sales"],
-            "ebitda": ["disclosed:ebitda_or_adjusted", "calc:operating_profit + depreciation + amortisation"],
-        },
-        "rows": [
-            {"key": "revenue", "label": "Revenue", "source": "income_statement:revenue", "type": "value"},
-            {"key": "gross_profit", "label": "Gross Profit", "source": "income_statement:gross_profit_or_calc", "type": "value"},
-            {"key": "ebitda", "label": "EBITDA", "source": "income_statement:ebitda_or_calc", "type": "value"},
-            {"key": "revenue_growth_pct", "label": "Revenue Growth %", "formula": "(revenue[t]/revenue[t-1])-1", "type": "percent", "guard": "if missing t-1 → n.a."},
-            {"key": "gross_margin_pct", "label": "Gross Margin %", "formula": "gross_profit[t]/revenue[t]", "type": "percent", "guard": "if revenue<=0 → n.a.; if result<0 → n.m."},
-            {"key": "ebitda_margin_pct", "label": "EBITDA Margin %", "formula": "ebitda[t]/revenue[t]", "type": "percent", "guard": "if revenue<=0 → n.a.; if result<0 → n.m."},
-
-            {"key": "cfo", "label": "Net Cash Flow from Operating Activities", "source": "cash_flow_operating:cfo_net", "type": "value"},
-            {"key": "nwc", "label": "Net Working Capital (movement)", "formula": "Δreceivables + Δinventory + Δpayables", "source": "cash_flow_operating:wk_lines", "type": "value",
-             "notes": "Use signs exactly as shown in cash flow (do not flip)."},
-            {"key": "cfo_excl_nwc", "label": "Cash Flow from Operating Activities excl. NWC", "formula": "cfo - nwc", "type": "value"},
-
-            {"key": "capex", "label": "Capex", "formula": "purchase_pp&e + purchase_intangibles", "source": "cash_flow_investing:pp&e_intangibles", "type": "value"},
-            {"key": "cfi", "label": "Net Cash Flow from Investing Activities", "source": "cash_flow_investing:cfi_net", "type": "value"},
-            {"key": "other_cfi", "label": "Other Cash Flow from Investing Activities", "formula": "cfi - capex", "type": "value"},
-
-            {"key": "cfads", "label": "CFADS", "formula": "cfo + cfi", "type": "value"},
-
-            {"key": "cff", "label": "Cash Flow from Financing Activities", "source": "cash_flow_financing:cff_net", "type": "value",
-             "notes": "Also capture sub-items for commentary: issuance/repayment/dividends/leases/interest."},
-
-            {"key": "opening_cash", "label": "Opening Cash", "source": "cash_fx_reconciliation:opening_cash", "type": "value"},
-            {"key": "change_in_cash", "label": "Change in Cash", "source": "cash_fx_reconciliation:net_increase_decrease", "type": "value"},
-            {"key": "fx_effect", "label": "Foreign Exchange Effect", "source": "cash_fx_reconciliation:fx_effect", "type": "value"},
-            {"key": "closing_cash", "label": "Closing Cash", "source": "cash_fx_reconciliation:closing_cash", "type": "value"},
-
-            {"key": "bank_debt", "label": "Bank Debt", "source": "debt_and_leases_notes:borrowings_bank_loans_bonds", "type": "value"},
-            {"key": "lease_liabilities", "label": "Lease Liabilities", "source": "debt_and_leases_notes:ifrs16_lease_liabilities", "type": "value"},
-            {"key": "total_debt", "label": "Total Debt", "formula": "bank_debt + lease_liabilities", "type": "value",
-             "notes": "Exclude internal debt such as shareholder/related party loans."},
-            {"key": "net_debt", "label": "Net Debt", "formula": "total_debt - closing_cash", "type": "value"},
-
-            {"key": "leverage", "label": "Leverage (Net Debt / EBITDA)", "formula": "net_debt / ebitda", "type": "ratio",
-             "format": "x", "guard": "if ebitda<=0 or result<0 → n.m."},
-        ],
-    },
-
-    # Narrative guidance for part 2 (your generator can use these topics)
-    "commentary_topics": [
-        "Revenue change and key drivers",
-        "Gross profit movement and explanation",
-        "EBITDA direction and reasons",
-        "Net working capital change and major line items",
-        "Capex development",
-        "CFADS direction and reasons",
-        "Financing cash flow dynamics (dividends, debt repayments/issuances)",
-        "Total debt and leverage trend and reasons",
-    ],
-
-    # Data normalization & validation rules
-    "normalization_rules": {
-        "detect_currency": ["notes, statements, headers"],
-        "detect_scale": ["'All amounts in thousands/millions' footers/headers"],
-        "target_unit": "millions",
-        "round_to_dp": 1,
-        "apply_scale": "convert reported to millions before calculations",
-        "consistent_currency_across_years": True,
-        "prefer_restated_values": True,
-        "missing_policy": {
-            "numeric": "n.a.",
-            "percent_negative_to_nm": ["gross_margin_pct", "ebitda_margin_pct"],
-            "ratio_negative_to_nm": ["leverage"],
-        },
-    },
-
-    # Optional: capture sub-items for richer commentary (not displayed in the main table)
-    "supplemental_capture": {
-        "financing_breakdown": [
-            "proceeds from borrowings",
-            "repayment of borrowings",
-            "dividends paid",
-            "issue of shares / buybacks",
-            "lease payments",
-            "interest paid",
-        ],
-        "working_capital_lines": [
-            "increase/decrease in trade receivables",
-            "increase/decrease in inventories",
-            "increase/decrease in trade payables",
-        ],
-        "ebitda_variant": [
-            "EBITDA",
-            "Adjusted EBITDA",
-            "Operating profit before depreciation and amortisation",
-        ],
-    },
-
-    # Output schema hints for your renderer
-    "extraction_schema": {
-        "part1_table": {
-            "columns": ["Metric", "FY(t-2)", "FY(t-1)", "FY(t)", "Source #[snippet]"],
-            "order": [
-                "Revenue",
-                "Gross Profit",
-                "EBITDA",
-                "Revenue Growth %",
-                "Gross Margin %",
-                "EBITDA Margin %",
-                "Cash Flow from Operating Activities excl. NWC",
-                "Net Working Capital (movement)",
-                "Capex",
-                "Other Cash Flow from Investing Activities",
-                "CFADS",
-                "Cash Flow from Financing Activities",
-                "Opening Cash",
-                "Change in Cash",
-                "Foreign Exchange Effect",
-                "Closing Cash",
-                "Total Debt",
-                "Net Debt",
-                "Leverage (Net Debt / EBITDA)",
-            ],
-        },
-        "part2_bullets": {
-            "count_range": [6, 10],
-            "style": "plain sentences, no semicolons, cite [#] as needed",
-        },
-    },
-}
-
 
 section8 = """
 8. Capital Structure: 
@@ -601,216 +300,6 @@ section8 = """
 -- If information on some specific topics of the commentary is not available, please do not include bullet points for them 
 """
 
-
-section8_json = {
-    "filters": {
-        "company_name": ""
-    },
-    "sections": {
-        # Core debt disclosures (names, amounts, facilities list)
-        "debt_facilities_core": {
-            "queries": [
-                "borrowings bank debt loans creditors interest-bearing liabilities",
-                "term loan tlb revolving credit facility rcf bond notes senior secured notes",
-                "amount outstanding carrying amount debt facilities schedule",
-            ],
-            "min_hits": 6,
-        },
-        # Interest rate terms (margin/base rate)
-        "interest_terms": {
-            "queries": [
-                "interest rate margin coupon euribor sofr libor + spread",
-                "effective interest rate interest expense rate payable",
-                "terms and conditions financing agreements",
-            ],
-            "min_hits": 4,
-        },
-        # Maturity / due dates / amortization
-        "maturity_terms": {
-            "queries": [
-                "maturity profile contractual maturities repayment schedule",
-                "final maturity due date redemption date",
-                "amortisation schedule bullet maturity",
-            ],
-            "min_hits": 4,
-        },
-        # Lease liabilities (counted as a debt facility; finance leases only)
-        "lease_liabilities": {
-            "queries": [
-                "lease liabilities ifrs 16 finance leases",
-                "liabilities arising from leasing",
-                "maturity analysis of lease liabilities",
-            ],
-            "min_hits": 3,
-        },
-        # Undrawn facilities / liquidity lines (e.g., RCF headroom)
-        "undrawn_facilities": {
-            "queries": [
-                "undrawn committed facilities available headroom",
-                "undrawn amount revolving credit facility overdraft capacity",
-                "liquidity resources cash and undrawn facilities",
-            ],
-            "min_hits": 3,
-        },
-        # Cash balance for liquidity reconciliation (can also be taken from Section 7)
-        "cash_balance": {
-            "queries": [
-                "cash and cash equivalents closing cash",
-                "statement of cash flows closing cash balance",
-            ],
-            "min_hits": 2,
-        },
-        # EBITDA for leverage (prefer Section 7; else retrieve)
-        "ebitda_reference": {
-            "queries": [
-                "ebitda adjusted ebitda alternative performance measures",
-                "operating profit before depreciation and amortisation",
-            ],
-            "min_hits": 2,
-        },
-        # Covenants & security package
-        "covenants_and_security": {
-            "queries": [
-                "financial covenants net leverage interest coverage fixed charge coverage",
-                "security package collateral pledge guarantees negative pledge",
-                "covenant compliance waiver amendment",
-            ],
-            "min_hits": 3,
-        },
-        # Refinancing actions / recent changes
-        "refinancing_actions": {
-            "queries": [
-                "refinancing amend and extend maturity extension",
-                "issue of debt bond issuance new facility",
-                "repayment of borrowings early redemption",
-            ],
-            "min_hits": 3,
-        },
-        # Nearest maturities / upcoming obligations
-        "nearest_maturities": {
-            "queries": [
-                "debt maturity profile next 12 months upcoming maturities",
-                "contractual maturities schedule earliest redemption",
-            ],
-            "min_hits": 2,
-        },
-        # Liquidity narrative
-        "liquidity_discussion": {
-            "queries": [
-                "liquidity position cash on hand undrawn committed facilities",
-                "overdraft capacity accordion option",
-                "going concern liquidity and funding resources",
-            ],
-            "min_hits": 3,
-        },
-        # Guardrail to exclude internal loans
-        "internal_loans_detector": {
-            "queries": [
-                "shareholder loans related party loans intragroup loans subsidiaries loans",
-                "loans from parent undertaking group companies",
-            ],
-            "min_hits": 1,
-        },
-    },
-    "backoff_rules": {
-        "if_section_hits_below": 2,
-        "broaden_to": [
-            {"drop_adj_keep_nouns": True},
-            {"add_alt_terms": {
-                "rcf": ["revolving credit facility", "revolver"],
-                "coupon": ["interest rate", "margin", "spread"],
-                "base_rate": ["euribor", "sofr", "libor", "estr"],
-                "bonds": ["notes", "senior notes", "secured notes"],
-                "lease liabilities": ["ifrs 16 liabilities", "finance leases"],
-                "undrawn": ["headroom", "available facility", "unused commitment"],
-                "security": ["collateral", "pledge", "guarantees"],
-            }},
-        ],
-    },
-    "format_hints": {
-        "part1": "table",                  # facility table for latest year only
-        "part2": "bullets",                # commentary bullets
-        "table_unit": "millions",
-        "table_rounding_dp": 1,
-        "maturity_format": "mmm-yy",       # e.g., Jun-25
-        "leverage_suffix": "x",
-        "na_token": "n.a.",
-        "not_meaningful_token": "n.m.",
-        "preserve_signs": True,
-        "latest_year_only": True,
-        "match_financial_highlights": True  # cross-check vs section 7 outputs
-    },
-    "calculation_rules": {
-        "facility_row_capture": {
-            "include": [
-                "term loan", "tlb", "rcf", "revolving credit facility",
-                "bond", "notes", "senior secured notes", "bridge loan",
-                "mortgage", "overdraft", "lease liabilities",
-            ],
-            "exclude_if_contains": [
-                "shareholder", "related party", "intragroup", "subsidiaries", "group companies"
-            ],
-            "fields": {
-                "name": "as disclosed (normalize: currency + type + size if stated)",
-                "interest_rate": "capture margin/base rate text (e.g., 'EURIBOR + 3.75%')",
-                "maturity": "parse to mmm-yy from date strings",
-                "amount_outstanding": "numeric; convert to millions; 1 dp",
-                "source": "snippet number [#]",
-            }
-        },
-        "summary_rows": [
-            {"key": "gross_external_debt", "label": "Gross External Debt", "formula": "sum(amount_outstanding of all included facilities)", "type": "value"},
-            {"key": "cash", "label": "Cash", "source": "cash_balance:closing_cash (or financial_highlights.closing_cash)", "type": "value"},
-            {"key": "net_external_debt", "label": "Net External Debt", "formula": "gross_external_debt - cash", "type": "value"},
-            {"key": "undrawn_total", "label": "Undrawn Facilities", "source": "undrawn_facilities:undrawn_committed_total", "type": "value"},
-            {"key": "liquidity", "label": "Liquidity", "formula": "cash + undrawn_total", "type": "value"},
-            {"key": "ebitda", "label": "EBITDA", "source": "financial_highlights.ebitda (fallback ebitda_reference)", "type": "value"},
-            {"key": "leverage", "label": "Leverage (Net Debt / EBITDA)", "formula": "net_external_debt / ebitda", "type": "ratio", "guard": "if ebitda<=0 or missing → n.m./n.a."},
-        ],
-        "cross_checks": {
-            "prefer_financial_highlights": True,
-            "tolerance_percent": 2.0,  # if mismatch vs Section 7 net debt / leverage > 2%, flag and prefer Section 7
-        }
-    },
-    "commentary_topics": [
-        "Net debt and leverage trend with underlying factors",
-        "Recent refinancing actions and their impact on tenor and pricing",
-        "Covenant pressure and status (net leverage, interest coverage, fixed charge coverage)",
-        "Security package and collateral (pledges, guarantees, ranking)",
-        "Liquidity position (cash on hand, committed undrawn facilities, overdraft capacity, accordion options)",
-        "Nearest material maturities and refinancing ability",
-    ],
-    "normalization_rules": {
-        "detect_currency": ["notes headings, statement headers, footers"],
-        "detect_scale": ["'Amounts in thousands/millions' indicators"],
-        "target_unit": "millions",
-        "round_to_dp": 1,
-        "apply_scale": "convert reported to millions before aggregation",
-        "date_parse_formats": ["YYYY-MM-DD", "DD Month YYYY", "Mon YYYY", "MMM-YY", "Month-YY"],
-        "emit_date_format": "mmm-yy",
-        "exclude_internal_loans": True,
-        "consistent_currency": True
-    },
-    "extraction_schema": {
-        "part1_table": {
-            "columns": ["Facility Name", "Interest Rate", "Maturity (mmm-yy)", "Amount Outstanding (m)", "Source #[snippet]"],
-            "facility_rows": "dynamic (one per external facility, including lease liabilities)",
-            "summary_order": [
-                "Gross External Debt",
-                "Cash",
-                "Net External Debt",
-                "Undrawn Facilities",
-                "Liquidity",
-                "EBITDA",
-                "Leverage (Net Debt / EBITDA)"
-            ],
-        },
-        "part2_bullets": {
-            "count_range": [6, 10],
-            "style": "plain sentences, no semicolons; cite [#] as needed; readable to non-specialists",
-        },
-    },
-}
 
 section9 = """
 """

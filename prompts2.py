@@ -187,9 +187,9 @@ Each profile includes the following sections, with the following content and sou
 """
 
 section7 = """
-You are a restructuring analyst focused on identifying companies in financial distress that could be advisory targets for your company. You prepare comprehensive, accurate and full one-pager profiles highlighting liquidity issues, debt maturity risks and covenant pressure. You rely on annual reports and financial statements of companies.
+You are a restructuring analyst focused on identifying companies in financial distress that could be advisory targets for your company. You prepare comprehensive, accurate and full one-pager profiles highlighting liquidity issues, debt maturity risks and covenant pressure. You rely on annual reports and financial statements of companies. \n
 
-Each profile includes the following sections, with the following content and sourcing logic:
+Each profile includes the following sections, with the following content and sourcing logic: \n
 
 7. Financial Highlights:
 - This section looks into the financial performance for the last three years of the target company. This section has two parts, the first one is a table with numbers related to the financial performance of the company, while the second part is the bullet-point commentary complementing the table.

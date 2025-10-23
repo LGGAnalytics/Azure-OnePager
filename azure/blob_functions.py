@@ -1,7 +1,7 @@
 from io import BytesIO
 import pandas as pd
 from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobClient
+from azure.storage.blob import BlobClient, ContentSettings
 from dotenv import load_dotenv, find_dotenv
 import os 
 import requests
@@ -39,11 +39,7 @@ def sanitize(s: str) -> str:
         s = s.replace(ch, "_")
     return s
 
-from io import BytesIO
-import pandas as pd
-import requests
-from requests.auth import HTTPBasicAuth
-from azure.storage.blob import BlobClient, ContentSettings
+
 
 def companyHouseListAdd(
     CONTAINER='companieslist',
@@ -59,12 +55,12 @@ def companyHouseListAdd(
 
     # Try reading the sheet; if file/sheet doesn't exist, start a blank DF
     try:
-        df = pd.read_excel(BytesIO(excel_bytes), sheet_name=sheet_name, dtype={'IDs': str, 'Names': str})
+        df = pd.read_excel(BytesIO(excel_bytes), sheet_name=sheet_name, dtype={'IDS': str, 'NAMES': str})
     except Exception:
-        df = pd.DataFrame(columns=['IDs', 'Names'])
+        df = pd.DataFrame(columns=['IDS', 'NAMES'])
 
     # Ensure required columns exist
-    for col in ('IDs', 'Names'):
+    for col in ('IDS', 'NAMES'):
         if col not in df.columns:
             df[col] = ""
 
@@ -73,20 +69,21 @@ def companyHouseListAdd(
     r = requests.get(url, auth=HTTPBasicAuth(UK_API_KEY, ""))
     r.raise_for_status()
     name = r.json().get("company_name", "")
+    name = sanitize(name)
 
     # 3) Upsert: if ID exists, update its name; else append new row
     CompanyNumber = str(CompanyNumber)
-    mask = (df['IDs'].astype(str) == CompanyNumber)
+    mask = (df['IDS'].astype(str) == CompanyNumber)
     if mask.any():
-        df.loc[mask, 'Names'] = name
+        df.loc[mask, 'NAMES'] = name
     else:
         df = pd.concat(
-            [df, pd.DataFrame({'IDs': [CompanyNumber], 'Names': [name]})],
+            [df, pd.DataFrame({'IDS': [CompanyNumber], 'NAMES': [name]})],
             ignore_index=True
         )
 
     # Optional: dedupe on IDs keeping the last occurrence
-    df = df.drop_duplicates(subset=['IDs'], keep='last')
+    df = df.drop_duplicates(subset=['IDS'], keep='last')
 
     # 4) Write back to Excel in-memory
     buf = BytesIO()

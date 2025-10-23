@@ -345,20 +345,60 @@ else:
                 st.session_state.section_build = "GENERATE KEY STAKEHOLDERS"
                 stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
             st.rerun()
-        if st.button("3.Get Financial Highlights", use_container_width=True, key="finance_btn"):
+        if st.button("3.Revenue split (NEW)", use_container_width=True, key="revenue_btn"):
             if not st.session_state.company_name:
                 with st.chat_message("assistant"):
-                    st.session_state.history.append({"q": f"3.Get Financial Highlights", "a": "Please select a company in the sidebar before asking a question."})
+                    st.session_state.history.append({"q": f"3.Revenue split", "a": "Please select a company in the sidebar before asking a question."})
+                
+                st.rerun()
+            else:
+                st.session_state.section_build = "GENERATE REVENUE SPLIT"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            st.rerun()
+        if st.button("4a.Products/Services Overview (NEW)", use_container_width=True, key="prod_btn"):
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.session_state.history.append({"q": f"4a.Products/Services Overview", "a": "Please select a company in the sidebar before asking a question."})
+                
+                st.rerun()
+            else:
+                st.session_state.section_build = "GENERATE PRODUCTS SERVICES OVERVIEW"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            st.rerun()
+        if st.button("4b.Geographical Footprint (NEW)", use_container_width=True, key="geo_btn"):
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.session_state.history.append({"q": f"4b.Geographical Footprint", "a": "Please select a company in the sidebar before asking a question."})
+                
+                st.rerun()
+            else:
+                st.session_state.section_build = "GENERATE GEO FOOTPRINT"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            st.rerun()
+        if st.button("5.Key Recent Developments (NEW)", use_container_width=True, key="recent_btn"):
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.session_state.history.append({"q": f"5.Key Recent Developments", "a": "Please select a company in the sidebar before asking a question."})
+                
+                st.rerun()
+            else:
+                st.session_state.section_build = "GENERATE DEVELOPMENTS HIGHLIGHTS"
+                stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
+            st.rerun()
+        if st.button("6.Get Financial Highlights", use_container_width=True, key="finance_btn"):
+            if not st.session_state.company_name:
+                with st.chat_message("assistant"):
+                    st.session_state.history.append({"q": f"5.Get Financial Highlights", "a": "Please select a company in the sidebar before asking a question."})
                 
                 st.rerun()
             else:
                 st.session_state.section_build = "GENERATE FINANCIAL HIGHLIGHTS"
                 stream_answer(prompt='', section_build=True, section=st.session_state.section_build)
             st.rerun()
-        if st.button("4.Get Capital Structure", use_container_width=True, key="capital_btn"):
+        if st.button("7.Get Capital Structure", use_container_width=True, key="capital_btn"):
             if not st.session_state.company_name:
                 with st.chat_message("assistant"):
-                    st.session_state.history.append({"q": f"4.Get Capital Structure", "a": "Please select a company in the sidebar before asking a question."})
+                    st.session_state.history.append({"q": f"6.Get Capital Structure", "a": "Please select a company in the sidebar before asking a question."})
                 
                 st.rerun()
             else:
