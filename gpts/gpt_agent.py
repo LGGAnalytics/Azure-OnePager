@@ -13,14 +13,14 @@ from azure.search.documents.models import VectorizableTextQuery
 from azure.core.exceptions import HttpResponseError
 from azure.search.documents.models import HybridSearch
 
-from openai import AzureOpenAI, APIConnectionError
+from openai import AzureOpenAI, APIConnectionError, OpenAI
 from prompts import new_system_finance_prompt
 
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
-from prompts4 import finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs
+from prompts4 import finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs, revenue_pairs, default_gpt_prompt, section4a, section4b, section5, section3
 from pages.design.func_tools import *
 from pages.design.formatting import *
 from pages.design.func_tools import docx_bytes_to_pdf_bytes
@@ -66,6 +66,10 @@ class profileAgent():
 
         self.az_openai = AzureOpenAI(azure_endpoint=AOAI_ENDPOINT, api_key=AOAI_KEY, api_version=AOAI_API_VER)
         self.profile_prompt = profile_prompt
+        self.web_openai = OpenAI(api_key=OPENAI_API_KEY)
+
+        self.reasoning_effort = "medium"
+        self.verbosity = "medium"
 
         self.finance_calculations = finance_calculations
 
@@ -258,6 +262,19 @@ class profileAgent():
             "all_chunks": ctx_items,     # everything you sent (optional)
             "mode": mode                 # retrieval mode info (optional)
         }
+
+    def _web_search(self, messages):
+        resp = self.web_openai.responses.create(
+            model='gpt-5',
+            input=messages,
+            tools=[{"type": "web_search"}],
+            tool_choice="auto",
+            # max_output_tokens=self.max_output_tokens,
+            reasoning={"effort": self.reasoning_effort},
+            text={"verbosity": self.verbosity},
+        )
+        
+        return resp.output_text
     
     def _answer(self, question, ctx_text, k: int = 5, temperature: float = 0.2):
 
@@ -331,27 +348,60 @@ class profileAgent():
         if section == 'GENERATE BUSINESS OVERVIEW':
             # =========== GENERATE BUSINESS OVERVIEW
             biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
-            section1 = self._sections(pairs = biz_overview_pairs_flat)
-            resp = self._answer(question=business_overview_formatting, ctx_text=section1)
-            return resp['answers']
+            section_built = self._sections(pairs = biz_overview_pairs_flat)
+            resp = self._answer(question=business_overview_formatting, ctx_text=section_built)
+            return resp['answer']
         elif section == 'GENERATE KEY STAKEHOLDERS':
         # =========== GENERATE KEY STAKEHOLDERS
             stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
-            section2 = self._sections(pairs= stakeholders_pairs_flat)
-            resp = self._answer(question=stakeholders_formatting_2, ctx_text=section2)
-            return resp['answers']
+            section_built = self._sections(pairs= stakeholders_pairs_flat)
+            resp = self._answer(question=stakeholders_formatting_2, ctx_text=section_built)
+            return resp['answer']
         elif section == 'GENERATE FINANCIAL HIGHLIGHTS':
             # =========== GENERATE FINANCIAL HIGHLIGHTS
             finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
-            section3 = self._sections(pairs=finance_pairs_flat)
-            resp = self._answer(question=finance_formatting_2, ctx_text=section3)
-            return resp['answers']
+            section_built = self._sections(pairs=finance_pairs_flat)
+            resp = self._answer(question=finance_formatting_2, ctx_text=section_built)
+            return resp['answer']
         elif section == 'GENERATE CAPITAL STRUCTURE':
             # =========== GENERATE CAPITAL STRUCTURE
             capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
-            section4 = self._sections(pairs= capital_pairs_flat)
-            resp = self._answer(question=capital_structure_formatting_2, ctx_text=section4)
-            return resp['answers']
+            section_built = self._sections(pairs= capital_pairs_flat)
+            resp = self._answer(question=capital_structure_formatting_2, ctx_text=section_built)
+            return resp['answer']
+        elif section == 'GENERATE REVENUE SPLIT':
+            # =========== GENERATE CAPITAL STRUCTURE
+            revenue_pairs_flat = list(zip(revenue_pairs[1], revenue_pairs[0]))  # [(r, q), (r, q), ...]
+            section_built = self._sections(pairs= revenue_pairs_flat)
+            resp = self._answer(question=section3, ctx_text=section_built)
+            return resp['answer']
+        elif section == 'GENERATE PRODUCTS SERVICES OVERVIEW':
+            # =========== GENERATE CAPITAL STRUCTURE
+            new_section = f'All instructions applies to the company: {self.company_name}\n\n{section4a}'
+            messages = [
+                {"role": "system", "content": default_gpt_prompt},
+                {"role": "user",   "content": new_section},
+            ]
+            resp = self._web_search(messages)
+            return resp 
+        elif section == 'GENERATE GEO FOOTPRINT':
+            # =========== GENERATE CAPITAL STRUCTURE
+            new_section = f'All instructions applies to the company: {self.company_name}\n\n{section4b}'
+            messages = [
+                {"role": "system", "content": default_gpt_prompt},
+                {"role": "user",   "content": new_section},
+            ]
+            resp = self._web_search(messages)
+            return resp
+        elif section == 'GENERATE DEVELOPMENTS HIGHLIGHTS':
+            # =========== GENERATE CAPITAL STRUCTURE
+            new_section = f'All instructions applies to the company: {self.company_name}\n\n{section5}'
+            messages = [
+                {"role": "system", "content": default_gpt_prompt},
+                {"role": "user",   "content": new_section},
+            ]
+            resp = self._web_search(messages)
+            return resp
 
 
     def generate_company_profile(self):
