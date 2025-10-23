@@ -13,6 +13,7 @@ from azure.search.documents.models import VectorizableTextQuery
 from azure.core.exceptions import HttpResponseError
 from azure.search.documents.models import HybridSearch
 
+
 from openai import AzureOpenAI, APIConnectionError, OpenAI
 from prompts import new_system_finance_prompt
 
