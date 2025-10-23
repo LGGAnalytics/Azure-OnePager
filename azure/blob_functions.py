@@ -131,4 +131,49 @@ def get_companies(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.x
 
     return name_map, clean_in_order
 
+def EmailListAdd(
+    CONTAINER='email-list',
+    BLOB_NAME='emails.csv',
+    Email=None, 
+):
+    if Email is None:
+        raise ValueError("Email is required")
 
+    # download the file
+    csv_bytes = get_file_blob(CONTAINER, BLOB_NAME)
+
+    # try reading; if file doesn't exist, start a blank DF
+    try:
+        df = pd.read_csv(BytesIO(csv_bytes), dtype={'email': str})
+    except Exception:
+        df = pd.DataFrame(columns=['email'])
+
+    # ensure the required column exist
+    if 'email' not in df.columns:
+            df['email'] = ""
+
+    # add the email to the list
+    Email = str(Email)
+    df = pd.concat([df, pd.DataFrame({'email': [Email]})], ignore_index=True)
+
+    # dedupe on emails keeping the last occurrence
+    df = df.drop_duplicates(subset=['email'], keep='last')
+
+    # write back to Excel in-memory
+    buf = BytesIO()
+    buf.write(df.to_csv(index=False).encode())
+    buf.seek(0)
+
+    # overwrite the blob
+    blob = BlobClient.from_connection_string(
+        conn_str=AZURE_STORAGE_CONNECTION_STRING,
+        container_name=CONTAINER,
+        blob_name=BLOB_NAME
+    )
+    blob.upload_blob(
+        buf.getvalue(),
+        overwrite=True,
+        content_settings=ContentSettings(
+            content_type="text/csv"
+        ),
+    )
