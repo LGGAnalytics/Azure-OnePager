@@ -134,7 +134,7 @@ if "view" not in st.session_state:
     st.session_state.view = "home"          
 
 
-LOGO = '/Users/felipesilverio/Documents/GitHub/Azure-OnePager/logo_teneo.png'
+LOGO = 'Azure-OnePager/logo_teneo.png'
 
 st.logo(
     str(LOGO),                 # main logo
