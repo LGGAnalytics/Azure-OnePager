@@ -46,10 +46,19 @@ OBs: Currently it only supports private companies and downloads last 3 years of 
 """
 
 companies_available = """
+In order to select a company you must type: \n'Use company [company's name]'\n
 This is the following list of availables companies for you to chat: \n
 
 """
 
+section_tutorial_1 = """
+Hey! This action allows you to build a certain company profile section. \n
+These sections are made up using either a PDF (company house) or web search, but it only focus in a single company per time \n
+
+The sections are available the in left sidebar menu. Open it and the Profile Section will be available at the bottom \n
+
+REQUIREMENTS: Select a company first\n
+"""
 error_1 = """
 This action requires the previous selection of a company. \n
 
