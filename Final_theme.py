@@ -89,15 +89,24 @@ body{
 }
 
 /* header label */
+header[data-testid="stHeader"]{
+  position: relative;              /* define a positioning context */
+  background: var(--bg) !important;
+}
+
+/* custom centered title in the top bar */
 header[data-testid="stHeader"]::before {
   content: "Oraculum";
   color: #2563EB;
   font-weight: 700;
   font-size: 30px;
+  line-height: 1;
   position: absolute;
   top: 50%;
-  left: 10px;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%); /* true center */
+  pointer-events: none;            /* don't block header buttons */
+  white-space: nowrap;
 }
 .page-sub{ color: var(--muted) !important; }
 
