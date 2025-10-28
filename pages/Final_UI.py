@@ -56,11 +56,6 @@ load_dotenv(find_dotenv(), override=True)
 OPENAI_API_KEY  = os.getenv("FELIPE_OPENAI_API_KEY")        # required
 
 
-
-from engines.engine import HybridEngine
-# If you have engines.calc_tool, we'll try to import. Otherwise fallback.
-
-
 # =====================================================
 
 st.set_page_config(page_title="Oraculum", layout="wide")
