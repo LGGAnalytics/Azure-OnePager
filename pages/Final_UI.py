@@ -49,8 +49,16 @@ from azure.search_functions import run_indexer
 
 from pathlib import Path
 
+from engines.run_pdf import PDFChatModel
+
+
 load_dotenv(find_dotenv(), override=True)
 OPENAI_API_KEY  = os.getenv("FELIPE_OPENAI_API_KEY")        # required
+
+
+
+from engines.engine import HybridEngine
+# If you have engines.calc_tool, we'll try to import. Otherwise fallback.
 
 
 # =====================================================
@@ -133,6 +141,12 @@ if "theme" not in st.session_state:
 if "view" not in st.session_state:
     st.session_state.view = "home"          
 
+if "pdf_model" not in st.session_state:
+    st.session_state.pdf_model = PDFChatModel()
+
+# optional: track that we've already told the user about uploading
+if "pdf_ready" not in st.session_state:
+    st.session_state.pdf_ready = False
 
 LOGO = 'LGGAdvisors_Logo.png'
 
@@ -322,9 +336,19 @@ def go(view: str):
         st.rerun()
 
 if st.session_state.pdf:
-    uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
-    if uploaded_file:
-        st.success(f"Uploaded: {uploaded_file.name}")
+    uploaded_files = st.file_uploader("Upload PDF", type=["pdf"], accept_multiple_files=True)
+    if uploaded_files:
+        # Build / refresh the PDF agent model with these files.
+        st.session_state.pdf_model.load_pdfs(uploaded_files)
+        st.session_state.pdf_ready = True
+
+        st.success("OCR index ready.")
+
+        # Show timings / debug info if you'd like:
+        st.subheader("Timings")
+        st.json(st.session_state.pdf_model.get_timings())
+    else:
+        st.info("Upload PDFs to start chatting.")
 
 # ---------- Dark/White Mode----------
 
@@ -560,9 +584,19 @@ if not st.session_state.greeted and st.session_state.view == "companies":
 elif st.session_state.view == "pdf":
     st.session_state.pdf = True
     st.session_state.greeted = True
-    uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
-    if uploaded_file:
-        st.success(f"Uploaded: {uploaded_file.name}")
+    # uploaded_files = st.file_uploader("Upload PDF", type=["pdf"], accept_multiple_files=True)
+    # if uploaded_files:
+    #     # Build / refresh the PDF agent model with these files.
+    #     st.session_state.pdf_model.load_pdfs(uploaded_files)
+    #     st.session_state.pdf_ready = True
+
+    #     st.success("OCR index ready.")
+
+    #     # Show timings / debug info if you'd like:
+    #     st.subheader("Timings")
+    #     st.json(st.session_state.pdf_model.get_timings())
+    # else:
+    #     st.info("Upload PDFs to start chatting.")
 elif st.session_state.view == "mix":
     for k in ["history", "messages", "pending_prompt"]:
         st.session_state.pop(k, None)
@@ -726,11 +760,18 @@ if prompt:
                 with st.chat_message("assistant"):
                     mix_answer(prompt)
         elif st.session_state.pdf:
-            engine, timings = ocr_engine_cached_multi(files_bytes, files_names)
-            st.session_state.ocr_engine = engine
-            st.session_state.ocr_timings = timings
-            st.session_state.graph = build_graph(engine)
-            pass
+            if not st.session_state.pdf_ready:
+                bot_reply = "Please upload PDFs first so I can index them."
+            else:
+                bot_reply = st.session_state.pdf_model.answer(prompt)
+
+            st.write(bot_reply)
+
+            # Push to history for the chat transcript
+            st.session_state.history.append({
+                "q": prompt,
+                "a": bot_reply
+            })
         else:
             if not st.session_state.company_name:
                 # get_company(prompt)
