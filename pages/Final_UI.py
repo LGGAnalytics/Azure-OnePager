@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from Final_theme import apply_theme
 import time
-
+import re 
 # app.py
 import os
 import textwrap
@@ -134,7 +134,7 @@ if "view" not in st.session_state:
     st.session_state.view = "home"          
 
 
-LOGO = 'logo_teneo.png'
+LOGO = 'LGGAdvisors_Logo.png'
 
 st.logo(
     str(LOGO),                 # main logo
@@ -258,24 +258,47 @@ def stream_answer(prompt: str, section_build = False, section = ''):
     ph.write(final_output)
 
 def pick_company(user_text):
+    # 1. Check if the user is explicitly trying to select a company.
+    #    Pattern: "select <company_name>"
+    #    - ignores leading/trailing spaces
+    #    - case-insensitive for the word "select"
+    #    - grabs whatever comes after "select " as the candidate company name
+    m = re.match(r'^\s*select\s+(.+?)\s*$', user_text, flags=re.IGNORECASE)
+    if not m:
+        # User didn't say "select ..."
+        return None, None
 
+    candidate = m.group(1).strip()
+
+    # 2. Load company list
     name_map, names = get_companies()
-    unique_names = list(dict.fromkeys(names))      # de-dupe while keeping order
-    reverse_map = {v: k for k, v in name_map.items()}  # clean -> orig
-    # normalize user input a bit
-    cleaned = user_text.strip().upper()
-    
-    # try fuzzy match against the official list
+    # name_map: {original_name: CLEANED_NAME}
+    # names:    [CLEANED_NAME, CLEANED_NAME, ...] (possibly with dups)
+
+    # we'll dedupe but keep order
+    unique_names = list(dict.fromkeys(names))
+
+    # reverse map CLEANED_NAME -> original_name
+    reverse_map = {v: k for k, v in name_map.items()}
+
+    # 3. Normalize candidate the same way you normalized in original code
+    cleaned_candidate = candidate.upper()
+
+    # 4. Fuzzy match against the official list ONLY if phrasing was correct
     matches = difflib.get_close_matches(
-        cleaned,
-        names,
-        n=1,          # only want the single best
-        cutoff=0.6    # 0.0–1.0; raise this if you want to be stricter
+        cleaned_candidate,
+        unique_names,
+        n=1,
+        cutoff=0.6  # adjust as you like
     )
 
     if matches:
-        return reverse_map.get(matches[0], matches[0])  # this is the canonical company name
-    return None
+        best_clean = matches[0]
+        original_name = reverse_map.get(best_clean, best_clean)
+        # return (original_for_display, cleaned_canonical)
+        return original_name, best_clean
+
+    return None, None
 
 def go(view: str):
     st.session_state.view = view
@@ -319,8 +342,8 @@ apply_theme(st.session_state.theme)
 
 # ---------- NAV STATE ----------
 
-def go(view):
-    st.session_state.view = view
+# def go(view):
+#     st.session_state.view = view
 
 if st.session_state.view == "home":
     L, C, R = st.columns([0.25, 14, 0.25], gap="large")
@@ -331,11 +354,12 @@ if st.session_state.view == "home":
         st.markdown("<h1 class='hero-title'>Welcome to Oraculum</h1>", unsafe_allow_html=True)
         st.markdown("<p class='hero-sub'>Your AI assistant for financial documents and company research, Please select a mode to get started.</p>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
+
     # Cards row (clickable; no business logic yet)
         c1, c2, c3, c4 = st.columns([0.5, 0.5, 0.5, 0.5], gap="medium")
 
         with c1:
-            st.button("**Research with Companies House**  \n_Access comprehensive company data from Companies House. Search for companies, view financial filings, and analyze company structures. Perfect for due diligence and company research._", 
+            st.button("**Research with Companies House**  \n_Access comprehensive company data from Companies House. Search for companies, view financial filings, and analyze company structures._", 
                          icon=":material/domain:", key="open_companies", use_container_width=True, on_click=go, args=("companies",))
         with c2:
             st.button("**Research with Web Search**  \n_Leverage real-time web search capabilities to find the latest news, market data, and insights. Stay updated with current information about companies and industries._", 
@@ -344,7 +368,7 @@ if st.session_state.view == "home":
             st.button("**Research with Companies House & Web Search**  \n_Extract key figures, generate summaries, and identify important metrics from financial reports, contracts, and other documents._", 
                          icon=":material/picture_as_pdf:", key="mix", use_container_width=True, on_click=go, args=("mix",))
         with c4:
-            st.button("**Talk with Your PDF**  \n_Upload and analyze PDF documents with advanced OCR._", 
+            st.button("**Talk with Your PDF**  \n_Upload and analyze PDF documents with advanced OCR. This methodology works with an entire independent system that doesn't save the section for privacy concerns_", 
                          icon=":material/picture_as_pdf:", key="open_pdf", use_container_width=True, on_click=go, args=("pdf",))
 
         st.markdown("</div>", unsafe_allow_html=True)
@@ -575,6 +599,7 @@ if st.session_state.view != "home":
     # NEW: resolve mode from flags first, then fallback to view
     mode = ("web" if st.session_state.get("websearch") else
             "combo" if st.session_state.get("mixsource") else
+            "pdf" if st.session_state.get("pdf") else
             "companies" if st.session_state.get("companieshouse") else
             st.session_state.view)
 
@@ -604,16 +629,18 @@ if st.session_state.view != "home":
     pending = st.session_state.pop("pending_prompt", None)
     prompt = typed or pending
 
-    if prompt:
-        _name_company = pick_company(prompt)
+    if prompt and mode != ('web', 'pdf'):
+        _name_company_coded, _name_company = pick_company(prompt)
         if _name_company:
-            st.session_state.company_name = _name_company
+            st.session_state.company_name = _name_company_coded
             answer_text = f"You have selected the \n {_name_company}"
             st.session_state.history.append({"a": answer_text})
 
             ph = st.empty()
             ph.write(answer_text)
             st.rerun()
+        else:
+            pass
 
 
     if st.session_state.companieshouse:
@@ -698,6 +725,12 @@ if prompt:
             else:
                 with st.chat_message("assistant"):
                     mix_answer(prompt)
+        elif st.session_state.pdf:
+            engine, timings = ocr_engine_cached_multi(files_bytes, files_names)
+            st.session_state.ocr_engine = engine
+            st.session_state.ocr_timings = timings
+            st.session_state.graph = build_graph(engine)
+            pass
         else:
             if not st.session_state.company_name:
                 # get_company(prompt)
@@ -708,3 +741,4 @@ if prompt:
             else:
                 with st.chat_message("assistant"):
                     stream_answer(prompt)
+        
