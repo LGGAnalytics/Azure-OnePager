@@ -131,10 +131,7 @@ if "convos" not in st.session_state:
     st.session_state.current_cid = cid
 
 if "theme" not in st.session_state:
-    st.session_state.theme = "light"  # or "dark" as default
-
-if "view" not in st.session_state:
-    st.session_state.view = "home"          
+    st.session_state.theme = "light"  # or "dark" as default      
 
 if "pdf_model" not in st.session_state:
     st.session_state.pdf_model = PDFChatModel()
@@ -150,12 +147,12 @@ st.logo(
     size="large",             # "small" | "medium" | "large"
 )
 
-def go(view: str):
-    st.session_state.view = view
-    st.session_state.websearch      = (view == "web")
-    st.session_state.mixsource      = (view == "mix")
-    st.session_state.pdf            = (view == "pdf")
-    st.session_state.companieshouse = (view == "companies")
+# def go(view: str):
+#     st.session_state.view = view
+#     st.session_state.websearch      = (view == "web")
+#     st.session_state.mixsource      = (view == "mix")
+#     st.session_state.pdf            = (view == "pdf")
+#     st.session_state.companieshouse = (view == "companies")
 
 output_placeholder = st.empty()
 # apply_theme(st.session_state.theme)
@@ -264,7 +261,7 @@ def stream_answer(prompt: str, section_build = False, section = ''):
 
     final_output = answer_text + timing_note
     ph = st.empty()
-    ph.write(final_output)
+    ph.markdown(final_output)
 
 def pick_company(user_text):
     # 1. Check if the user is explicitly trying to select a company.
@@ -326,9 +323,10 @@ def go(view: str):
     elif st.session_state.pdf:
         pass
     elif st.session_state.companieshouse:
-        _ , names = get_companies()
-        st.session_state.history.append({"a":f"{greeting_1}\n\n" + "\n".join(f"- {n}" for n in names)})
-        st.rerun()
+        # _ , names = get_companies()
+        # st.session_state.history.append({"a":f"{greeting_1}\n\n" + "\n".join(f"- {n}" for n in names)})
+        # st.rerun()
+        pass
 
 if st.session_state.pdf:
     uploaded_files = st.file_uploader("Upload PDF", type=["pdf"], accept_multiple_files=True)
@@ -350,19 +348,8 @@ if st.session_state.pdf:
 apply_theme(st.session_state.theme)
 
 
-# ---------- CUSTOM TOP BAR ----------
-
-
-# ---- Chat sessions ----
-
-# if "history" not in st.session_state:
-#     st.session_state.history = []
-
-
 # ---------- NAV STATE ----------
 
-# def go(view):
-#     st.session_state.view = view
 
 if st.session_state.view == "home":
     L, C, R = st.columns([0.25, 14, 0.25], gap="large")
@@ -642,11 +629,11 @@ if st.session_state.view != "home":
         unsafe_allow_html=True
     )
     for turn in st.session_state.history:
-        if turn.get("q"):  
+        if turn.get("q"):
             with st.chat_message("user"):
                 st.write(turn["q"])
         with st.chat_message("assistant"):
-            st.write(turn["a"])
+            st.markdown(turn["a"])
     
     placeholder = (
         "Ask a question about your PDFs…" 

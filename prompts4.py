@@ -1,3 +1,5 @@
+from datetime import datetime
+
 system_mod= """
 You are a restructuring analyst focused on identifying companies in financial distress that could be advisory targets for your company. You answer questions regarding the company's business overview, its recent key developments, its stakeholders, its financial performance and its capital structure. You rely on the latest three annual reports and financial statements of companies, as well as Web Search to answer these questions. 
 Key points: 
@@ -262,7 +264,7 @@ section7 = """
 
 section8 = """
 8. Capital Structure: 
-- This section looks into the capital structure for the latest years of the target company. This section has two parts, the first one is a table with capital structure of the company, while the second part is the bullet-point commentary complementing the table. 
+- This section looks into the capital structure for the latest year of the target company. This section has two parts, the first one is a table with capital structure of the company, while the second part is the bullet-point commentary complementing the table. 
    
 - The first part includes a table with the following capital structure information for the latest year, using the available annual report/financial statement of the company. It should list out all the debt facilities with the following columns: 
 -- Name of the Facility (e.g. £300m Term loan, $200m RCF, £100m Senior Secured Notes etc.) 
@@ -402,16 +404,16 @@ finance_pairs = [
 
 capital_pairs = [
     (
-        ["FIND THE VARIABLES 'Term Loan' and 'Senior Secured Notes' and 'debt facilities' and 'RCF'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Interest Rate' and 'EURIBOR'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Debt Facility' and 'Maturity'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Debt Facility' and 'Maturity' and 'Amount Outstanding'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Gross External Debt' and 'Debt' and 'debt facilities' and 'facility'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Cash' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Gross Debt' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Closing Cash' and 'RCF' and 'facilities' and 'facility'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'EBITDA' and 'facilities' and 'facility'. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'EBITDA' and 'Net Debt' and 'facilities' and 'facility'. FILES FROM 2024."]
+        [f"FIND THE VARIABLES 'Term Loan' and 'Senior Secured Notes' and 'debt facilities' and 'RCF'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Interest Rate' and 'EURIBOR'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Debt Facility' and 'Maturity'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Debt Facility' and 'Maturity' and 'Amount Outstanding'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Gross External Debt' and 'Debt' and 'debt facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Cash' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Gross Debt' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Closing Cash' and 'RCF' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'EBITDA' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'EBITDA' and 'Net Debt' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."]
     ),
     (
         ['Name of the Facility (e.g. £300m Term loan, $200m RCF, £100m Senior Secured Notes etc.)'],
@@ -445,6 +447,28 @@ stakeholders_pairs = [
     )
 ]
 
+stakeholders_web = """ 
+
+    6. Key Stakeholders:
+    - This section provides key stakeholders of the company in a table format, including the following, using the available annual reports/financial statements of the company, as well as Web Search:
+    -- Shareholders (Provide the immediate parent company and ultimate parent company of the target company in the case of a private company. In the case of a public company, provide top 5 shareholders of the company with % owned)
+    -- Management (Include the name of the chairman, Chief Executive Officer and Chief Financial Officer. If these three are not available provide the name of the Directors listed in the annual report)
+    -- Lenders (Include the name of the lenders of the company for each of the debt facility, if reported)
+    -- Advisors (Provide any financial or legal advisors, solicitors or bankers of the company)
+    -- Charges (Provide the list of Charges (Outstanding ONLY), their issue date and persons entitled using Companies House website)
+
+
+    - Sources to be used for this section: 
+    -- Shareholders will be available under the Parent Company section of the annual report, or throughout text in different sections, for private companies. For public limited companies, the top shareholders will be listed in the Shareholders section of the annual report. However, for public limited companies if it is not available in the report, Use Web Search to obtain to this information, as a backup option
+    -- Management will be available on the company’s official website, using Web Search. If a website is not available, check Company Information or Strategic Report or Key Management or Board of Directors section of the annual report
+    -- Use Web Search to search for press articles that has name of lenders for the debt facilities
+    -- Advisors need to be checked using Web Search, particularly for press articles related to debt issuance or M&A, that might provide name of the advisors, in addition to offering memorandum of debt if available. 
+
+
+    - Notes for this section:
+    -- Put n/a for any part not available in the report or through Web Search, rather than reporting incorrect information
+
+"""
 
 
 
@@ -456,5 +480,20 @@ biz_overview_pairs = [
         ["This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 5-6 bullet points with sentences, using the latest available annual reports/financial statements of the company — Include 1-2 bullet point sentences on what the company does — Include 1 bullet point on the products/services the company offers — Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers) — Include 1 bullet point on who are the customers of the company — Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs etc.)"],
     )
 ]
+
+biz_overview_web = """
+- This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 5-6 bullet points with sentences:
+-- Include 1-2 bullet point sentences on what the company does
+-- Include 1 bullet point on the products/services the company offers
+-- Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers)
+-- Include 1 bullet point on who are the customers of the company 
+-- Include 1 bullet point on any latest Credit Ratings from Moody’s, S&P and Fitch, if available (e.g. Fitch rated Company BBB+/Stable; Moody’s rated Company B-/Negative etc.)
+- Each bullet must begin with the company name, "The company", or “It”. Make sure each bullet point is a proper sentence, which do not contain any sub-headings, colon or semi-colons
+- Sources to be used for this section: 
+-- The bullet points regarding what the company does, its products/services, operations, customers can be sourced through Web Search, using the company’s official website. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report
+-- The bullet point regarding Credit Ratings can be sourced through Web Search, using press articles from Moody’s, S&P and Fitch
+- Notes for this section:
+-- If information for any of the bullet point is not available through Web Search, do not include that specific bullet point as incorrect information is strictly prohibited
+"""
 
 

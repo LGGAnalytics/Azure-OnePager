@@ -5,17 +5,11 @@ import streamlit as st
 import sys, pathlib
 from openai import OpenAI
 
-
-# Ensure repo root is importable
-repo_root = pathlib.Path(__file__).resolve().parent.parent
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
-
 # Engine
 from engines.engine import HybridEngine
 
 # LangGraph
-from langgraph.graph import StateGraph, START, END
+# from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
@@ -50,8 +44,6 @@ def build_graph(engine: HybridEngine):
             return "NO_MATCH"
         return "\n---\n".join([d.page_content[:500] for d in docs[:3]])
         
-        
-    
     @tool
     def web_search(query: str) -> str:
         """Use OpenAI Responses' built-in web_search to fetch up to 3 results.

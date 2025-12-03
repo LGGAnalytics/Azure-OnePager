@@ -320,8 +320,16 @@ with st.sidebar.expander("Quick Actions", expanded=False):
             ph.write(answer_text)
             st.rerun()
 
+        if st.button("⚙️ Create Profile Section", use_container_width=True, key="create_profile_btn"):
+            st.session_state.active_tile = "auto"
+            answer_text = f"{profile_tutorial_1}\n\n"
+            st.session_state.history.append({"q": f'How do I ask for a Company Profile?', "a": answer_text})
+            ph = st.empty()
+            ph.write(answer_text)
+            st.rerun()
+
         # st.rerun()
-if st.session_state.websearch or st.session_state.mixsource:
+if st.session_state.websearch or st.session_state.mixsource or st.session_state.pdf:
     pass
 else:
     with st.sidebar.expander("Profile Sections", expanded=False):

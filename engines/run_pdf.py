@@ -18,10 +18,10 @@ if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
 
 from engines.engine import HybridEngine  # your OCR/semantic retriever
-try:
-    from engines.calc_tool import calc_script as _calc_impl
-except Exception:
-    _calc_impl = None
+# try:
+#     from engines.calc_tool import calc_script as _calc_impl
+# except Exception:
+_calc_impl = None
 
 
 class PDFState(TypedDict):

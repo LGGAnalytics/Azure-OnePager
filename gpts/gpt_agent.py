@@ -21,7 +21,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
-from prompts4 import finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs, revenue_pairs, default_gpt_prompt, section4a, section4b, section5, section3
+from prompts4 import finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs, revenue_pairs, default_gpt_prompt, section4a, section4b, section5, section3, biz_overview_web, stakeholders_web
 from pages.design.func_tools import *
 from pages.design.formatting import *
 from pages.design.func_tools import docx_bytes_to_pdf_bytes
@@ -280,10 +280,12 @@ class profileAgent():
     def _answer(self, question, ctx_text, k: int = 5, temperature: float = 0.2):
 
         system_msg = self.profile_prompt + (
-            "\nWhen you use a fact from the context, add citations like [#1], [#2]."
-            "\nOnly rely on the numbered context; if a value is missing, say 'n.a.'."
+            "\nWhen you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41] that are already in the context text."
+            "\nOnly rely on the provided context; if a value is missing, say 'n.a.'."
+            "\nIMPORTANT: If the formatting instructions request a Sources section, you MUST include it at the end."
+            "\nFor the Sources section, list all citation numbers/references that appear in your answer, and describe what document/source each refers to based on information in the context."
         )
-        user_msg = f"Question:\n{question}\n\nContext snippets (numbered):\n{ctx_text}"
+        user_msg = f"Question:\n{question}\n\nContext snippets:\n{ctx_text}"
 
         client = self.az_openai
         messages = [
@@ -292,7 +294,7 @@ class profileAgent():
         ]
 
         # Try streaming first (SSE). Some networks/proxies block streaming; if so, fall back.
-        
+
         resp = client.chat.completions.create(
             model=AOAI_DEPLOYMENT,
             messages=messages,
@@ -350,13 +352,43 @@ class profileAgent():
             # =========== GENERATE BUSINESS OVERVIEW
             biz_overview_pairs_flat = list(zip(biz_overview_pairs[1], biz_overview_pairs[0]))  # [(r, q), (r, q), ...]
             section_built = self._sections(pairs = biz_overview_pairs_flat)
-            resp = self._answer(question=business_overview_formatting, ctx_text=section_built)
+
+            #getting web search sections
+            new_section = f'All instructions applies to the company: {self.company_name}\n\n{biz_overview_web} \n\n Mention in the Beggining of the answer that this is WEBSEARCH SOURCE'
+            messages = [
+                {"role": "system", "content": default_gpt_prompt},
+                {"role": "user",   "content": new_section},
+            ]
+            resp_web = self._web_search(messages)
+
+            section_built.append(resp_web)
+
+            # Join all context sections - they already contain their own citations
+            # Just concatenate them so the model can synthesize
+            ctx_text_formatted = "\n\n".join(section_built)
+
+            resp = self._answer(question=biz_overview_mix_formatting, ctx_text=ctx_text_formatted)
             return resp['answer']
         elif section == 'GENERATE KEY STAKEHOLDERS':
         # =========== GENERATE KEY STAKEHOLDERS
             stakeholders_pairs_flat = list(zip(stakeholders_pairs[1], stakeholders_pairs[0]))  # [(r, q), (r, q), ...]
             section_built = self._sections(pairs= stakeholders_pairs_flat)
-            resp = self._answer(question=stakeholders_formatting_2, ctx_text=section_built)
+
+            #getting web search sections
+            new_section = f'All instructions applies to the company: {self.company_name}\n\n{stakeholders_web} \n\n Mention in the Beggining of the answer that this is WEBSEARCH SOURCE'
+            messages = [
+                {"role": "system", "content": default_gpt_prompt},
+                {"role": "user",   "content": new_section},
+            ]
+            resp_web = self._web_search(messages)
+
+            section_built.append(resp_web)
+
+            # Join all context sections - they already contain their own citations
+            # Just concatenate them so the model can synthesize
+            ctx_text_formatted = "\n\n".join(section_built)
+
+            resp = self._answer(question=stakeholders_web_mix, ctx_text=section_built)
             return resp['answer']
         elif section == 'GENERATE FINANCIAL HIGHLIGHTS':
             # =========== GENERATE FINANCIAL HIGHLIGHTS
@@ -431,7 +463,7 @@ class profileAgent():
         # =========== GENERATE CAPITAL STRUCTURE
         capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
         section4 = self._sections(pairs= capital_pairs_flat)
-        resp = self._answer(question=capital_structure_formatting, ctx_text=section4)
+        resp = self._answer(question=capital_structure_formatting_2, ctx_text=section4)
         doc = insert_capital_structure(resp['answer'], doc=doc)
 
         pdf_bytes = docx_bytes_to_pdf_bytes(doc)

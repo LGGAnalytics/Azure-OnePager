@@ -9,7 +9,7 @@ from docx import Document
 import io, tempfile, subprocess, shutil
 from pathlib import Path
 from typing import Optional, Tuple, Union
-
+import os
 from docx import Document
 from docx.enum.text import WD_BREAK
 # ---------- tile helper (the tile itself is the click target) ----------
@@ -838,6 +838,212 @@ def insert_biz_overview(gpt_output):
   print(f"Updated document written")
   return doc
 
+def insert_revenue_split(gpt_output, doc):
+
+  PLACEHOLDER = "[INSERT REVENUE SPLIT]"
+
+  def set_paragraph_multiline(paragraph, text: str):
+      """Replace a paragraph's text with multi-line content, preserving line breaks."""
+      # clear existing runs
+      for run in paragraph.runs:
+          run.text = ""
+      # write lines with explicit line breaks
+      lines = (text or "").splitlines()
+      if not lines:
+          return
+      paragraph.add_run(lines[0])
+      for ln in lines[1:]:
+          r = paragraph.add_run()
+          r.add_break(WD_BREAK.LINE)
+          paragraph.add_run(ln)
+
+
+  def replace_placeholder(document: Document, placeholder: str, new_text: str) -> bool:
+      """Find placeholder in paragraphs/cells and replace it with new_text (multiline)."""
+      # plain paragraphs
+      for p in document.paragraphs:
+          if placeholder in p.text:
+              set_paragraph_multiline(p, new_text)
+              return True
+      # inside tables
+      for tbl in document.tables:
+          for row in tbl.rows:
+              for cell in row.cells:
+                  for p in cell.paragraphs:
+                      if placeholder in p.text:
+                          set_paragraph_multiline(p, new_text)
+                          return True
+      return False
+
+  # =========================
+  # 2) Replace the placeholder
+  # =========================
+  ok = replace_placeholder(doc, PLACEHOLDER, gpt_output)
+  if not ok:
+      print(f"WARNING: placeholder not found: {PLACEHOLDER}")
+
+  # =========================
+  # 3) Save
+  # =========================
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  print(f"Updated document written")
+  return doc
+
+def insert_services_overview(gpt_output, doc):
+
+  PLACEHOLDER = "[INSERT SERVICES OVERVIEW]"
+
+  def set_paragraph_multiline(paragraph, text: str):
+      """Replace a paragraph's text with multi-line content, preserving line breaks."""
+      # clear existing runs
+      for run in paragraph.runs:
+          run.text = ""
+      # write lines with explicit line breaks
+      lines = (text or "").splitlines()
+      if not lines:
+          return
+      paragraph.add_run(lines[0])
+      for ln in lines[1:]:
+          r = paragraph.add_run()
+          r.add_break(WD_BREAK.LINE)
+          paragraph.add_run(ln)
+
+
+  def replace_placeholder(document: Document, placeholder: str, new_text: str) -> bool:
+      """Find placeholder in paragraphs/cells and replace it with new_text (multiline)."""
+      # plain paragraphs
+      for p in document.paragraphs:
+          if placeholder in p.text:
+              set_paragraph_multiline(p, new_text)
+              return True
+      # inside tables
+      for tbl in document.tables:
+          for row in tbl.rows:
+              for cell in row.cells:
+                  for p in cell.paragraphs:
+                      if placeholder in p.text:
+                          set_paragraph_multiline(p, new_text)
+                          return True
+      return False
+
+  # =========================
+  # 2) Replace the placeholder
+  # =========================
+  ok = replace_placeholder(doc, PLACEHOLDER, gpt_output)
+  if not ok:
+      print(f"WARNING: placeholder not found: {PLACEHOLDER}")
+
+  # =========================
+  # 3) Save
+  # =========================
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  print(f"Updated document written")
+  return doc
+
+def insert_geo_footprint(gpt_output, doc):
+  PLACEHOLDER = "[INSERT GEO FOOTPRINT]"
+
+  def set_paragraph_multiline(paragraph, text: str):
+      """Replace a paragraph's text with multi-line content, preserving line breaks."""
+      # clear existing runs
+      for run in paragraph.runs:
+          run.text = ""
+      # write lines with explicit line breaks
+      lines = (text or "").splitlines()
+      if not lines:
+          return
+      paragraph.add_run(lines[0])
+      for ln in lines[1:]:
+          r = paragraph.add_run()
+          r.add_break(WD_BREAK.LINE)
+          paragraph.add_run(ln)
+
+
+  def replace_placeholder(document: Document, placeholder: str, new_text: str) -> bool:
+      """Find placeholder in paragraphs/cells and replace it with new_text (multiline)."""
+      # plain paragraphs
+      for p in document.paragraphs:
+          if placeholder in p.text:
+              set_paragraph_multiline(p, new_text)
+              return True
+      # inside tables
+      for tbl in document.tables:
+          for row in tbl.rows:
+              for cell in row.cells:
+                  for p in cell.paragraphs:
+                      if placeholder in p.text:
+                          set_paragraph_multiline(p, new_text)
+                          return True
+      return False
+
+  # =========================
+  # 2) Replace the placeholder
+  # =========================
+  ok = replace_placeholder(doc, PLACEHOLDER, gpt_output)
+  if not ok:
+      print(f"WARNING: placeholder not found: {PLACEHOLDER}")
+
+  # =========================
+  # 3) Save
+  # =========================
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  print(f"Updated document written")
+  return doc
+
+def insert_development_highlights(gpt_output, doc):
+  PLACEHOLDER = "[INSERT KEY DEVELOPMENTS]"
+
+  def set_paragraph_multiline(paragraph, text: str):
+      """Replace a paragraph's text with multi-line content, preserving line breaks."""
+      # clear existing runs
+      for run in paragraph.runs:
+          run.text = ""
+      # write lines with explicit line breaks
+      lines = (text or "").splitlines()
+      if not lines:
+          return
+      paragraph.add_run(lines[0])
+      for ln in lines[1:]:
+          r = paragraph.add_run()
+          r.add_break(WD_BREAK.LINE)
+          paragraph.add_run(ln)
+
+
+  def replace_placeholder(document: Document, placeholder: str, new_text: str) -> bool:
+      """Find placeholder in paragraphs/cells and replace it with new_text (multiline)."""
+      # plain paragraphs
+      for p in document.paragraphs:
+          if placeholder in p.text:
+              set_paragraph_multiline(p, new_text)
+              return True
+      # inside tables
+      for tbl in document.tables:
+          for row in tbl.rows:
+              for cell in row.cells:
+                  for p in cell.paragraphs:
+                      if placeholder in p.text:
+                          set_paragraph_multiline(p, new_text)
+                          return True
+      return False
+
+  # =========================
+  # 2) Replace the placeholder
+  # =========================
+  ok = replace_placeholder(doc, PLACEHOLDER, gpt_output)
+  if not ok:
+      print(f"WARNING: placeholder not found: {PLACEHOLDER}")
+
+  # =========================
+  # 3) Save
+  # =========================
+  # out_path = "/Users/felipesilverio/Documents/GitHub/Azure-OnePager/CompanyProfile2.docx"
+  # doc.save(out_path)
+  print(f"Updated document written")
+  return doc
+
 def _docx_bytes_to_pdf_bytes_with_docx2pdf(docx_bytes: bytes) -> Optional[bytes]:
     """Try converting via docx2pdf (requires MS Word on Windows/macOS). Returns None if unavailable/fails."""
     try:
@@ -852,7 +1058,8 @@ def _docx_bytes_to_pdf_bytes_with_docx2pdf(docx_bytes: bytes) -> Optional[bytes]
             in_path.write_bytes(docx_bytes)
             convert(str(in_path), str(out_path))  # uses Word/Automator
             return out_path.read_bytes()
-    except Exception:
+    except Exception as e:
+        print("[docx2pdf] conversion failed:", repr(e))
         return None
     
 def _docx_bytes_to_pdf_bytes_with_lo(docx_bytes: bytes) -> Optional[bytes]:
@@ -877,7 +1084,8 @@ def _docx_bytes_to_pdf_bytes_with_lo(docx_bytes: bytes) -> Optional[bytes]:
             if out_path.exists():
                 return out_path.read_bytes()
             return None
-    except Exception:
+    except Exception as e:
+        print("[LibreOffice] exception:", repr(e))
         return None
     
 def docx_bytes_to_pdf_bytes(docx_bytes: bytes) -> Optional[bytes]:
@@ -885,4 +1093,32 @@ def docx_bytes_to_pdf_bytes(docx_bytes: bytes) -> Optional[bytes]:
     pdf = _docx_bytes_to_pdf_bytes_with_docx2pdf(docx_bytes)
     if pdf:
         return pdf
-    return _docx_bytes_to_pdf_bytes_with_lo(docx_bytes)
+    
+    pdf = _docx_bytes_to_pdf_bytes_with_lo(docx_bytes)
+    if pdf:
+        return _docx_bytes_to_pdf_bytes_with_lo(docx_bytes)
+    
+    return 'Unable to transform to pdf'
+
+def save_docx_to_pdf_via_libreoffice(doc, pdf_path: str):
+    tmpdir = tempfile.mkdtemp()
+    docx_path = os.path.join(tmpdir, "report.docx")
+    doc.save(docx_path)
+
+    outdir = str(Path(pdf_path).parent)
+    os.makedirs(outdir, exist_ok=True)
+
+    # Convert using LibreOffice in headless mode
+    cmd = [
+        "soffice", "--headless", "--nologo",
+        "--convert-to", "pdf:writer_pdf_Export",
+        "--outdir", outdir, docx_path
+    ]
+    res = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+
+    produced = os.path.join(outdir, "report.pdf")
+    if res.returncode != 0 or not os.path.exists(produced):
+        raise RuntimeError(f"LibreOffice failed:\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}")
+
+    shutil.move(produced, pdf_path)
+    shutil.rmtree(tmpdir, ignore_errors=True)

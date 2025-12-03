@@ -4,6 +4,8 @@ Hello! Welcome to Oraculum! This system is being prepared to completely assist y
 I am currently capable of downloading new companies from CompaniesHouse, create Company Profile and navigate internet! \n
 
 Please, if you don't want to insert a new company, select one from the following list to talk about: \n
+
+In order to select a new company you just have to type in: 'Select [company_name]'  \n
 """
 
 greeting_2 = """
