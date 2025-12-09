@@ -6,8 +6,7 @@ from azure.blob_functions import get_company_name, upload_blob
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ADMIN)
 
 
-@app.function_name(name="pdfprofile")
-@app.route(methods=["POST"], auth_level=func.AuthLevel.ADMIN)
+@app.route(route="pdfprofile", methods=["POST"], auth_level=func.AuthLevel.ADMIN)
 def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
