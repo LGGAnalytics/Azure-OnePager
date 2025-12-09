@@ -1,7 +1,7 @@
 import azure.functions as func
 import logging
-from engines.profile_pdf import profile_creator, markdown_table_to_docx
-from azure.blob_functions import get_company_name, upload_blob
+# from engines.profile_pdf import profile_creator, markdown_table_to_docx
+# from azure.blob_functions import get_company_name, upload_blob
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ADMIN)
 
@@ -25,56 +25,57 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
     )
 
     if company_number:
-        try:
-            company_name = get_company_name(company_number)
-        except Exception as e:
-            print(f"Error getting company name: {e}")
+        # try:
+        #     company_name = get_company_name(company_number)
+        # except Exception as e:
+        #     print(f"Error getting company name: {e}")
 
-        try:
-            agent = profile_creator(company_name)
-        except Exception as e:
-            print(f"Error creating profile agent: {e}")
+        # try:
+        #     agent = profile_creator(company_name)
+        # except Exception as e:
+        #     print(f"Error creating profile agent: {e}")
 
-        try:
-            agent._generate_section()
-        except Exception as e:
-            print(f"Error generating sections: {e}")
+        # try:
+        #     agent._generate_section()
+        # except Exception as e:
+        #     print(f"Error generating sections: {e}")
 
-        try:
-            agent._check_sections()
-        except Exception as e:
-            print(f"Error checking sections: {e}")
+        # try:
+        #     agent._check_sections()
+        # except Exception as e:
+        #     print(f"Error checking sections: {e}")
 
-        try:
-            all = agent._unite_sections()
-        except Exception as e:
-            print(f"Error uniting sections: {e}")
+        # try:
+        #     all = agent._unite_sections()
+        # except Exception as e:
+        #     print(f"Error uniting sections: {e}")
 
-        try:
-            # Generate document and get BytesIO buffer
-            doc_buffer = markdown_table_to_docx(
-                all,
-                logo_path="logo_teneo.png"
-            )
-            print(f"✓ Generated {agent.company_name}.docx")
-        except Exception as e:
-            print(f"Error generating: {e}")
+        # try:
+        #     # Generate document and get BytesIO buffer
+        #     doc_buffer = markdown_table_to_docx(
+        #         all,
+        #         logo_path="logo_teneo.png"
+        #     )
+        #     print(f"✓ Generated {agent.company_name}.docx")
+        # except Exception as e:
+        #     print(f"Error generating: {e}")
         
-        try:
-            # Upload to blob storage with metadata
-            upload_blob(
-                CONTAINER="companieshousesinglefile",
-                BLOB_NAME=f"{agent.company_name}_PROFILE.docx",
-                file=doc_buffer,
-                company_name=agent.company_name,
-                company_number=company_number,
-                doc_type="profile"
-            )
-            print(f"✓ Uploaded {agent.company_name}.docx to blob storage")
-        except Exception as e:
-            print(f"Error uploading document: {e}")
+        # try:
+        #     # Upload to blob storage with metadata
+        #     upload_blob(
+        #         CONTAINER="companieshousesinglefile",
+        #         BLOB_NAME=f"{agent.company_name}_PROFILE.docx",
+        #         file=doc_buffer,
+        #         company_name=agent.company_name,
+        #         company_number=company_number,
+        #         doc_type="profile"
+        #     )
+        #     print(f"✓ Uploaded {agent.company_name}.docx to blob storage")
+        # except Exception as e:
+        #     print(f"Error uploading document: {e}")
 
-        return func.HttpResponse(f"Hello, {company_name}. This HTTP triggered function executed successfully.")
+        # return func.HttpResponse(f"Hello, {company_name}. This HTTP triggered function executed successfully.")
+        pass
     else:
         return func.HttpResponse(
              "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
