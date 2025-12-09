@@ -56,7 +56,7 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
         except Exception as e:
             print(f"Error uploading document: {e}")
 
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
+        return func.HttpResponse(f"Hello, {company_name}. This HTTP triggered function executed successfully.")
     else:
         return func.HttpResponse(
              "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
