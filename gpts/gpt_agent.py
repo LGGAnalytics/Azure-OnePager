@@ -21,7 +21,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
-from prompts4 import finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs, revenue_pairs, default_gpt_prompt, section4a, section4b, section5, section3, biz_overview_web, stakeholders_web
+from prompts4 import system_mod, finance_calculations, finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs, revenue_pairs, default_gpt_prompt, section4a, section4b, section5, section3, biz_overview_web, stakeholders_web
 from pages.design.func_tools import *
 from pages.design.formatting import *
 from pages.design.func_tools import docx_bytes_to_pdf_bytes
@@ -53,7 +53,7 @@ class profileAgent():
     It is activated by a call on main rag when it is typed 'Create company profile'
     """
 
-    def __init__(self, company_name, k, max_text_recall_size, max_chars, model, profile_prompt = new_system_finance_prompt, finance_calculations = finance_calculations):
+    def __init__(self, company_name, k, max_text_recall_size, max_chars, model, profile_prompt = system_mod, finance_calculations = finance_calculations):
         
         self.company_name = company_name
 

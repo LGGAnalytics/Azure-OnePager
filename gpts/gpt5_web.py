@@ -3,7 +3,7 @@ import os
 import textwrap
 from dotenv import load_dotenv, find_dotenv
 import json
-from rag import (
+from rags.rag import (
     retrieve_hybrid_enhanced,
     build_context,
     get_aoai_client
