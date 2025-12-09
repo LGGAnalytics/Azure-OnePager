@@ -28,3 +28,4 @@ langchain-core==0.3.75
 langchain-groq==0.3.7
 langchain-openai==0.3.32
 langgraph==0.6.11
+azure-functions
