@@ -5,7 +5,9 @@ from azure.blob_functions import get_company_name, upload_blob
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ADMIN)
 
-@app.route(route="pdfprofile")
+
+@app.function_name(name="pdfprofile")
+@app.route(methods=["POST"], auth_level=func.AuthLevel.FUNCTION)
 def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
@@ -24,13 +26,30 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
     )
 
     if company_number:
-        agent = profile_creator(company_number)
+        try:
+            company_name = get_company_name(company_number)
+        except Exception as e:
+            print(f"Error getting company name: {e}")
 
-        company_name = get_company_name(company_number)
-        creator = profile_creator(company_name)
-        agent._generate_section()
-        agent._check_sections()
-        all = agent._unite_sections()
+        try:
+            agent = profile_creator(company_name)
+        except Exception as e:
+            print(f"Error creating profile agent: {e}")
+
+        try:
+            agent._generate_section()
+        except Exception as e:
+            print(f"Error generating sections: {e}")
+
+        try:
+            agent._check_sections()
+        except Exception as e:
+            print(f"Error checking sections: {e}")
+
+        try:
+            all = agent._unite_sections()
+        except Exception as e:
+            print(f"Error uniting sections: {e}")
 
         try:
             # Generate document and get BytesIO buffer
@@ -38,7 +57,7 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
                 all,
                 logo_path="logo_teneo.png"
             )
-            print(f"✓ Generated {creator.company_name}.docx")
+            print(f"✓ Generated {agent.company_name}.docx")
         except Exception as e:
             print(f"Error generating: {e}")
         
@@ -46,13 +65,13 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
             # Upload to blob storage with metadata
             upload_blob(
                 CONTAINER="companieshousesinglefile",
-                BLOB_NAME=f"{creator.company_name}_PROFILE.docx",
+                BLOB_NAME=f"{agent.company_name}_PROFILE.docx",
                 file=doc_buffer,
-                company_name=creator.company_name,
+                company_name=agent.company_name,
                 company_number=company_number,
                 doc_type="profile"
             )
-            print(f"✓ Uploaded {creator.company_name}.docx to blob storage")
+            print(f"✓ Uploaded {agent.company_name}.docx to blob storage")
         except Exception as e:
             print(f"Error uploading document: {e}")
 
