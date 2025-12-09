@@ -13,13 +13,16 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 # DOC CREATION FUNC
 
 
-def markdown_table_to_docx(markdown_text: str, output_path: str, logo_path: str = None):
+def markdown_table_to_docx(markdown_text: str, output_path: str = None, logo_path: str = None):
     """
     Convert markdown to Docx with a logo positioned at top-left.
     - Left: -3cm indent
     - Height: Moved up by reducing header distance to 0.5cm
+
+    If output_path is provided, saves to disk.
+    Returns a BytesIO object containing the document.
     """
-    
+
     lines = markdown_text.strip().split('\n')
     doc = Document()
     
@@ -121,10 +124,18 @@ def markdown_table_to_docx(markdown_text: str, output_path: str, logo_path: str 
             i += 1
         else:
             i += 1
-    
-    doc.save(output_path)
-    print(f"✓ Saved to: {output_path}")
-    return doc
+
+    # Save to BytesIO buffer
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+
+    # Optionally save to disk if output_path is provided
+    if output_path:
+        doc.save(output_path)
+        print(f"✓ Saved to: {output_path}")
+
+    return buffer
 
 # ----------------------
 
@@ -232,18 +243,18 @@ class profile_creator():
         all = "\n\n".join([self.biz_ov, self.key_stake, self.rev_split, self.prod_serv_ov, self.geo_foot, self.dev_high, self.fin_high, self.cap_stru])
         return all
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    creator = profile_creator("Your Company Name")
-    creator._generate_section()
-    creator._check_sections()
-    all = creator._unite_sections()
+#     creator = profile_creator("Your Company Name")
+#     creator._generate_section()
+#     creator._check_sections()
+#     all = creator._unite_sections()
 
-    try:
-        markdown_table_to_docx(
-            all,
-            f"{creator.company_name}.docx",
-            logo_path="logo_teneo.png"
-        )
-    except Exception as e:
-        print(e)
+#     try:
+#         markdown_table_to_docx(
+#             all,
+#             f"{creator.company_name}.docx",
+#             logo_path="logo_teneo.png"
+#         )
+#     except Exception as e:
+#         print(e)

@@ -3,9 +3,10 @@ import pandas as pd
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobClient, ContentSettings
 from dotenv import load_dotenv, find_dotenv
-import os 
+import os
 import requests
 from requests.auth import HTTPBasicAuth
+from datetime import datetime
 
 load_dotenv(find_dotenv(), override=True)
 
@@ -97,6 +98,7 @@ def companyHouseListAdd(
         container_name=CONTAINER,
         blob_name=BLOB_NAME
     )
+    
     blob.upload_blob(
         buf.getvalue(),
         overwrite=True,
@@ -105,12 +107,38 @@ def companyHouseListAdd(
         ),
     )
 
-def upload_blob(CONTAINER, BLOB_NAME, file, company):
-    blob = BlobClient.from_connection_string(conn_str=AZURE_STORAGE_CONNECTION_STRING,
-                                        container_name=CONTAINER,
-                                        blob_name=BLOB_NAME)
-        
-    pass
+def upload_blob(CONTAINER, BLOB_NAME, file, **kwargs):
+    """
+    Upload a file buffer to Azure Blob Storage.
+    """
+    blob = BlobClient.from_connection_string(
+        conn_str=AZURE_STORAGE_CONNECTION_STRING,
+        container_name=CONTAINER,
+        blob_name=BLOB_NAME
+    )
+
+    # Handle both BytesIO and bytes
+    data = file.getvalue() if hasattr(file, 'getvalue') else file
+
+    # Build metadata from kwargs
+    try:
+        meta = {
+            "company_name": kwargs.get("company_name", ""),
+            "company_number": kwargs.get("company_number", ""),
+            "annual_report_date": datetime.today().strftime("%Y-%m-%d"),
+            "doc_type": kwargs.get("doc_type", "profile")
+        }
+    except:
+        pass
+
+    blob.upload_blob(
+        data,
+        overwrite=True,
+        content_settings=ContentSettings(
+            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        metadata=meta if meta else None
+    )
 
 def get_companies(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.xlsx'):
 
@@ -126,9 +154,20 @@ def get_companies(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.x
     name_map = dict(zip(names.tolist(), clean.tolist()))
     clean_in_order = [name_map[orig] for orig in names] 
 
-
-
-
     return name_map, clean_in_order
+
+def get_company_name(company_number, CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.xlsx'):
+    """
+    This function is returns the company_name registered in the excel file CompaniesHouseList based on company_number
+    and returns the company_name
+    """
+
+    excel_bytes = get_file_blob(CONTAINER = 'companieslist', BLOB_NAME = 'CompaniesHouseList.xlsx')
+    df = pd.read_excel(BytesIO(excel_bytes), sheet_name="IDs")
+    company_name = df[df.IDS == company_number].NAMES.values[0]
+    return company_name
+
+
+
 
 
