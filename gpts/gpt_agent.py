@@ -27,7 +27,7 @@ from pages.design.formatting import *
 from pages.design.func_tools import docx_bytes_to_pdf_bytes
 import re, time
  
-load_dotenv(find_dotenv(), override=True)
+# load_dotenv(find_dotenv(), override=True)
 
 # ---- Config (expects the same envs you already used) ----
 SEARCH_ENDPOINT = os.environ["AZURE_SEARCH_ENDPOINT"]
