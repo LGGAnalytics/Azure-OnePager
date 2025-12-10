@@ -43,20 +43,20 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
         except Exception as e:
             print(f"Error creating profile agent: {e}")
 
-        # try:
-        #     agent._generate_section()
-        # except Exception as e:
-        #     print(f"Error generating sections: {e}")
+        try:
+            agent._generate_section()
+        except Exception as e:
+            print(f"Error generating sections: {e}")
 
-        # try:
-        #     agent._check_sections()
-        # except Exception as e:
-        #     print(f"Error checking sections: {e}")
+        try:
+            agent._check_sections()
+        except Exception as e:
+            print(f"Error checking sections: {e}")
 
-        # try:
-        #     all = agent._unite_sections()
-        # except Exception as e:
-        #     print(f"Error uniting sections: {e}")
+        try:
+            all = agent._unite_sections()
+        except Exception as e:
+            print(f"Error uniting sections: {e}")
 
         # try:
         #     # Generate document and get BytesIO buffer
