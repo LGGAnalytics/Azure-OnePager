@@ -5,6 +5,7 @@ try:
     from engines.profile_pdf import profile_creator, markdown_table_to_docx
 except Exception as e:
     logging.error(f'Failed to import engines.profile_df {e}')
+    print(f'Failed to import engines.profile_df {e}')
     
 # from azure.blob_functions import get_company_name, upload_blob
 
@@ -37,10 +38,10 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
         # except Exception as e:
         #     print(f"Error getting company name: {e}")
 
-        # try:
-        #     agent = profile_creator(company_name)
-        # except Exception as e:
-        #     print(f"Error creating profile agent: {e}")
+        try:
+            agent = profile_creator(company_name)
+        except Exception as e:
+            print(f"Error creating profile agent: {e}")
 
         # try:
         #     agent._generate_section()
