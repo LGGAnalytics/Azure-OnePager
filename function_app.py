@@ -1,6 +1,11 @@
 import azure.functions as func
 import logging
-from engines.profile_pdf import profile_creator, markdown_table_to_docx
+
+try:
+    from engines.profile_pdf import profile_creator, markdown_table_to_docx
+except Exception as e:
+    logging.error(f'Failed to import engines.profile_df {e}')
+    
 # from azure.blob_functions import get_company_name, upload_blob
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ADMIN)
