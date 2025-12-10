@@ -7,7 +7,12 @@ except Exception as e:
     logging.error(f'Failed to import engines.profile_df {e}')
     print(f'Failed to import engines.profile_df {e}')
     
-# from azure.blob_functions import get_company_name, upload_blob
+try:
+    from azure.blob_functions import get_company_name, upload_blob
+except Exception as e:
+    logging.error(f'Failed to import engines.profile_df {e}')
+    print(f'Failed to import azure.blob_functions {e}')
+#
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ADMIN)
 
@@ -30,13 +35,13 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
         or req.params.get("IDS")
     )
 
-    company_name = "SEAPORT_TOPCO_LIMITED"
+    # company_name = "SEAPORT_TOPCO_LIMITED"
 
     if company_number:
-        # try:
-        #     company_name = get_company_name(company_number)
-        # except Exception as e:
-        #     print(f"Error getting company name: {e}")
+        try:
+            company_name = get_company_name(company_number)
+        except Exception as e:
+            print(f"Error getting company name: {e}")
 
         try:
             agent = profile_creator(company_name)
@@ -58,29 +63,29 @@ def pdfprofile(req: func.HttpRequest) -> func.HttpResponse:
         except Exception as e:
             print(f"Error uniting sections: {e}")
 
-        # try:
-        #     # Generate document and get BytesIO buffer
-        #     doc_buffer = markdown_table_to_docx(
-        #         all,
-        #         logo_path="logo_teneo.png"
-        #     )
-        #     print(f"✓ Generated {agent.company_name}.docx")
-        # except Exception as e:
-        #     print(f"Error generating: {e}")
+        try:
+            # Generate document and get BytesIO buffer
+            doc_buffer = markdown_table_to_docx(
+                all,
+                logo_path="logo_teneo.png"
+            )
+            print(f"✓ Generated {agent.company_name}.docx")
+        except Exception as e:
+            print(f"Error generating: {e}")
         
-        # try:
-        #     # Upload to blob storage with metadata
-        #     upload_blob(
-        #         CONTAINER="companieshousesinglefile",
-        #         BLOB_NAME=f"{agent.company_name}_PROFILE.docx",
-        #         file=doc_buffer,
-        #         company_name=agent.company_name,
-        #         company_number=company_number,
-        #         doc_type="profile"
-        #     )
-        #     print(f"✓ Uploaded {agent.company_name}.docx to blob storage")
-        # except Exception as e:
-        #     print(f"Error uploading document: {e}")
+        try:
+            # Upload to blob storage with metadata
+            upload_blob(
+                CONTAINER="companieshousesinglefile",
+                BLOB_NAME=f"{agent.company_name}_PROFILE.docx",
+                file=doc_buffer,
+                company_name=agent.company_name,
+                company_number=company_number,
+                doc_type="profile"
+            )
+            print(f"✓ Uploaded {agent.company_name}.docx to blob storage")
+        except Exception as e:
+            print(f"Error uploading document: {e}")
 
         return func.HttpResponse(f"Hello, {company_name}. This HTTP triggered function executed successfully.")
         
