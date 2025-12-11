@@ -58,7 +58,7 @@ OPENAI_API_KEY  = os.getenv("FELIPE_OPENAI_API_KEY")        # required
 
 # =====================================================
 
-st.set_page_config(page_title="Oraculum", layout="wide")
+st.set_page_config(page_title="Oraculum", layout="wide", initial_sidebar_state="collapsed")
 # st.title("Oraculum")
 
 # -------- Session state --------
@@ -84,8 +84,8 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "pending_prompt" not in st.session_state:
     st.session_state.pending_prompt = None  # used by sidebar suggestion buttons
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"   # default: Dark Mode
+# Force light theme always
+st.session_state.theme = "light"
 if "rag" not in st.session_state:
     st.session_state.rag = "FIND THE VARIABLES 'Net cash from operating activities' and 'Net cash used in investing activities' in the statement of cash flows. FILES FROM 2024."
 if "sys_message_mod" not in st.session_state:
@@ -129,9 +129,6 @@ if "convos" not in st.session_state:
     cid = str(uuid4())
     st.session_state.convos = {cid: {"title": "New chat", "messages": []}}
     st.session_state.current_cid = cid
-
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"  # or "dark" as default      
 
 if "pdf_model" not in st.session_state:
     st.session_state.pdf_model = PDFChatModel()
@@ -265,13 +262,13 @@ def stream_answer(prompt: str, section_build = False, section = ''):
 
 def pick_company(user_text):
     # 1. Check if the user is explicitly trying to select a company.
-    #    Pattern: "select <company_name>"
+    #    Pattern: "select company <company_name>"
     #    - ignores leading/trailing spaces
-    #    - case-insensitive for the word "select"
-    #    - grabs whatever comes after "select " as the candidate company name
-    m = re.match(r'^\s*select\s+(.+?)\s*$', user_text, flags=re.IGNORECASE)
+    #    - case-insensitive for the words "select company"
+    #    - grabs whatever comes after "select company " as the candidate company name
+    m = re.match(r'^\s*select\s+company\s+(.+?)\s*$', user_text, flags=re.IGNORECASE)
     if not m:
-        # User didn't say "select ..."
+        # User didn't say "select company ..."
         return None, None
 
     candidate = m.group(1).strip()
@@ -290,12 +287,12 @@ def pick_company(user_text):
     # 3. Normalize candidate the same way you normalized in original code
     cleaned_candidate = candidate.upper()
 
-    # 4. Fuzzy match against the official list ONLY if phrasing was correct
+    # 4. Fuzzy match against the official list with strict 0.9 cutoff
     matches = difflib.get_close_matches(
         cleaned_candidate,
         unique_names,
         n=1,
-        cutoff=0.6  # adjust as you like
+        cutoff=0.95  # strict matching - user must type almost exactly
     )
 
     if matches:
@@ -382,13 +379,7 @@ if st.session_state.view == "home":
 # ---------- SIDEBAR (static for now) ----------
 
 with st.sidebar:
-    
-     # ---- Theme toggle  ----
-    mode = st.session_state.theme
-    label = "Light Mode" if mode == "dark" else "⏾ Dark Mode"
-    if st.button(label, use_container_width=True, key="theme_toggle"):
-        st.session_state.theme = "light" if mode == "dark" else "dark"
-        st.rerun()
+
     # ---- New Chat ----
     if st.session_state.get("view") != "home":
         if st.button("✚ New chat", use_container_width=True, key="new_chat"):
@@ -645,16 +636,16 @@ if st.session_state.view != "home":
     pending = st.session_state.pop("pending_prompt", None)
     prompt = typed or pending
 
-    if prompt and mode != ('web', 'pdf'):
+    if prompt and mode not in ('web', 'pdf'):
         _name_company_coded, _name_company = pick_company(prompt)
         if _name_company:
             st.session_state.company_name = _name_company_coded
             answer_text = f"You have selected the \n {_name_company}"
             st.session_state.history.append({"a": answer_text})
-
-            ph = st.empty()
-            ph.write(answer_text)
+            # Clear the prompt so it doesn't get processed again
+            prompt = None
             st.rerun()
+            # st.stop()
         else:
             pass
 
@@ -755,6 +746,27 @@ if prompt:
                 "a": bot_reply
             })
         else:
+            # Check for actions that don't require a company selection (like add_company)
+            try:
+                agent = profileAgent(
+                    company_name=st.session_state.company_name,
+                    k=50,
+                    max_text_recall_size=35,
+                    max_chars=10000,
+                    model='gpt-5',
+                    profile_prompt=st.session_state.sys_message_mod,
+                    finance_calculations=st.session_state.calculations
+                )
+
+                # Check if this is an action (like add_company) that doesn't need a selected company
+                if check_actions(prompt, agent, 'gpt-5'):
+                    # Action was handled, stop here
+                    st.stop()
+            except Exception as e:
+                # If there's an error creating the agent, continue to normal flow
+                pass
+
+            # For regular queries, require company selection
             if not st.session_state.company_name:
                 # get_company(prompt)
                 with st.chat_message("assistant"):
