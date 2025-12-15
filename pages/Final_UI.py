@@ -195,16 +195,29 @@ def check_actions(prompt, client, deployment) -> bool:
             except Exception as e:
                 print(f'Adding to internal list problem \n{e}')
 
+            time.sleep(5)
+
             try:
                 trigger_function(companyNumber = companyNumber)
                 st.success(f"Downloaded {companyNumber} files...")
             except Exception as e:
                 print(f'Downloading file problem \n{e}')
 
+
+            time.sleep(10)
             try:
-                st.success("Running OCR and Vectorization, come back in 10 minutes ... ")
-                run_indexer()
+                with st.spinner('Running OCR and Vectorization... Please wait.'):
+                    success = run_indexer()
+
+                if success:
+                    st.success("OCR and Vectorization done.")
+                    st.rerun()
+
+                else:
+                    st.error("Something went wrong during indexing. Please check terminal logs for details.")
+
             except Exception as e:
+                st.error(f"OCR and Vectorization error: {str(e)}")
                 print(f'OCR and Vector problem \n{e}')
             
             return True
