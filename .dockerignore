@@ -1,0 +1,91 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Environment and secrets
+.env
+.env.*
+*.env
+.envrc
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Documentation
+*.md
+README*
+docs/
+*.txt.bak
+
+# Legacy and deleted files (as per git status)
+.devcontainer/
+*.docx
+*.pdf
+alpha_version.py
+new_ui*.py
+newest_ui.py
+azure_ui.py
+profile_agent*.py
+prompts*.py
+rag.py
+hybrig_eng_enhanced.py
+Final_theme.py
+packages.txt
+pages/
+gpts/
+rags/
+learning_material/
+engines/
+*.png
+*.jpg
+*.jpeg
+report.pdf
+teste*.ipynb
+teste*.py
+testing_*.ipynb
+testing_*.py
+theme_mod.py
+finalProfile.ipynb
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
