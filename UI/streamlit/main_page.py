@@ -42,7 +42,7 @@ from models.agents.async_profile_agent import AsyncProfileAgent as profileAgent 
 
 
 from utils.azure.blob_functions import get_companies, companyHouseListAdd
-from utils.azure.adf_functions import trigger_function
+from utils.azure.function_apps import trigger_function
 from utils.azure.search_functions import run_indexer
 
 

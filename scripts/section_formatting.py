@@ -105,7 +105,7 @@ Follow the formatting and instructions for each section of the output.
 -- Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers)
 -- Include 1 bullet point on who are the customers of the company
 —- If available, include 1 bullet point on any important key news of the company in the last one year (e.g. new owner, important acquisition/divestment, refinancing etc.)
--- Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs; approaching maturities etc.)
+-- Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs, approaching maturities etc.)
 —- Include 1 bullet point on the latest Credit Ratings from all three outlets (Moody’s, S&P and Fitch), where available (e.g. Fitch rated Company BBB+/Stable in Oct-25; Moody’s downgraded Company Rating to B-/Negative in Aug-25 etc.)
 
 - Each bullet must begin with the company name, "The company", or "It". Make sure each bullet point is a proper sentence, which do not contain any sub-headings, colon or semi-colons
@@ -200,7 +200,7 @@ SECTION 1 — TABLE
 - Use "n.a." / "n.m." exactly when unavailable.
 - Do NOT add any text before or after the Table in this section.
 
-SECTION 2 — SUMMARY / INTERPRETATION
+SECTION 2 — COMMENTARY
 - After the Table, add a single blank line, then a heading line: Summary - do NOT add anything besides that in the headling line
 - Write a tight, 8-9 bullet narrative  (no colons) complementing the numbers in the table above, flagging what matters for credit. Each bullet should explain the trend of each item over the years and also mention the reason behind change in numbers (e.g. Revenue improved from £2.5m in FY21 to £7m in FY23, attributed to increase in……)
 - Use financial statements to write these bullet points, especially the following sections: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt/Borrowings/Creditors' and 'Going Concern' and other sections, 
@@ -221,7 +221,7 @@ SECTION 2 — SUMMARY / INTERPRETATION
 - Base all points strictly on the Table values; do not invent numbers.
 
 SECTION 3 - SOURCES
-- After the SUMMARY / INTERPRETATION, add a single blank line, then a heading line: Sources
+- After the COMMENTARY, add a single blank line, then a heading line: Sources
 
 - Point out all the sources used by the original input with the correct number index like [#6], and CITE THE COMPLETE SOURCE like which report it was used, etc.
 
@@ -236,7 +236,7 @@ Formatting example (shape only; values are illustrative):
 | Revenue growth % (yoy) | +608.6% [#2][#6] | +148.0% [#5] | n.a. |
 | Gross profit | n.a. | £48.4m [#3][#6] | £14.3m [#3] |
 
-Summary / Interpretation
+COMMENTARY
 - Brief point 1…
 - Brief point 2…
 - Brief point 3…
@@ -273,8 +273,8 @@ SECTION 1 — TABLE
 - If EBITDA or Net External Debt is ≤ 0, set Leverage (Net Debt/EBITDA) to "n.m.".
 - As a matter of checking accuracy, the leverage in capital structure should match the leverage of the latest year in the financial highlights table, because both are the same values
 
-SECTION 2 — SUMMARY / INTERPRETATION
-- After the Table, add a single blank line, then a heading line: Summary / Interpretation
+SECTION 2 — COMMENTARY
+- After the Table, add a single blank line, then a heading line: COMMENTARY
 - Write a tight, 6-7 bullet narrative (no colons) complementing the numbers in the table above, flagging what matters for credit. The bullet points should be insightful adding context to the table, so it doesn’t look like the table is repeated in text
 - Use financial statements to write these bullet points, especially the following sections: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt/Borrowings/Creditors' and 'Going Concern' and other sections
 - The bullet points should be based on the following topics:
@@ -291,7 +291,7 @@ SECTION 2 — SUMMARY / INTERPRETATION
 - Base all points strictly on the Table values; do not invent numbers.
 
 SECTION 3 — SOURCES
-- After the SUMMARY / INTERPRETATION, add a single blank line, then a heading line: Sources
+- After the COMMENTARY, add a single blank line, then a heading line: Sources
 - List all sources cited in the Table with their bracket numbers (e.g., [#10]).
 - For each, include a brief description: document title, section/page (if available), and what it substantiates.
 - Keep one source per line.
@@ -313,7 +313,7 @@ Formatting example (shape only; values are illustrative - NOTE: Only ONE year co
 | Leverage | - | - | 10.9x |
 
 
-Summary / Interpretation
+COMMENTARY
 - Brief point 1…
 - Brief point 2…
 - Brief point 3…

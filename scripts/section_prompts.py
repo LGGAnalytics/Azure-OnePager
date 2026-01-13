@@ -2,7 +2,7 @@ from datetime import datetime
 
 revenue_pairs = [
     (
-        ["FIND THE VARIABLES 'Revenue' and 'Turnover'. FILES FROM 2024."],
+        [f"FIND THE VARIABLES 'Revenue' and 'Turnover'. FILES FROM LATEST YEAR."],
     ),
     (
         ['This section provides the revenue segmentation of the company’s latest available revenue/turnover in the form of a table, using the latest available annual report/financial statement of the company: -- This can be revenue by geography, customer geography, products, type of business, business segments or/and any other type of split. If any of this type is not available, include what the company reports, as it is -- If multiple types of revenue segmentations are available e.g. revenue split by geography and revenue split by business segments, provide both of them, as reported in the report -- For the revenue split, using the actual values of each segment, calculate percentage shares -- Report both actual values and the percentage shares for each -- Make sure the total of the split must always be the same as the total revenue/turnover of the latest year']
@@ -110,7 +110,7 @@ capital_pairs = [
         ['Name of the Facility (e.g. £300m Term loan, $200m RCF, £100m Senior Secured Notes etc.)'],
         ['Interest Rate (e.g. 5.25%, EURIBOR + 3.75% etc.)'],
         ['Maturity (This is the latest repayment date of the debt facility. It should be provided in the format mmm-yy e.g. Jun-25)'],
-        ['Amount Outstanding - This is the amount utilized and needs to be repaid (Provide it in millions, rounded to 1 decimal point e.g. £1.2m)'],
+        ['Amount Outstanding (This is the amount utilized and needs to be repaid, Provide it in millions, rounded to 1 decimal point e.g. £1.2m)'],
         ['Gross External Debt (Sum of amount outstanding for all debt facilities). Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'],
         ['Closing Cash . Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'],
         ['Net External Debt (Gross Debt – Closing Cash).Always calculate manually. Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'], 
@@ -143,17 +143,17 @@ biz_overview_pairs = [
         ["Find the variables 'Primary Activity', 'Business Review', 'Introduction', 'Bank Debt/Borrowings/Creditors'"],
         ),
     (
-        ["This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 6-7 bullet points with sentences, using the latest available annual reports/financial statements of the company — Include 1-2 bullet point sentences on what the company does — Include 1 bullet point on the products/services the company offers — Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers) — Include 1 bullet point on who are the customers of the company — If available, include 1 bullet point on any important key news of the company in the last one year (e.g. new owner, important acquisition/divestment, refinancing etc.) - Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs, approaching maturities etc.)"],
+        ["This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 6-7 bullet points with sentences, using the latest available annual reports/financial statements of the company — Include 1-2 bullet point sentences on what the company does — Include 1 bullet point on the products/services the company offers — Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers) — Include 1 bullet point on who are the customers of the company — If available, include 1 bullet point on any important key news of the company in the last one year (e.g. new owner, important acquisition/divestment, refinancing etc.) - Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs, approaching maturities etc.)"]
     )
 ]
 
 biz_overview_web = """
-- This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 5-6 bullet points with sentences:
+- This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 6-8 bullet points with sentences:
 -- Include 1-2 bullet point sentences on what the company does
 -- Include 1 bullet point on the products/services the company offers
 —- If the company is owned by a private equity firm, include 1 bullet point on who owns its and when they bought the stake in the company
 -- Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers)
--- Include 1 bullet point on who are the customers of the company 
+-- Include 1 bullet point on who are the customers of the company
 —- If available, include 1 bullet point on any important key news of the company in the last one year (e.g. new owner, important acquisition/divestment, refinancing etc.)
 -- Include 1 bullet point on the latest Credit Ratings from all three outlets (Moody’s, S&P and Fitch), where available (e.g. Fitch rated Company BBB+/Stable in Oct-25; Moody’s downgraded Company Rating to B-/Negative in Aug-25 etc.)
 - Each bullet must begin with the company name, "The company", or “It”. Make sure each bullet point is a proper sentence, which do not contain any sub-headings, colon or semi-colons
