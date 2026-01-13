@@ -46,3 +46,4 @@ azure-storage-blob>=12.20.0
 azure-identity>=1.17.0
 azure-search-documents==11.6.0b12
 azure-functions
+azure-mgmt-datafactory>=7.0.0

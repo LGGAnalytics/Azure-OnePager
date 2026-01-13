@@ -159,11 +159,8 @@ class AsyncProfileAgent:
         self.max_chars = max_chars
         
         self.azure_credentials = AzureKeyCredential(SEARCH_KEY)  # Replace with actual
-        self.search_client = SearchClient(
-            SEARCH_ENDPOINT,  # Replace with actual
-            SEARCH_INDEX,     # Replace with actual
-            credential=self.azure_credentials
-        )
+        # NOTE: search_client is now created per-request for thread safety in async context
+        # See _retrieve_hybrid_enhanced for isolated client creation
         self.az_openai = AsyncAzureOpenAI(
             azure_endpoint=AOAI_ENDPOINT,
             api_key=AOAI_KEY,
@@ -285,7 +282,7 @@ class AsyncProfileAgent:
     def has_na(text: str) -> bool:
         """Simple regex check - stays synchronous"""
         return bool(re.search(r"\b(n\.a\.|n/a)\b", text, flags=re.I))
-    
+
     # ======================== ASYNC METHODS
 
     @traceable(run_type="chain", name="Query Expansion")
@@ -324,11 +321,22 @@ class AsyncProfileAgent:
     async def _retrieve_hybrid_enhanced(self, query_nl, k: int = 50, top_n = 30, fields=VECTOR_FIELD, max_text_recall_size: int = 800):
         """
         search operation that mixes bm25 quey with vector search
+
+        IMPORTANT: Creates an isolated SearchClient per request to prevent
+        race conditions when multiple sections query in parallel.
         """
 
-        sc = self.search_client
-        flt = self._company_filter()
+        # Create isolated search client for THIS request only
+        # This prevents concurrent searches from interfering with each other
+        from azure.search.documents.aio import SearchClient as AsyncSearchClient
 
+        sc = AsyncSearchClient(
+            endpoint=SEARCH_ENDPOINT,
+            index_name=SEARCH_INDEX,
+            credential=self.azure_credentials
+        )
+
+        flt = self._company_filter()
         bm25_query = await self.bm25_creator(query_nl)
 
         try:
@@ -351,7 +359,13 @@ class AsyncProfileAgent:
 
         hits: List[Dict] = []
 
-        async for r in results:
+        # Eagerly consume the async iterator to avoid state corruption
+        results_list = [r async for r in results]
+
+        # Close the isolated search client to free resources
+        await sc.close()
+
+        for r in results_list:  # ← Regular for loop
             d = r.copy() if hasattr(r, "copy") else {k2: r[k2] for k2 in r}
             d["score"] = d.get("@search.reranker_score") or d.get("@search.scorre") or 0.0
             caps = d.get("@search.captions")
@@ -519,12 +533,19 @@ class AsyncProfileAgent:
     async def _answer(self, question, ctx_text, k = 5, temperature = 0.2):
 
         async with self.semaphore:
-            system_msg = self.profile_prompt + (
-                "\nWhen you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41]."
-                "\nOnly rely on the provided context; if a value is missing, say 'n.a.'."
-                "\nIMPORTANT: If formatting requests a Sources section, include it at the end."
+            system_msg = (
+                "You are a document synthesis assistant. Your task is to create structured output based ONLY on the provided context snippets.\n\n"
+                "CRITICAL INSTRUCTIONS:\n"
+                "- You must IMMEDIATELY generate the requested output without asking for clarification or confirmation\n"
+                "- Use ONLY the information from the numbered context snippets provided\n"
+                "- When you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41]\n"
+                "- If a specific value is not found in the context, use 'n.a.'\n"
+                "- Follow the formatting instructions in the user message exactly\n"
+                "- If formatting requests a Sources section, include it at the end\n"
+                "- Do NOT ask questions, do NOT request confirmation - simply execute the task\n\n"
+                f"Additional guidelines:\n{self.profile_prompt}"
             )
-            user_msg = f"Question:\n{question}\n\nContext snippets:\n{ctx_text}"
+            user_msg = f"TASK:\n{question}\n\nCONTEXT SNIPPETS:\n{ctx_text}\n\nIMPORTANT: Generate the output immediately using the context above. Do not ask for clarification."
 
             client = self.openai
             messages = [
@@ -604,7 +625,7 @@ class AsyncProfileAgent:
         Calls in parallel multiple sections
         """
 
-        max_entra_na_retries = 1
+        max_entra_na_retries = 2
         base_delay_seconds = 3.0
 
         batch_size = 5  # Process 2 at a time
@@ -616,7 +637,7 @@ class AsyncProfileAgent:
 
             """
 
-            tries = 0
+            tries = 0  # ← Fixed: Start at 0 so first attempt has no delay
             while True:
                 if tries > 0:
                     # asyncio.sleep allows other functions to work
@@ -706,21 +727,24 @@ class AsyncProfileAgent:
             logging.info(f'Started running {section}')
             finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
             section_built = await self._sections(pairs=finance_pairs_flat)
-            resp = await self._answer(question=finance_formatting_2, ctx_text=section_built, temperature=0.4)
+            ctx_text_formatted = "\n\n".join(section_built)
+            resp = await self._answer(question=finance_formatting_2, ctx_text=ctx_text_formatted, temperature=0.4)
             logging.info(f'Finished running {section}')
             return resp['answer']
         elif section == 'GENERATE CAPITAL STRUCTURE':
             logging.info(f'Started running {section}')
             capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
             section_built = await self._sections(pairs= capital_pairs_flat)
-            resp = await self._answer(question=capital_structure_formatting_2, ctx_text=section_built, temperature=0.4)
+            ctx_text_formatted = "\n\n".join(section_built)
+            resp = await self._answer(question=capital_structure_formatting_2, ctx_text=ctx_text_formatted, temperature=0.4)
             logging.info(f'Finished running {section}')
             return resp['answer']
         elif section == 'GENERATE REVENUE SPLIT':
             logging.info(f'Started running {section}')
             revenue_pairs_flat = list(zip(revenue_pairs[1], revenue_pairs[0]))  # [(r, q), (r, q), ...]
             section_built = await self._sections(pairs= revenue_pairs_flat)
-            resp = await self._answer(question=section3, ctx_text=section_built, temperature=0.4)
+            ctx_text_formatted = "\n\n".join(section_built)
+            resp = await self._answer(question=section3, ctx_text=ctx_text_formatted, temperature=0.4)
             logging.info(f'Finished running {section}')
             return resp['answer']
         elif section == 'GENERATE PRODUCTS SERVICES OVERVIEW':
