@@ -65,6 +65,7 @@ TEXT_FIELD      = os.getenv("TEXT_FIELD")
 AOAI_ENDPOINT   = os.environ["AZURE_OPENAI_ENDPOINT"]            # https://<resource>.openai.azure.com
 AOAI_API_VER    = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-10-21")
 AOAI_DEPLOYMENT = os.environ["AZURE_OPENAI_DEPLOYMENT"]          # e.g., gpt-4o-mini / o3-mini / gpt-5 preview
+AOAI_DEPLOYMENT_ENHANCED = os.getenv("AZURE_OPENAI_DEPLOYMENT_ENHANCED", "gpt-5-2")  # Enhanced reasoning model
 AOAI_KEY        = os.getenv("AZURE_OPENAI_API_KEY")              # omit if using AAD
 OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY")        # required
 
@@ -538,7 +539,7 @@ class AsyncProfileAgent:
     
     @traceable(run_type="llm", name="Synthesize Section")
     @observe(as_type="generation", name="Synthesize Section")
-    async def _answer(self, question, ctx_text, k = 5, temperature = 0.2, calculations = None):
+    async def _answer(self, question, ctx_text, k = 5, temperature = 0.2, calculations = None, enhanced=False):
 
         async with self.semaphore:
             if calculations is None:
@@ -568,7 +569,17 @@ class AsyncProfileAgent:
                     f"Additional guidelines:\n{self.profile_prompt}"
                     f"\n ======= CALCULATIONS INSTRUCTIONS =======\n {calculations}"
                 )
-            user_msg = f"TASK:\n{question}\n\nCONTEXT SNIPPETS:\n{ctx_text}\n\nIMPORTANT: Generate the output immediately using the context above. Do not ask for clarification."
+            # Use XML-style tags for better structure (Google AI best practice)
+            user_msg = f"""<task>
+                {question}
+                </task>
+
+                <context_snippets>
+                {ctx_text}
+                </context_snippets>
+
+                IMPORTANT: Execute the task using ONLY the data in <context_snippets>. Generate the output immediately without asking for clarification.
+            """
 
             client = self.openai
             messages = [
@@ -576,12 +587,20 @@ class AsyncProfileAgent:
                 {"role":"user","content":user_msg},
             ]
 
-            resp = await client.chat.completions.create(
-                model=AOAI_DEPLOYMENT,
-                messages=messages,
-                # temperature=temperature
-            )
-
+            if enhanced:
+                resp = await client.chat.completions.create(
+                    model=AOAI_DEPLOYMENT,
+                    messages=messages,
+                    reasoning_effort="high",
+                    max_completion_tokens=26000,
+                )
+            else:
+                resp = await client.chat.completions.create(
+                    model=AOAI_DEPLOYMENT,
+                    messages=messages,
+                    # temperature=temperature
+                )
+            
             # ===================== MONITORING BLOCK
             usage = resp.usage
             # langfuse.update_current_trace(
@@ -639,7 +658,151 @@ class AsyncProfileAgent:
             # =================================================================
 
             return result
-    
+
+    @traceable(run_type="llm", name="Synthesize Section Enhanced")
+    @observe(as_type="generation", name="Synthesize Section Enhanced")
+    async def _answer_enhanced(self, question, ctx_text, k = 5, temperature = 0.2, calculations = None, reasoning_effort = "high", verbosity = "medium"):
+        """
+        Enhanced synthesis function using Responses API with reasoning capabilities.
+        Optimized for complex financial calculations and multi-step reasoning.
+
+        Args:
+            question: The task/question to answer
+            ctx_text: Context snippets to use
+            k: Number of results (unused, kept for signature compatibility)
+            temperature: Temperature setting (may be ignored by Responses API)
+            calculations: Optional calculation instructions
+            reasoning_effort: "low", "medium", or "high" - controls reasoning depth
+            verbosity: "low", "medium", or "high" - controls reasoning visibility in logs
+
+        Returns:
+            dict with 'answer' and 'citations' keys
+        """
+
+        async with self.semaphore:
+            if calculations is None:
+                system_msg = (
+                    "You are a document synthesis assistant. Your task is to create structured output based ONLY on the provided context snippets.\n\n"
+                    "CRITICAL INSTRUCTIONS:\n"
+                    "- You must IMMEDIATELY generate the requested output without asking for clarification or confirmation\n"
+                    "- Use ONLY the information from the numbered context snippets provided\n"
+                    "- When you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41]\n"
+                    "- If a specific value is not found in the context, use 'n.a.'\n"
+                    "- Follow the formatting instructions in the user message exactly\n"
+                    "- If formatting requests a Sources section, include it at the end\n"
+                    "- Do NOT ask questions, do NOT request confirmation - simply execute the task\n\n"
+                    f"Additional guidelines:\n{self.profile_prompt}"
+                )
+            else:
+                system_msg = (
+                    "You are a document synthesis assistant. Your task is to create structured output based ONLY on the provided context snippets.\n\n"
+                    "CRITICAL INSTRUCTIONS:\n"
+                    "- You must IMMEDIATELY generate the requested output without asking for clarification or confirmation\n"
+                    "- Use ONLY the information from the numbered context snippets provided\n"
+                    "- When you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41]\n"
+                    "- If a specific value is not found in the context, use 'n.a.'\n"
+                    "- Follow the formatting instructions in the user message exactly\n"
+                    "- If formatting requests a Sources section, include it at the end\n"
+                    "- Do NOT ask questions, do NOT request confirmation - simply execute the task\n\n"
+                    f"Additional guidelines:\n{self.profile_prompt}"
+                    f"\n ======= CALCULATIONS INSTRUCTIONS =======\n {calculations}"
+                )
+            # Use XML-style tags for better structure (Google AI best practice)
+            user_msg = f"""<task>
+                {question}
+                </task>
+
+                <context_snippets>
+                {ctx_text}
+                </context_snippets>
+
+                IMPORTANT: Execute the task using ONLY the data in <context_snippets>. Generate the output immediately without asking for clarification.
+            """
+
+            client = self.openai
+
+            # Responses API uses 'input' instead of 'messages'
+            input_messages = [
+                {"role":"system","content":system_msg},
+                {"role":"user","content":user_msg},
+            ]
+
+            # Use Responses API with reasoning
+            resp = await client.responses.create(
+                model=AOAI_DEPLOYMENT_ENHANCED,  # gpt-5-2 or from env var
+                input=input_messages,  # 'input' not 'messages'
+                reasoning={"effort": reasoning_effort},  # "high" for maximum reasoning
+                text={"verbosity": verbosity},  # Control reasoning visibility in logs
+                max_output_tokens=35000,  # Total output token limit
+            )
+
+            # ===================== MONITORING BLOCK
+            usage = resp.usage
+            output_details = getattr(usage, 'output_tokens_details', None)
+            reasoning_tokens = None
+            text_tokens = None
+
+            if output_details:
+                reasoning_tokens = getattr(output_details, 'reasoning_tokens', None)
+                text_tokens = getattr(output_details, 'text_tokens', None)
+            
+
+            # Responses API has different field names
+            run_tree = run_helpers.get_current_run_tree()
+            if run_tree:
+                run_tree.add_metadata({
+                    "model": AOAI_DEPLOYMENT_ENHANCED,
+                    "api_type": "responses",
+                    "reasoning_effort": reasoning_effort,
+                    "verbosity": verbosity,
+                    "token_usage": {
+                        "input_tokens": usage.input_tokens,  # Not 'prompt_tokens'
+                        "output_tokens": usage.output_tokens,  # Not 'completion_tokens'
+                        "total_tokens": usage.total_tokens,
+                        "reasoning_tokens": reasoning_tokens,
+                        "text_tokens": text_tokens
+                    }
+                })
+            # ===================== MONITORING BLOCK
+
+            # Responses API returns output_text directly
+            answer = resp.output_text
+            cited = self._extract_cited_idxs(answer)
+
+            result = {
+                "answer": answer,
+                "citations":cited,
+            }
+
+            # ======================== EVALUATION BLOCK
+            if self.enable_faithfulness_eval:
+                # ctx_text could be a string or list - normalize it
+                source_contexts = [ctx_text] if isinstance(ctx_text, str) else ctx_text
+
+                eval_result = await self.synthesis_evaluator.evaluate_synthesis(
+                    question=question,
+                    synthesized_answer=answer,
+                    source_contexts=source_contexts,
+                    expected_citations=cited  # Citations found in answer
+                )
+                result["faithfulness_eval"] = eval_result
+                self.evaluation_results.append({
+                    "type": "synthesis_enhanced",
+                    "question": question[:100],
+                    "eval": eval_result
+                })
+
+                if not eval_result["overall_passed"]:
+                    logging.warning(
+                        f"⚠️ Enhanced synthesis faithfulness FAILED\n"
+                        f"   DeepEval score: {eval_result['deepeval_faithfulness']['score']:.2f}"
+                    )
+                else:
+                    logging.info(f"✅ Enhanced synthesis faithfulness PASSED")
+            # =================================================================
+
+            return result
+
     @traceable(run_type="chain", name="Parallel RAG Loop")
     @observe(as_type="span", name="Parallel RAG Loop")
     async def _sections(self, pairs, calculations = None):
@@ -648,7 +811,7 @@ class AsyncProfileAgent:
         Calls in parallel multiple sections
         """
 
-        max_entra_na_retries = 2
+        max_entra_na_retries = 1
         base_delay_seconds = 3.0
 
         batch_size = 5  # Process 2 at a time
@@ -751,15 +914,34 @@ class AsyncProfileAgent:
             finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
             section_built = await self._sections(pairs=finance_pairs_flat)
             ctx_text_formatted = "\n\n".join(section_built)
-            resp = await self._answer(question=finance_formatting_2, ctx_text=ctx_text_formatted, temperature=0.4, calculations=finance_calculations)
+
+            # Use enhanced Responses API for complex financial calculations
+            resp = await self._answer_enhanced(
+                question=finance_formatting_2,
+                ctx_text=ctx_text_formatted,
+                temperature=0.4,
+                calculations=finance_calculations,
+                reasoning_effort="medium",  # Maximum reasoning for calculations
+                verbosity="medium"  # Show reasoning steps in logs
+            )
+
             logging.info(f'Finished running {section}')
             return resp['answer']
         elif section == 'GENERATE CAPITAL STRUCTURE':
             logging.info(f'Started running {section}')
             capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
-            section_built = await self._sections(pairs= capital_pairs_flat)
+            section_built = await self._sections(pairs=capital_pairs_flat)
             ctx_text_formatted = "\n\n".join(section_built)
-            resp = await self._answer(question=capital_structure_formatting_2, ctx_text=ctx_text_formatted, temperature=0.4)
+
+            # Use enhanced Responses API for complex capital structure analysis
+            resp = await self._answer_enhanced(
+                question=capital_structure_formatting_2,
+                ctx_text=ctx_text_formatted,
+                temperature=0.4,
+                reasoning_effort="high",  # Maximum reasoning for calculations
+                verbosity="medium"  # Show reasoning steps in logs
+            )
+
             logging.info(f'Finished running {section}')
             return resp['answer']
         elif section == 'GENERATE REVENUE SPLIT':

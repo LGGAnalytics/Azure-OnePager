@@ -54,7 +54,7 @@ finance_pairs = [
         ["FIND THE VARIABLES 'Revenue'/'Turnover'/'Turn over' and 'RevenueT0' and 'RevenueT' and 'Revenue Growth' in the Income statement. FILES FROM 2024."],
         ["FIND THE VARIABLES 'Gross Profit' and 'Revenue'/Turnover/Turn over and 'Gross Margin' in the Income statement. FILES FROM 2024."],
         ["FIND THE VARIABLES 'EBITDA' and 'Revenue'/Turnover/Turn over  and 'Gross Margin' in the income statement. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Net Cash Flow from Operating Activities' and 'Net Working Capital' in the cash flow statement. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Net Cash Flow from Operating Activities' and 'Net Working Capital' and 'Interest Paid' in the cash flow statement. FILES FROM 2024."],
         ["FIND THE VARIABLES 'Debtors/Receivables' and 'Inventory/Stock' and 'Creditors/Payables' in Cash Flows from Operating Activities. FILES FROM 2024."],
         ["FIND THE VARIABLES 'Acquisition of Property' and 'Acquisition of Intangible Assets' in Investing Activities in Cash Flows Statement. FILES FROM 2024."],
         ["FIND THE VARIABLES 'Net Cash Flow from Investing Activities' and 'Net Cash Flow from Operating Activities' in Cash Flows Statement. FILES FROM 2024."],
@@ -63,7 +63,7 @@ finance_pairs = [
         ["FIND THE VARIABLES 'change in cash' in the cash flow statement. FILES FROM 2024."],
         ["FIND THE VARIABLES 'foreign exchange gains' and 'foreign exchange losses' in the cash flow statement. FILES FROM 2024."],
         ["FIND THE VARIABLES 'closing cash' in the cash flow statement. FILES FROM 2024."],
-        ["FIND THE VARIABLES 'Bank Debt' and 'Lease Liabilities' from Debt/Bank Debt/Borrowings/Creditors section. FILES FROM 2024."],
+        ["FIND THE VARIABLES 'Bank Debt' and 'Lease Liabilities' and 'Bank Loan' and 'Other loan' and 'notes' and 'bond' and 'invoice discounting facility' and 'working capital facility' from Debt/Bank Debt/Borrowings/Creditors section. FILES FROM 2024."],
         ["FIND THE VARIABLES 'Total Debt' and 'Net Debt' and 'Closing Cash'. FILES FROM 2024."],
         ["FIND THE VARIABLES 'Leverage' and 'Net Debt' and 'EBITDA'. FILES FROM 2024."],
     ),
@@ -75,7 +75,7 @@ finance_pairs = [
         ['Revenue/Turnover/Turn over Growth % (Always Calculate Manually): (RevenueT0÷RevenueT−1)−1'],
         ['Gross Margin % (Always Calculate Manually): Gross Profit / Revenue aka Turnover or Turn Over'],
         ['EBITDA Margin % (Always Calculate Manually): EBITDA / Revenue (put n.m. if it is negative)'],
-        ['Cash Flow from Operating Activities excl. Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities – Net Working Capital (Net Working Capital should be the one calculated below). In case Interest Paid is reported under Cash Flow from Operating Activities (rather than Cash Flow from Financing Activities), the formula should change to: Net Cash Flow from Operating Activities – Net Working Capital - Interest Paid'],
+        ['Cash Flow from Operating Activities excl. Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities – Net Working Capital (Net Working Capital should be the one calculated below). In case Interest Paid is reported under Cash Flow from Operating Activities (rather than Cash Flow from Financing Activities), the formula should change to: Net Cash Flow from Operating Activities – Net Working Capital – Interest Paid'],
         ['Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Increase/Decrease in Debtors/Receivables + Increase/Decrease in Inventory/Stock + Increase/Decrease in Creditors/Payables (These values are usually provided under Cash flows from Operating Activities section of Cash Flow Statement and should be used as it is for calculation (do not change its signs e.g. change from negative to positive))'],
         ['Capex (Use Cash Flow Statement – Always Calculate Manually): Acquisition of Property, Plant, Equipment/Tangible Assets + Acquisition of Intangible Assets (These values are usually provided under Cash flows from Investing Activities section of Cash Flow Statement)'],
         ['Other Cash Flow from Investing Activities (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Investing Activities – Capex (Capex should be the one calculated above)'],
@@ -95,7 +95,7 @@ finance_pairs = [
 
 capital_pairs = [
     (
-        [f"FIND THE VARIABLES 'Term Loan' and 'Senior Secured Notes' and 'debt facilities' and 'RCF'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'Term Loan' and 'Senior Secured Notes' and 'debt facilities' and 'RCF' and 'Loan Notes' and 'Bonds' and 'Preference Shares' and 'Invoice Discounting Facility' and ' Working Capital Facility' and 'lease liabilities'. FILES FROM {datetime.now().year - 1 }."],
         [f"FIND THE VARIABLES 'Interest Rate' and 'EURIBOR'. FILES FROM {datetime.now().year - 1 }."],
         [f"FIND THE VARIABLES 'Debt Facility' and 'Maturity'. FILES FROM {datetime.now().year - 1 }."],
         [f"FIND THE VARIABLES 'Debt Facility' and 'Maturity' and 'Amount Outstanding'. FILES FROM {datetime.now().year - 1 }."],
@@ -103,7 +103,7 @@ capital_pairs = [
         [f"FIND THE VARIABLES 'Cash' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
         [f"FIND THE VARIABLES 'Gross Debt' and 'Closing Cash' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
         [f"FIND THE VARIABLES 'Closing Cash' and 'RCF' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
-        [f"FIND THE VARIABLES 'EBITDA' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
+        [f"FIND THE VARIABLES 'EBITDA' and ‘Adjusted EBITDA’ and ‘Operating Profit’ and ‘depreciation’ and ‘amortisation’ and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."],
         [f"FIND THE VARIABLES 'EBITDA' and 'Net Debt' and 'facilities' and 'facility'. FILES FROM {datetime.now().year - 1 }."]
     ),
     (
@@ -115,8 +115,8 @@ capital_pairs = [
         ['Closing Cash . Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'],
         ['Net External Debt (Gross Debt – Closing Cash).Always calculate manually. Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.'], 
         ['Liquidity (Closing cash + any undrawn facilities, e.g. undrawn amount of RCF, credit lines or overdrafts). Provide this in millions, rounded to 1 decimal place (e.g. £1.2m). E.g. liquidity can be £2.5m closing cash + £35m undrawn RCF, a total of £37.5m of liquidity'],
-        ['EBITDA'],
-        ['Leverage (Net Debt / EBITDA)']
+        ['EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value)'],
+        ['Leverage (Always Calculate Manually): Net External Debt / EBITDA. Use the next external debt calculated to get this value (put n.m. if it is negative)']
     )
 ]
 

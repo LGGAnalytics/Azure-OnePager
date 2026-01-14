@@ -16,24 +16,27 @@ Stakeholders:
 -- Advisors (Legal Advisor, Financial Advisor, Bankers, Solicitors, Auditors) 
 Financial Performance: 
 - Look into the financial performance for the last three years of the target company. You can highlight key metrics and suggest the reasoning for changes over the years. Key metrics include: -- Revenue (Use Income Statement – Always Given) 
+-- Revenue (Use Income Statement – Always Given) 
 -- Gross Profit (Use Income Statement – Always Given): Revenue – Cost of Goods Sold (ONLY use this formula if the report does not already provide the gross profit value) 
 -- EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value) 
--- Revenue Growth % (Always Calculate Manually): (RevenueT0÷RevenueT-1)-1 
+-- Revenue Growth % (Always Calculate Manually): (RevenueT0÷RevenueT−1)−1 
 -- Gross Margin % (Always Calculate Manually): Gross Profit / Revenue 
 -- EBITDA Margin % (Always Calculate Manually): EBITDA / Revenue (put n.m. if it is negative) 
--- Cash Flow from Operating Activities excl. Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities – Net Working Capital (Net Working Capital should be the one calculated below) 
 -- Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Increase/Decrease in Debtors/Receivables + Increase/Decrease in Inventory/Stock + Increase/Decrease in Creditors/Payables (These values are usually provided under Cash flows from Operating Activities section of Cash Flow Statement and should be used as it is for calculation (do not change its signs e.g. change from negative to positive)) 
+-- Interest Paid (Use Cash Flow Statement – Always Given) - If Interest Paid is under operating cash flow, please move it to under financing cash flow and adjust OCF and CFADS values accordingly*
+-- Cash Flow from Operating Activities excl. Net Working Capital (pre-interest) (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities – Net Working Capital (Net Working Capital should be the one calculated above). In case Interest Paid is reported under Cash Flow from Operating Activities (rather than Cash Flow from Financing Activities), the formula should change to: Net Cash Flow from Operating Activities – Net Working Capital - Interest Paid (example: CFO - NWC - Interest Paid (interest paid is always negative e.g. CFO (−£8.8m) – NWC (−£4.0m) – Interest (–£6.3m)= (−8.8 + 4.0 + 6.3) = £1.5m)
 -- Capex (Use Cash Flow Statement – Always Calculate Manually): Acquisition of Property, Plant, Equipment/Tangible Assets + Acquisition of Intangible Assets (These values are usually provided under Cash flows from Investing Activities section of Cash Flow Statement) 
 -- Other Cash Flow from Investing Activities (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Investing Activities – Capex (Capex should be the one calculated above) 
--- CFADS (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities + Net Cash Flow from Investing Activities (Both of these values are always provided in the Cash Flow Statement) 
--- Cash Flow from Financing Activities (Use Cash Flow Statement – Always Given): This should include the breakdown of sub-items and their contribution to this net number e.g. debt repayment, debt issuance, share issuance etc. 
+-- CFADS (Use Cash Flow Statement – Always Calculate Manually): Calculate using the following formula: Net cash from operating activities (pre-interest) + Net cash used in investing activities. In case Interest Paid is reported under Cash Flow from Operating Activities  (rather than Cash Flow from Financing Activities), the formula should change to: Net cash from operating activities + Net cash used in investing activities - Interest Paid (example: Cash from Operating + Cash from Investing - Interest Paid (interest paid is always negative e.g. CFO (−£8.8m) + CIO (−£4.0m) – Interest (–£6.3m)= (−8.8 -4.0 + 6.3) = £-6.5)
+-- Cash Flow from Financing Activities (Use Cash Flow Statement – Can be Given or Might Need to be Calculated): This should include the net total reported for Cash Flow from Financing Activities. If Interest Paid is reported part of Cash Flow from Operating  Activities instead of Cash Flow from Financing Activities, calculate Cash Flow from Financing Activities manually using the formula: net cash from financing activities - Interest Paid 
 -- Opening Cash (Use Cash Flow Statement – Always Given) 
 -- Change in Cash (Use Cash Flow Statement – Always Given) 
+-- Foreign Exchange Gains/Losses (Use Cash Flow Statement – Always Given) 
 -- Closing Cash (Use Cash Flow Statement – Always Given) 
--- Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt + Lease Liabilities (This only includes external debt e.g. bank loans, bonds, RCFs etc. and lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.))
+-- Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt (This only includes external debt e.g. bank loans, bonds, RCFs, notes, invoice discounting facility, preference shares, working capital facility etc.) + Lease Liabilities (lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.))
 -- Net Debt (Always Calculate Manually): Net Debt: Total Debt – Closing Cash 
 -- Leverage (Always Calculate Manually): Net Debt / EBITDA (put n.m. if it is negative) 
-- Note: Use Income Statement, Cash Flow Statement and Financial Statement Notes sections of the annual reports for financial performance calculations 
+- For the table, provide data from the last three fiscal years (e.g. FY22, FY23, FY24). All values must be shown in millions, rounded to 1 decimal point (e.g. £1.2m). Leverage must be reported in the following format e.g. 1.2x. Show the values as they are reported and calculated e.g. If capex is in negative, it should be reported in negative in the table. 
 Capital Structure: 
 - Look into the capital structure for the latest year, Highlight key metrics including Debt facilities with the following columns: 
 -- Name of the Facility (e.g. £300m Term loan, $200m RCF, £100m Senior Secured Notes etc.) 
@@ -189,139 +192,258 @@ Sources
 """
 
 finance_formatting_2= """ 
-Follow the formatting and instructions for each section of the output.
+Follow the formatting and instructions for each section of the output. 
 
 
-- Add a single blank line, then a heading line: 6. Financial Highlights
-
-SECTION 1 — TABLE
-- Output a valid Table with header: Metric,FY24,FY23,FY22
-- One data row per metric.
-- Use "n.a." / "n.m." exactly when unavailable.
-- Do NOT add any text before or after the Table in this section.
-
-SECTION 2 — COMMENTARY
-- After the Table, add a single blank line, then a heading line: Summary - do NOT add anything besides that in the headling line
-- Write a tight, 8-9 bullet narrative  (no colons) complementing the numbers in the table above, flagging what matters for credit. Each bullet should explain the trend of each item over the years and also mention the reason behind change in numbers (e.g. Revenue improved from £2.5m in FY21 to £7m in FY23, attributed to increase in……)
-- Use financial statements to write these bullet points, especially the following sections: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt/Borrowings/Creditors' and 'Going Concern' and other sections, 
-- The bullet points should be based on the following topics:
-   1. Revenue change and reasoning
-   2. Gross profit movement and reasoning
-   3. EBITDA change and reasoning
-   4. Net working capital change and major line items driving the movement
-   5. Capex development and reasoning
-   6. CFADS changes and reasoning
-   7. Other investing cash flow (only include if it is high for any year and the reasoning for it)
-   8. Financing cash flow dynamics and reasoning for changes (e.g. increase in debt issuance, or debt repayment etc.)
-   9. Total debt and leverage trend and reasoning.
-- Commentary bullets must be detailed, in proper full sentences. Make sure each bullet point explains the trend and reasoning, not just restating the table (e.g. revenue increased from x to y from FY21 to FY23.)
-- AVOID sub-headings and semi-colons
-- Write each bullet so a reader unfamiliar with the company can clearly understand the drivers and implications
-- If any information/reasoning regarding any topic of the bullet points is unavailable, please do not include it, rather than including wrong/inaccurate information
-- Base all points strictly on the Table values; do not invent numbers.
-
-SECTION 3 - SOURCES
-- After the COMMENTARY, add a single blank line, then a heading line: Sources
-
-- Point out all the sources used by the original input with the correct number index like [#6], and CITE THE COMPLETE SOURCE like which report it was used, etc.
+- Add a single blank line, then a heading line: 6. Financial Highlights 
 
 
-Formatting example (shape only; values are illustrative):
+SECTION 1 — TABLE 
 
-6. Financial Highlights
+- Output a valid Table with header: Metric,FY24,FY23,FY22 
 
-| Metric | FY24 | FY23 | FY22 |
-| --- | --- | --- | --- |
-| Revenue (Turnover) | £576.8m [#2] | £81.4m [#6] | £32.8m [#5] |
-| Revenue growth % (yoy) | +608.6% [#2][#6] | +148.0% [#5] | n.a. |
-| Gross profit | n.a. | £48.4m [#3][#6] | £14.3m [#3] |
+- One data row per metric. 
 
-COMMENTARY
-- Brief point 1…
-- Brief point 2…
-- Brief point 3…
+- Use "n.a." / "n.m." exactly when unavailable. 
 
-Sources
-- Source 1...
+- Do NOT add any text before or after the Table in this section. 
 
+ 
+
+SECTION 2 — COMMENTARY 
+
+- After the Table, add a single blank line, then a heading line: Summary - do NOT add anything besides that in the headling line 
+
+- Write a tight, 8-9 bullet narrative  (no colons) complementing the numbers in the table above, flagging what matters for credit. Each bullet should explain the trend of each item over the years and also mention the reason behind change in numbers (e.g. Revenue improved from £2.5m in FY21 to £7m in FY23, attributed to increase in……) 
+
+- The commentary needs to explain trends in numbers in the table above, and needs to use text from the financial statements to complement the trends. Use the following sections in the financial accounts to help finding important information to complement the numbers and create commentary: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt/Borrowings/Creditors' and 'Going Concern' and other sections,  
+
+- The bullet points should be based on the following topics: 
+
+   1. Revenue change and reasoning (including why it changed e.g. revenue increased from £2m in FY22 to £4m in FY24 because company acquired its competitor etc.) 
+
+   2. Gross profit movement and reasoning (including why it changed e.g. gross margin reduced from FY22 to FY24 because of higher cost inflation etc.) 
+
+   3. EBITDA change and reasoning (including why it changed) 
+
+   4. Net working capital change and major line items driving the movement (including why it changed) 
+
+   5. Capex development and reasoning (including why it changed) 
+
+   6. CFADS changes and reasoning (including why it changed) 
+
+   7. Other investing cash flow (including why it changed or is high for certain year e.g. new acquisitions etc.) 
+
+   8. Financing cash flow dynamics and reasoning for changes (e.g. increase in debt issuance, or debt repayment etc.) - (including why it changed or is high for certain year e.g. new loan issuance etc. 
+
+   9. Total debt and leverage trend and reasoning (including why it changed) 
+
+- Commentary bullets must be detailed, in proper full sentences. Make sure each bullet point explains the trend and reasoning, not just restating the table (e.g. revenue increased from x to y from FY21 to FY23.) 
+
+- AVOID sub-headings and semi-colons 
+
+- Write each bullet so a reader unfamiliar with the company can clearly understand the drivers and implications 
+
+- If any information/reasoning regarding any topic of the bullet points is unavailable, please do not include it, rather than including wrong/inaccurate information 
+
+- Base all points strictly on the Table values; do not invent numbers. 
+
+ 
+
+SECTION 3 - SOURCES 
+
+- After the COMMENTARY, add a single blank line, then a heading line: Sources 
+
+ 
+
+- Point out all the sources used by the original input with the correct number index like [#6], and CITE THE COMPLETE SOURCE like which report it was used, etc. 
+
+ 
+
+ 
+
+Formatting example (shape only; values are illustrative): 
+
+ 
+
+6. Financial Highlights 
+
+ 
+
+| Metric | FY24 | FY23 | FY22 | 
+
+| --- | --- | --- | --- | 
+
+| Revenue (Turnover) | £576.8m [#2] | £81.4m [#6] | £32.8m [#5] | 
+
+| Revenue growth % (yoy) | +608.6% [#2][#6] | +148.0% [#5] | n.a. | 
+
+| Gross profit | n.a. | £48.4m [#3][#6] | £14.3m [#3] | 
+
+ 
+
+COMMENTARY 
+
+- Brief point 1… 
+
+- Brief point 2… 
+
+- Brief point 3… 
+
+ 
+
+Sources 
+
+- Source 1... 
 """
 
 
 capital_structure_formatting_2 = """
-Return THREE sections in this exact order:
+Return THREE sections in this exact order: 
 
-- Add a single blank line, then a heading line: 7. Capital Structure
+ 
 
-SECTION 1 — TABLE
-- header (only 2 columns): Metric, FY-latest year available example: FY-24
-- CRITICAL: Display ONLY the latest fiscal year (e.g., FY24). Do NOT include FY23, FY22, or any prior years even if they appear in the source data.
-- One data row per each debt facility (including one for lease liability), Gross external debt, Cash, Net external debt, Liquidity, EBITDA, Leverage. There should be 4 columns, Facility Name/Other metric, Interest Rate, Maturity, Amount (£x.xm)
-- Use the following canonical metric names (match exactly when present in the source)to provide the table:
- * Facility Name (including lease liabilities) - Row (multiple rows depending on the number of facilities)
- * Interest Rate - Column 
- * Maturity - Column
- * Amount Outstanding - Column
- * Gross External Debt - Row
- * Closing Cash - Row
- * Net external debt - Row 
- * Liquidity - Row 
- * EBITDA/Adjusted EBITDA - Row
- * Leverage - Row 
-- Use "n.a." / "n.m." exactly when unavailable or not meaningful.
-- Always append source indices to numeric values like: £171.9m [#10] or 9.6x [#10].
-- If a total is shown explicitly in the source (e.g., “Bank loans + RCF outstanding (excl. leases)”), include it. If it is not shown and all needed components are present (e.g., Facility B1 + Facility B2 + RCF drawn), you may compute it and include the computed total; otherwise use "n.a.".
-- If EBITDA or Net External Debt is ≤ 0, set Leverage (Net Debt/EBITDA) to "n.m.".
-- As a matter of checking accuracy, the leverage in capital structure should match the leverage of the latest year in the financial highlights table, because both are the same values
+- Add a single blank line, then a heading line: 7. Capital Structure 
 
-SECTION 2 — COMMENTARY
-- After the Table, add a single blank line, then a heading line: COMMENTARY
-- Write a tight, 6-7 bullet narrative (no colons) complementing the numbers in the table above, flagging what matters for credit. The bullet points should be insightful adding context to the table, so it doesn’t look like the table is repeated in text
-- Use financial statements to write these bullet points, especially the following sections: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt/Borrowings/Creditors' and 'Going Concern' and other sections
-- The bullet points should be based on the following topics:
-   1. Net debt and leverage trend and reasoning for changes
-   2. Recent refinancing actions carried out in the past 1-2 years
-   3. Debt covenants including actual covenant terms and any recent covenant tests.
-   4. Debt security including collateral and security package set against the drawn secured debt
-   5. Liquidity position including cash, committed undrawn facilities, overdraft, and uncommitted accordion if available.
-   6. Upcoming maturities and headroom.
-- Commentary bullets must be detailed, in proper full sentences
-- AVOID sub-headings and semi-colon
-- Each commentary bullet must be written clearly enough for a reader unfamiliar with the company to understand the meaning, impact, and implications
-- If any information regarding any bullet point is unavailable, please do not include it, rather than including wrong information
-- Base all points strictly on the Table values; do not invent numbers.
+ 
 
-SECTION 3 — SOURCES
-- After the COMMENTARY, add a single blank line, then a heading line: Sources
-- List all sources cited in the Table with their bracket numbers (e.g., [#10]).
-- For each, include a brief description: document title, section/page (if available), and what it substantiates.
-- Keep one source per line.
+SECTION 1 — TABLE 
 
-Formatting example (shape only; values are illustrative - NOTE: Only ONE year column):
+- header (only 2 columns): Metric, FY-latest year available example: FY-24 
 
-7. Capital Structure
+- CRITICAL: Display ONLY the latest fiscal year (e.g., FY24). Do NOT include FY23, FY22, or any prior years even if they appear in the source data. 
 
-| Debt Facility | Interest Rate | Maturity | Amount Outstanding (£m)|
-| --- | --- | --- | --- |
-| £100m RCF | EURBIOR + 5.00% | Jun-27 | £101.2m |
-| £200m Senior Secured Notes | 8.75% | Aug-29 | £205.1m |
-| Lease Liability | - | - | £15.0m |
-| Gross External Debt | - | - | £321.3m |
-| Closing Cash | - | - | £50.0m |
-| Net External Debt | - | - | £271.3m |
-| Liquidity (cash + undrawn facilities) | - | - | £100.0m |
-| EBITDA | - | - | £25.0m |
-| Leverage | - | - | 10.9x |
+- One data row per each debt facility (including one for lease liability), Gross external debt, Cash, Net external debt, Liquidity, EBITDA, Leverage. There should be 4 columns, Facility Name/Other metric, Interest Rate, Maturity, Amount (£x.xm) 
 
+- Use the following canonical metric names (match exactly when present in the source)to provide the table: 
 
-COMMENTARY
-- Brief point 1…
-- Brief point 2…
-- Brief point 3…
+* Facility Name (including lease liabilities) - Row (multiple rows depending on the number of facilities) - (example: debt facility includes term loans, RCF, notes, bonds, loan notes, invoice discounting facilities, working capital facility, lease liabilities and others mentioned. They cannot include internal debt facility such as loan from parent company, loan from related parties, loan from shareholders etc.)
 
-Sources
-- [#1] Title / section / page — what it supports.
-- [#4] Title / section / page — what it supports.
-- [#10] Title / section / page — what it supports.
+* Interest Rate - Column  
+
+* Maturity - Column 
+
+* Amount Outstanding - Column 
+
+* Gross External Debt - Row 
+
+* Closing Cash - Row 
+
+* Net external debt - Row  
+
+* Liquidity - Row  
+
+* EBITDA/Adjusted EBITDA - Row 
+
+* Leverage - Row  
+
+- Use "n.a." / "n.m." exactly when unavailable or not meaningful. 
+
+- Always append source indices to numeric values like: £171.9m [#10] or 9.6x [#10]. 
+
+- If a total is shown explicitly in the source (e.g., “Bank loans + RCF outstanding (excl. leases)”), include it. If it is not shown and all needed components are present (e.g., Facility B1 + Facility B2 + RCF drawn), you may compute it and include the computed total; otherwise use "n.a.". 
+
+- If EBITDA or Net External Debt is ≤ 0, set Leverage (Net Debt/EBITDA) to "n.m.". 
+
+- As a matter of checking accuracy, the leverage in capital structure should match the leverage of the latest year in the financial highlights table, because both are the same values 
+
+ 
+
+SECTION 2 — COMMENTARY 
+
+- After the Table, add a single blank line, then a heading line: COMMENTARY 
+
+- Write a tight, 6-7 bullet narrative (no colons) complementing the numbers in the table above, flagging what matters for credit. The bullet points should be insightful adding context to the table, so it doesn’t look like the table is repeated in text 
+
+- The commentary needs to explain certain topics by using text from the financial statements about the capital structure. Use the following sections in the financial accounts to help finding important information to complement the table and create commentary: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Going Concern' and other sections 
+
+- The bullet points should be based ONLY on the following topics: 
+
+   1. Net debt and leverage trend and reasoning for changes (why it increased) 
+
+   2. Recent refinancing actions carried out (e.g. The company recently refinanced its loan maturing in Feb-24, pushing the maturity by 2 years to Feb-26) 
+
+   3. Debt covenants including actual covenant terms and any recent covenant tests (e.g. The debt facility has an interest cover ratio covenant, which shouldn’t exceed more than 3.5x, and is tested twice a year etc.) 
+
+   4. Debt security including collateral and security package set against the drawn secured debt (e.g. The debt facility is secured against all the assets of the company) 
+
+   5. Liquidity position including cash, committed undrawn facilities, overdraft, and uncommitted accordion if available. (e.g. the company has £10m in cash and undrawn RCF of £50m, with an uncommitted accordion of £60m, signalling good liquidity for upcoming maturities) 
+
+   6. Upcoming maturities and headroom. 
+
+- Commentary bullets must be detailed, in proper full sentences 
+
+- AVOID sub-headings and semi-colon 
+
+- Each commentary bullet must be written clearly enough for a reader unfamiliar with the company to understand the meaning, impact, and implications 
+
+- If any information regarding any bullet point is unavailable, please do not include it, rather than including wrong information 
+
+- Base all points strictly on the Table values; do not invent numbers. 
+
+ 
+
+SECTION 3 — SOURCES 
+
+- After the COMMENTARY, add a single blank line, then a heading line: Sources 
+
+- List all sources cited in the Table with their bracket numbers (e.g., [#10]). 
+
+- For each, include a brief description: document title, section/page (if available), and what it substantiates. 
+
+- Keep one source per line. 
+
+ 
+
+Formatting example (shape only; values are illustrative - NOTE: Only ONE year column): 
+
+ 
+
+7. Capital Structure 
+
+ 
+
+| Debt Facility | Interest Rate | Maturity | Amount Outstanding (£m)| 
+
+| --- | --- | --- | --- | 
+
+| £100m RCF | EURBIOR + 5.00% | Jun-27 | £101.2m | 
+
+| £200m Senior Secured Notes | 8.75% | Aug-29 | £205.1m | 
+
+| Lease Liability | - | - | £15.0m | 
+
+| Gross External Debt | - | - | £321.3m | 
+
+| Closing Cash | - | - | £50.0m | 
+
+| Net External Debt | - | - | £271.3m | 
+
+| Liquidity (cash + undrawn facilities) | - | - | £100.0m | 
+
+| EBITDA | - | - | £25.0m | 
+
+| Leverage | - | - | 10.9x | 
+
+ 
+
+COMMENTARY 
+
+- Brief point 1… 
+
+- Brief point 2… 
+
+- Brief point 3… 
+
+ 
+
+Sources 
+
+- [#1] Title / section / page — what it supports. 
+
+- [#4] Title / section / page — what it supports. 
+
+- [#10] Title / section / page — what it supports. 
 """ 
 
 section3 = """
@@ -457,26 +579,51 @@ Capital Structure Table Metrics and Calculations:
 """
 
 finance_calculations = """
-Financial Highlights Table Metrics and Calculations:
+Financial Highlights Table Metrics and Calculations: 
+
  
-- The table with the following financial information for the last three years, using the last three available annual reports/financial statements of the company. It should have rows (some of which are provided and some of which have to be calculated using provided formulae) including:
--- Revenue (Use Income Statement – Always Given)
--- Gross Profit (Use Income Statement – Always Given): Revenue – Cost of Goods Sold (ONLY use this formula if the report does not already provide the gross profit value)
--- EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value)
--- Revenue Growth % (Always Calculate Manually): (RevenueT0÷RevenueT−1)−1
--- Gross Margin % (Always Calculate Manually): Gross Profit / Revenue
--- EBITDA Margin % (Always Calculate Manually): EBITDA / Revenue (put n.m. if it is negative)
--- Cash Flow from Operating Activities excl. Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities – Net Working Capital (Net Working Capital should be the one calculated below)
--- Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Increase/Decrease in Debtors/Receivables + Increase/Decrease in Inventory/Stock + Increase/Decrease in Creditors/Payables (These values are usually provided under Cash flows from Operating Activities section of Cash Flow Statement and should be used as it is for calculation (do not change its signs e.g. change from negative to positive))
--- Capex (Use Cash Flow Statement – Always Calculate Manually): Acquisition of Property, Plant, Equipment/Tangible Assets + Acquisition of Intangible Assets (These values are usually provided under Cash flows from Investing Activities section of Cash Flow Statement)
--- Other Cash Flow from Investing Activities (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Investing Activities – Capex (Capex should be the one calculated above)
--- CFADS (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities + Net Cash Flow from Investing Activities (Both of these values are always provided in the Cash Flow Statement)
--- Cash Flow from Financing Activities (Use Cash Flow Statement – Always Given): This should include the breakdown of sub-items and their contribution to this net number e.g. debt repayment, debt issuance, share issuance etc.
--- Opening Cash (Use Cash Flow Statement – Always Given)
--- Change in Cash (Use Cash Flow Statement – Always Given)
--- Closing Cash (Use Cash Flow Statement – Always Given)
--- Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt + Lease Liabilities (This only includes external debt e.g. bank loans, bonds, RCFs etc. and lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.)) 
--- Net Debt (Always Calculate Manually): Net Debt: Total Debt – Closing Cash
--- Leverage (Always Calculate Manually): Net Debt / EBITDA (put n.m. if it is negative)
-- For the table, provide data from the last three fiscal years (e.g. FY22, FY23, FY24). All values must be shown in millions, rounded to 1 decimal point (e.g. £1.2m). Leverage must be reported in the following format e.g. 1.2x. Show the values as they are reported and calculated e.g. If capex is in negative, it should be reported in negative in the table.
+
+- The table with the following financial information for the last three years, using the last three available annual reports/financial statements of the company. It should have rows (some of which are provided and some of which have to be calculated using provided formulae) including: 
+
+-- Revenue (Use Income Statement – Always Given) 
+
+-- Gross Profit (Use Income Statement – Always Given): Revenue – Cost of Goods Sold (ONLY use this formula if the report does not already provide the gross profit value) 
+
+-- EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value) 
+
+-- Revenue Growth % (Always Calculate Manually): (RevenueT0÷RevenueT−1)−1 
+
+-- Gross Margin % (Always Calculate Manually): Gross Profit / Revenue 
+
+-- EBITDA Margin % (Always Calculate Manually): EBITDA / Revenue (put n.m. if it is negative) 
+
+-- Net Working Capital (Use Cash Flow Statement – Always Calculate Manually): Increase/Decrease in Debtors/Receivables + Increase/Decrease in Inventory/Stock + Increase/Decrease in Creditors/Payables (These values are usually provided under Cash flows from Operating Activities section of Cash Flow Statement and should be used as it is for calculation (do not change its signs e.g. change from negative to positive)) 
+
+-- Interest Paid (Use Cash Flow Statement – Always Given) - If Interest Paid is under operating cash flow, please move it to under financing cash flow and adjust OCF and CFADS values accordingly*
+
+-- Cash Flow from Operating Activities excl. Net Working Capital (pre-interest) (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Operating Activities – Net Working Capital (Net Working Capital should be the one calculated above). In case Interest Paid is reported under Cash Flow from Operating Activities (rather than Cash Flow from Financing Activities), the formula should change to: Net Cash Flow from Operating Activities – Net Working Capital - Interest Paid (example: CFO - NWC - Interest Paid (interest paid is always negative e.g. CFO (−£8.8m) – NWC (−£4.0m) – Interest (–£6.3m)= (−8.8 + 4.0 + 6.3) = £1.5m)
+
+-- Capex (Use Cash Flow Statement – Always Calculate Manually): Acquisition of Property, Plant, Equipment/Tangible Assets + Acquisition of Intangible Assets (These values are usually provided under Cash flows from Investing Activities section of Cash Flow Statement) 
+
+-- Other Cash Flow from Investing Activities (Use Cash Flow Statement – Always Calculate Manually): Net Cash Flow from Investing Activities – Capex (Capex should be the one calculated above) 
+
+-- CFADS (Use Cash Flow Statement – Always Calculate Manually): Calculate using the following formula: Net cash from operating activities (pre-interest) + Net cash used in investing activities. In case Interest Paid is reported under Cash Flow from Operating Activities  (rather than Cash Flow from Financing Activities), the formula should change to: Net cash from operating activities + Net cash used in investing activities - Interest Paid (example: Cash from Operating + Cash from Investing - Interest Paid (interest paid is always negative e.g. CFO (−£8.8m) + CIO (−£4.0m) – Interest (–£6.3m)= (−8.8 -4.0 + 6.3) = £-6.5)
+
+-- Cash Flow from Financing Activities (Use Cash Flow Statement – Can be Given or Might Need to be Calculated): This should include the net total reported for Cash Flow from Financing Activities. If Interest Paid is reported part of Cash Flow from Operating  Activities instead of Cash Flow from Financing Activities, calculate Cash Flow from Financing Activities manually using the formula: net cash from financing activities + Interest Paid 
+
+-- Opening Cash (Use Cash Flow Statement – Always Given) 
+
+-- Change in Cash (Use Cash Flow Statement – Always Given) 
+
+-- Foreign Exchange Gains/Losses (Use Cash Flow Statement – Always Given) 
+
+-- Closing Cash (Use Cash Flow Statement – Always Given) 
+
+-- Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt (This only includes external debt e.g. bank loans, bonds, RCFs, notes, loan notes, invoice discounting facility, preference shares, working capital facility etc.) + Lease Liabilities (lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.))
+
+-- Net Debt (Always Calculate Manually): Net Debt: Total Debt – Closing Cash 
+
+-- Leverage (Always Calculate Manually): Net Debt / EBITDA (put n.m. if it is negative) 
+
+- For the table, provide data from the last three fiscal years (e.g. FY22, FY23, FY24). All values must be shown in millions, rounded to 1 decimal point (e.g. £1.2m). Leverage must be reported in the following format e.g. 1.2x. Show the values as they are reported and calculated e.g. If capex is in negative, it should be reported in negative in the table. 
 """
