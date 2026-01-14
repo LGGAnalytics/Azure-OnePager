@@ -151,7 +151,7 @@ class AsyncProfileAgent:
     1st Asnyc version of profileAgent
     """
 
-    def __init__(self, company_name, k, max_text_recall_size, max_chars, model, profile_prompt="default_prompt", finance_calculations="default_calc", enable_faithfulness_eval = False, faithfulness_threshold = 0.7):
+    def __init__(self, company_name, k, max_text_recall_size, max_chars, model, profile_prompt="default_prompt", finance_calculations=finance_calculations, enable_faithfulness_eval = False, faithfulness_threshold = 0.7):
 
         self.company_name = company_name
         self.k = k
@@ -377,7 +377,7 @@ class AsyncProfileAgent:
     
     @traceable(run_type="chain", name="RAG Answer")
     @observe(as_type="generation")
-    async def _rag_answer(self, rag_nl, question, k = 5, temperature = 0.2):
+    async def _rag_answer(self, rag_nl, question, k = 5, temperature = 0.2, calculations = None):
         """
         
         Calls multiple async chains to answer questions in different workflows
@@ -399,11 +399,19 @@ class AsyncProfileAgent:
             # if not ctx_text:
             #     logging.error("❌ Context is EMPTY!")
                 
-            system_msg = self.profile_prompt + (
-                "\nWhen you use a fact from the context, add citations like [#1], [#2]."
-                "\nOnly rely on the numbered context; if a value is missing, say 'n.a.'."
-                f"\nIF ANY INFORMATION IS NOT FOUND STATE AS n.a. .\n\n USE THIS TO GUIDE YOURSELF: \n {self.finance_calculations}"
-            )
+            if calculations is None:
+                system_msg = self.profile_prompt + (
+                    "\nWhen you use a fact from the context, add citations like [#1], [#2]."
+                    "\nOnly rely on the numbered context; if a value is missing, say 'n.a.'."
+                    "\nIF ANY INFORMATION IS NOT FOUND STATE AS n.a."
+                )
+            else:
+                system_msg = self.profile_prompt + "\n" + calculations + (
+                    "\nWhen you use a fact from the context, add citations like [#1], [#2]."
+                    "\nOnly rely on the numbered context; if a value is missing, say 'n.a.'."
+                    "\nIF ANY INFORMATION IS NOT FOUND STATE AS n.a."
+                    f"\n=========CALCULATIONS INSTRUCTIONS=========\n {calculations}"
+                )
 
             user_msg = f"Question: \n{question}\n\n Context snippers (numbered): \n{ctx_text}"
 
@@ -530,21 +538,36 @@ class AsyncProfileAgent:
     
     @traceable(run_type="llm", name="Synthesize Section")
     @observe(as_type="generation", name="Synthesize Section")
-    async def _answer(self, question, ctx_text, k = 5, temperature = 0.2):
+    async def _answer(self, question, ctx_text, k = 5, temperature = 0.2, calculations = None):
 
         async with self.semaphore:
-            system_msg = (
-                "You are a document synthesis assistant. Your task is to create structured output based ONLY on the provided context snippets.\n\n"
-                "CRITICAL INSTRUCTIONS:\n"
-                "- You must IMMEDIATELY generate the requested output without asking for clarification or confirmation\n"
-                "- Use ONLY the information from the numbered context snippets provided\n"
-                "- When you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41]\n"
-                "- If a specific value is not found in the context, use 'n.a.'\n"
-                "- Follow the formatting instructions in the user message exactly\n"
-                "- If formatting requests a Sources section, include it at the end\n"
-                "- Do NOT ask questions, do NOT request confirmation - simply execute the task\n\n"
-                f"Additional guidelines:\n{self.profile_prompt}"
-            )
+            if calculations is None:
+                system_msg = (
+                    "You are a document synthesis assistant. Your task is to create structured output based ONLY on the provided context snippets.\n\n"
+                    "CRITICAL INSTRUCTIONS:\n"
+                    "- You must IMMEDIATELY generate the requested output without asking for clarification or confirmation\n"
+                    "- Use ONLY the information from the numbered context snippets provided\n"
+                    "- When you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41]\n"
+                    "- If a specific value is not found in the context, use 'n.a.'\n"
+                    "- Follow the formatting instructions in the user message exactly\n"
+                    "- If formatting requests a Sources section, include it at the end\n"
+                    "- Do NOT ask questions, do NOT request confirmation - simply execute the task\n\n"
+                    f"Additional guidelines:\n{self.profile_prompt}"
+                )
+            else:
+                system_msg = (
+                    "You are a document synthesis assistant. Your task is to create structured output based ONLY on the provided context snippets.\n\n"
+                    "CRITICAL INSTRUCTIONS:\n"
+                    "- You must IMMEDIATELY generate the requested output without asking for clarification or confirmation\n"
+                    "- Use ONLY the information from the numbered context snippets provided\n"
+                    "- When you use a fact from the context, preserve any existing citations like [#1], [#2], [#5, p.41]\n"
+                    "- If a specific value is not found in the context, use 'n.a.'\n"
+                    "- Follow the formatting instructions in the user message exactly\n"
+                    "- If formatting requests a Sources section, include it at the end\n"
+                    "- Do NOT ask questions, do NOT request confirmation - simply execute the task\n\n"
+                    f"Additional guidelines:\n{self.profile_prompt}"
+                    f"\n ======= CALCULATIONS INSTRUCTIONS =======\n {calculations}"
+                )
             user_msg = f"TASK:\n{question}\n\nCONTEXT SNIPPETS:\n{ctx_text}\n\nIMPORTANT: Generate the output immediately using the context above. Do not ask for clarification."
 
             client = self.openai
@@ -619,7 +642,7 @@ class AsyncProfileAgent:
     
     @traceable(run_type="chain", name="Parallel RAG Loop")
     @observe(as_type="span", name="Parallel RAG Loop")
-    async def _sections(self, pairs):
+    async def _sections(self, pairs, calculations = None):
 
         """
         Calls in parallel multiple sections
@@ -728,7 +751,7 @@ class AsyncProfileAgent:
             finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
             section_built = await self._sections(pairs=finance_pairs_flat)
             ctx_text_formatted = "\n\n".join(section_built)
-            resp = await self._answer(question=finance_formatting_2, ctx_text=ctx_text_formatted, temperature=0.4)
+            resp = await self._answer(question=finance_formatting_2, ctx_text=ctx_text_formatted, temperature=0.4, calculations=finance_calculations)
             logging.info(f'Finished running {section}')
             return resp['answer']
         elif section == 'GENERATE CAPITAL STRUCTURE':
