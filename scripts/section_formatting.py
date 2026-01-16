@@ -96,55 +96,57 @@ WHEN the information is NOT FOUND in the context, you USE WEB SEARCH
 """
 
 biz_overview_mix_formatting = """
-Follow the formatting and instructions for each section of the output.
+Follow the formatting and instructions for each section of the output. 
 
-**1. Business Overview**
+**1. Business Overview** 
 
-- Add a single blank line, then a heading line: 1. Business Overview
-- This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 6-8 bullet points with sentences, using all the context provided:
--- Include 1-2 bullet point sentences on what the company does
--- Include 1 bullet point on the products/services the company offers
-—- If the company is owned by a private equity firm, include 1 bullet point on who owns its and when they bought the stake in the company
--- Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers)
--- Include 1 bullet point on who are the customers of the company
-—- If available, include 1 bullet point on any important key news of the company in the last one year (e.g. new owner, important acquisition/divestment, refinancing etc.)
--- Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs, approaching maturities etc.)
-—- Include 1 bullet point on the latest Credit Ratings from all three outlets (Moody’s, S&P and Fitch), where available (e.g. Fitch rated Company BBB+/Stable in Oct-25; Moody’s downgraded Company Rating to B-/Negative in Aug-25 etc.)
+- Add a single blank line, then a heading line: 1. Business Overview 
+- This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 7-8 bullet points with sentences, using all the context provided: 
+-- Include 1-2 bullet point sentences on what the company does 
+-- Include 1 bullet point on the products/services the company offers 
+-- Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers) 
+-- Include 1 bullet point on who are the customers of the company 
+-- If the company is owned by a private equity firm, include 1 bullet point on who owns its and when they bought the stake in the company 
+-- If available, include 1 bullet point on any important updates regarding the company in the last one year (e.g. Owner change, acquisition/divestment, refinancing activity, delayed/missed payments, credit rating downgrades, covenant breach, restructuring talks, bankruptcy, wind-up petitions, lawsuit etc.) 
+-- Include 1 bullet point on ongoing stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; approaching debt maturities; dropping profitability; mass lay-offs; missed payment etc.) 
+-- If available, include 1 bullet point on the latest Credit Ratings from all three outlets (Moody’s, S&P and Fitch), where available (e.g. Fitch rated Company BBB+/Stable in Oct-25; Moody’s downgraded Company Rating to B-/Negative in Aug-25 etc.) 
+- First bullet must begin with the company name e.g. Rexel Limited is a wind farm o&m company, operating in the UK 
+- The following bullet points must begin "The company", or “It”. Make sure each bullet point is a proper sentence, which do not contain any sub-headings, colon or semi-colons 
 
-- Each bullet must begin with the company name, "The company", or "It". Make sure each bullet point is a proper sentence, which do not contain any sub-headings, colon or semi-colons
+- Sources to be used for this section: 
+-- The bullet points regarding what the company does, its products/services, operations, customers, ownership (only if PE owned) key updates and credit ratings, can be sourced through Web Search, using the company's official website or other reliable news outlets. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report 
+-- The bullet point regarding company's stress triggers can be sourced from the Business Review or Review of Business or Financial Review or Key Performance Indicators or Principal Risks and Uncertainties or Ongoing Concern or Bank Debt/Borrowings/Creditors section of the annual report 
+-- If any of the above source suggestions does not return results for any part, please scan and check other sections of the reports or do Web Search to see if relevant information can be found 
+
+- Notes for this section: 
+-- If information for any of the bullet point is not available in the report or through Web Search, do not include that specific bullet point as incorrect information is strictly prohibited 
+
+SOURCES 
+
+- After the bullet points, add a "Sources:" section 
+- List all sources cited in the bullet points with their bracket numbers (e.g., [#1], [#2], [#5]) 
+- For each source, include: document title, section/page (if available from context), and what information it substantiates, and URL to the website if information has been taken from web search 
+- If web search was used, include the URLs or source descriptions 
+- Keep one source per line 
 
 
-- Sources to be used for this section:
--- The bullet points regarding what the company does, its products/services, operations, customers, ownership (only if PE owned)and key news, can be sourced through Web Search, using the company's official website or other reliable news outlets. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report
--- The bullet point regarding company's stress triggers can be sourced from the Business Review or Ongoing Concern or Bank Debt/Borrowings/Creditors section of the annual report
--- The bullet point regarding Credit Ratings can be sourced through Web Search, using press articles from Moody's, S&P and Fitch
--- If any of the above source suggestions does not return results for any part, please scan and check other sections of the reports or do Web Search to see if relevant information can be found
+Formatting markdown example (shape only; values are illustrative): 
 
+1. Business Overview 
 
-- Notes for this section:
--- If information for any of the bullet point is not available in the report or through Web Search, do not include that specific bullet point as incorrect information is strictly prohibited
+- Rexel UK is responsible for making burgers. 
+- The company offers three different types of burgers. 
+- The company has operations in Europe and Brazil 
+- It has a majority male customer base 
+- The company was acquired by a major Private Equity firm recently 
+- The company breached its interest-cover ratio covenant in the testing in Dec-24 
+- Most revenue comes from old customers 
+- Latest Credit Ratings from Moody's is AAA/Stable (Oct-25), Fitch B-/Negative (Sep-25) and S&P B+/Stable (Oct-25) 
 
-SOURCES
-- After the bullet points, add a "Sources:" section
-- List all sources cited in the bullet points with their bracket numbers (e.g., [#1], [#2], [#5])
-- For each source, include: document title, section/page (if available from context), and what information it substantiates, and URL to the website if information has been taken from web search
-- If web search was used, include the URLs or source descriptions
-- Keep one source per line
-
-Formatting markdown example (shape only; values are illustrative):
-
-1. Business Overview
-- This company is responsible for making burgers.
-- This company also sells drinks.
-- This company offers three different types of burgers.
-- This company has operations in Europe and Brazil
-- It has a majority male customer base
-- Most revenue comes from old customers
-- Latest Credit Ratings at Moody's is AAA
-
-Sources
-- [#1] Title / section / page — what it supports.
-- [#2] Title / section / page — what it supports.
+ 
+Sources 
+- [#1] Title / section / page — what it supports. 
+- [#2] Title / section / page — what it supports. 
 """
 
 stakeholders_web_mix = """
@@ -208,66 +210,36 @@ SECTION 1 — TABLE
 
 - Do NOT add any text before or after the Table in this section. 
 
- 
-
-SECTION 2 — COMMENTARY 
-
-- After the Table, add a single blank line, then a heading line: Summary - do NOT add anything besides that in the headling line 
-
-- Write a tight, 8-9 bullet narrative  (no colons) complementing the numbers in the table above, flagging what matters for credit. Each bullet should explain the trend of each item over the years and also mention the reason behind change in numbers (e.g. Revenue improved from £2.5m in FY21 to £7m in FY23, attributed to increase in……) 
-
-- The commentary needs to explain trends in numbers in the table above, and needs to use text from the financial statements to complement the trends. Use the following sections in the financial accounts to help finding important information to complement the numbers and create commentary: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt/Borrowings/Creditors' and 'Going Concern' and other sections,  
-
-- The bullet points should be based on the following topics: 
-
-   1. Revenue change and reasoning (including why it changed e.g. revenue increased from £2m in FY22 to £4m in FY24 because company acquired its competitor etc.) 
-
-   2. Gross profit movement and reasoning (including why it changed e.g. gross margin reduced from FY22 to FY24 because of higher cost inflation etc.) 
-
-   3. EBITDA change and reasoning (including why it changed) 
-
-   4. Net working capital change and major line items driving the movement (including why it changed) 
-
-   5. Capex development and reasoning (including why it changed) 
-
-   6. CFADS changes and reasoning (including why it changed) 
-
-   7. Other investing cash flow (including why it changed or is high for certain year e.g. new acquisitions etc.) 
-
-   8. Financing cash flow dynamics and reasoning for changes (e.g. increase in debt issuance, or debt repayment etc.) - (including why it changed or is high for certain year e.g. new loan issuance etc. 
-
-   9. Total debt and leverage trend and reasoning (including why it changed) 
-
-- Commentary bullets must be detailed, in proper full sentences. Make sure each bullet point explains the trend and reasoning, not just restating the table (e.g. revenue increased from x to y from FY21 to FY23.) 
-
-- AVOID sub-headings and semi-colons 
-
-- Write each bullet so a reader unfamiliar with the company can clearly understand the drivers and implications 
-
-- If any information/reasoning regarding any topic of the bullet points is unavailable, please do not include it, rather than including wrong/inaccurate information 
-
-- Base all points strictly on the Table values; do not invent numbers. 
-
+SECTION 2 — COMMENTARY
+- After the Table, add a single blank line, then a heading line: Summary - do NOT add anything besides that in the headling line
+- Write a tight, 8-9 bullet narrative (no colons) complementing the numbers in the table above, flagging what matters for credit. Each bullet should explain the trend of each item over the years and also mention the reason behind change in numbers (e.g. Revenue improved from £2.5m in FY21 to £7m in FY23, attributed to increase in volume of….)
+- Essentially, take the numbers from the table above, analyse the trends, search within the financial statements, what are the drivers behind this change e.g. why did revenue increase from FY22 to FY24, was it because the sales volume increased or did any particular business segment do better or was it because they acquired a new company etc. This has to be seen across multiple topics to have insightful commentary, that not just repeats what is already explained in the table, but also explained WHY these changes happened over the years
+- To locate these drivers or important reasons to supplement the numbers from the table, look into the following sections of the financial statements particularly: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Key Peformance Indicators' and 'Going Concern' and other sections,
+- The bullet points should be based on the following topics:
+  1. Revenue change and drivers (include the overall trend e.g. Revenue increased from £5m in FY22 to £10m in FY24, and supplement it with the drivers e.g. because company acquired its competitor.)
+  2. Gross profit movement and drivers (include the overall trend e.g. Gross profit margin  decreased from 25.2% in FY22 to 20.0% in FY24, and supplement it with the drivers e.g. because cost inflation faced by the company)
+  3. EBITDA change and drivers (include the overall trend and supplement it with the drivers e.g. cost control)
+  4. Net working capital change and drivers (include the overall trend and supplement it with the drivers)
+  5. Capex development and drivers (include the overall trend and supplement it with the drivers e.g. new capital investment projects)
+  6. CFADS changes and drivers (include the overall trend and supplement it with the drivers)
+  7. Other investing cash flow changes and drivers (include the overall trend and supplement it with the drivers e.g. new acquisitions, disposal of businesses etc.)
+  8. Financing cash flow dynamics and drivers (include the overall trend and supplement it with the drivers e.g. new loan issuance, loan repayment, dividends paid etc.)
+  9. Total debt and leverage trend and drivers (include the overall trend and supplement it with the drivers e.g. new loan issuance, drawdown on RCF, Low EBITDA etc.)
+- Commentary bullets must be detailed, in proper full sentences, and AVOID sub-headings and semi-colons
+- Write each bullet so a reader unfamiliar with the company can clearly understand the drivers and implications
+- If any information/reasoning regarding any topic of the bullet points is unavailable, please do not include it, rather than including wrong/inaccurate information
+- Base all points strictly on the Table values; do not invent numbers.
  
 
 SECTION 3 - SOURCES 
 
 - After the COMMENTARY, add a single blank line, then a heading line: Sources 
-
- 
-
 - Point out all the sources used by the original input with the correct number index like [#6], and CITE THE COMPLETE SOURCE like which report it was used, etc. 
-
- 
-
  
 
 Formatting example (shape only; values are illustrative): 
-
  
-
 6. Financial Highlights 
-
  
 
 | Metric | FY24 | FY23 | FY22 | 
@@ -285,15 +257,10 @@ Formatting example (shape only; values are illustrative):
 COMMENTARY 
 
 - Brief point 1… 
-
 - Brief point 2… 
-
 - Brief point 3… 
 
- 
-
 Sources 
-
 - Source 1... 
 """
 
@@ -351,36 +318,18 @@ SECTION 1 — TABLE
 
 SECTION 2 — COMMENTARY 
 
-- After the Table, add a single blank line, then a heading line: COMMENTARY 
-
-- Write a tight, 6-7 bullet narrative (no colons) complementing the numbers in the table above, flagging what matters for credit. The bullet points should be insightful adding context to the table, so it doesn’t look like the table is repeated in text 
-
-- The commentary needs to explain certain topics by using text from the financial statements about the capital structure. Use the following sections in the financial accounts to help finding important information to complement the table and create commentary: 'Primary Activity' and 'Business Review' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Going Concern' and other sections 
-
-- The bullet points should be based ONLY on the following topics: 
-
-   1. Net debt and leverage trend and reasoning for changes (why it increased) 
-
-   2. Recent refinancing actions carried out (e.g. The company recently refinanced its loan maturing in Feb-24, pushing the maturity by 2 years to Feb-26) 
-
-   3. Debt covenants including actual covenant terms and any recent covenant tests (e.g. The debt facility has an interest cover ratio covenant, which shouldn’t exceed more than 3.5x, and is tested twice a year etc.) 
-
-   4. Debt security including collateral and security package set against the drawn secured debt (e.g. The debt facility is secured against all the assets of the company) 
-
-   5. Liquidity position including cash, committed undrawn facilities, overdraft, and uncommitted accordion if available. (e.g. the company has £10m in cash and undrawn RCF of £50m, with an uncommitted accordion of £60m, signalling good liquidity for upcoming maturities) 
-
-   6. Upcoming maturities and headroom. 
-
-- Commentary bullets must be detailed, in proper full sentences 
-
-- AVOID sub-headings and semi-colon 
-
-- Each commentary bullet must be written clearly enough for a reader unfamiliar with the company to understand the meaning, impact, and implications 
-
-- If any information regarding any bullet point is unavailable, please do not include it, rather than including wrong information 
-
-- Base all points strictly on the Table values; do not invent numbers. 
-
+- After the Table, add a single blank line, then a heading line: COMMENTARY
+- Write a tight, 6-7 bullet narrative complementing the capital structure table above, flagging what matters for credit. The bullet points should be insightful and need to be derived from the following sections of the financial accounts: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Going Concern' sections.
+- The bullet points should be based ONLY on the following topics, sourced from the financial statements:
+ 1. Recent refinancing actions completed by the company in recent year (e.g. The company recently refinanced its loan maturing in Feb-24, pushing the maturity by 2 years to Feb-26)
+  2. Debt covenants including actual covenant terms and any recent covenant tests (e.g. Company’s debt facility has an interest cover ratio covenant, which shouldn’t exceed more than 3.5x, and is tested twice a year etc.)
+  3. Debt security including collateral and security package set against the drawn secured debt (e.g. The debt facility is secured against all the assets of the company, and its subsidiaries)
+  4. Liquidity position including cash, committed undrawn facilities, overdraft, and uncommitted accordion if available. (e.g. the company has total liquidity of £60m, including £10m in cash and undrawn RCF of £50m, with an uncommitted accordion of £60m, signalling good liquidity for upcoming maturities)
+  5. Upcoming maturities and headroom (e.g. The company does not have any maturities until 2028 etc.)
+- Commentary bullets must be detailed, in proper full sentences. AVOID sub-headings and semi-colon
+- Each commentary bullet must be written clearly enough for a reader unfamiliar with the company to understand the meaning, impact, and implications
+- If any information regarding any bullet point is unavailable, please do not include it, rather than including wrong information
+- Base all points strictly on the Table values; do not invent numbers.
  
 
 SECTION 3 — SOURCES 
@@ -393,15 +342,9 @@ SECTION 3 — SOURCES
 
 - Keep one source per line. 
 
- 
-
 Formatting example (shape only; values are illustrative - NOTE: Only ONE year column): 
 
- 
-
 7. Capital Structure 
-
- 
 
 | Debt Facility | Interest Rate | Maturity | Amount Outstanding (£m)| 
 
@@ -424,7 +367,6 @@ Formatting example (shape only; values are illustrative - NOTE: Only ONE year co
 | EBITDA | - | - | £25.0m | 
 
 | Leverage | - | - | 10.9x | 
-
  
 
 COMMENTARY 

@@ -65,7 +65,7 @@ TEXT_FIELD      = os.getenv("TEXT_FIELD")
 AOAI_ENDPOINT   = os.environ["AZURE_OPENAI_ENDPOINT"]            # https://<resource>.openai.azure.com
 AOAI_API_VER    = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-10-21")
 AOAI_DEPLOYMENT = os.environ["AZURE_OPENAI_DEPLOYMENT"]          # e.g., gpt-4o-mini / o3-mini / gpt-5 preview
-AOAI_DEPLOYMENT_ENHANCED = os.getenv("AZURE_OPENAI_DEPLOYMENT_ENHANCED", "gpt-5-2")  # Enhanced reasoning model
+OPENAI_REASONING_MODEL = os.getenv("AZURE_OPENAI_DEPLOYMENT_ENHANCED", "gpt-5.2")  # Enhanced reasoning model
 AOAI_KEY        = os.getenv("AZURE_OPENAI_API_KEY")              # omit if using AAD
 OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY")        # required
 
@@ -729,7 +729,7 @@ class AsyncProfileAgent:
 
             # Use Responses API with reasoning
             resp = await client.responses.create(
-                model=AOAI_DEPLOYMENT_ENHANCED,  # gpt-5-2 or from env var
+                model=OPENAI_REASONING_MODEL,  # gpt-5-2 or from env var
                 input=input_messages,  # 'input' not 'messages'
                 reasoning={"effort": reasoning_effort},  # "high" for maximum reasoning
                 text={"verbosity": verbosity},  # Control reasoning visibility in logs
@@ -751,7 +751,7 @@ class AsyncProfileAgent:
             run_tree = run_helpers.get_current_run_tree()
             if run_tree:
                 run_tree.add_metadata({
-                    "model": AOAI_DEPLOYMENT_ENHANCED,
+                    "model": OPENAI_REASONING_MODEL,
                     "api_type": "responses",
                     "reasoning_effort": reasoning_effort,
                     "verbosity": verbosity,

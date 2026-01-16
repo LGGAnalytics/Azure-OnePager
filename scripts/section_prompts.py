@@ -32,18 +32,20 @@ section4b = """
 """
 
 section5 = """
-5. Key Recent Developments:
-- This section includes the latest 8-10 available news of the company in reverse chronological order of release date, using Web Search, complemented by annual reports/financial statements:
--- These news must be formatted in bullet points, with each bullet starting with Mmm-yy (e.g. Jun-24: Ferrari acquired XYZ...), and must contain full proper sentences without the use of semi-colons
--- Each bullet point must start with the company name (e.g. Jun-24: Ferrari acquired XYZ) 
--- Include developments from the last three years maximum, not older than that
--- Everything reported cannot be considered as news. For e.g. “In 2023, Company recorded a profit of £xx” is not considered as a news as it is a trading update. However, “In 2023, the company refinanced its loan maturing in Dec-24” is a news.
--- Following news are priority, other news must not be included: (1) Debt issuance or debt refinancing within the company (2) restructuring (primarily debt but can be operational too)within the company,(3) Mergers, acquisitions and divestments completed by the company (4)Credit Ratings published by Moody’s, Fitch or S&P,(5)Equity investment within the company by owners/acquirers (6) Changes in management personnel within the company (especially CEO, CFO, Directors and Chair), (7) Facility and operations openings/expansion/closures, (8) Dividends payment/share repurchase etc.
-- Sources to be used for this section: 
--- Key news should be sourced using Web Search, particularly from the news sections on the company’s official website, as well as news articles posted by news outlet (e.g. Yahoo Finance, BBC etc.). Web Search can be complemented by any important news/developments reported in the annual reports/financial statements
-- Notes for this section:
--- If key developments are limited, you can just provide a few of them, not 8-10, as long as they are relevant. However, if there is n
-"""
+5. Key Recent Developments: 
+
+- This section includes the latest 8-10 available news of the company in reverse chronological order of release date, using Web Search (company website news section, news outlets etc.) and complemented by important developments reported in the latest annual reports/financial statements: 
+-- These news must be formatted in bullet points, with each bullet starting with Mmm-yy (e.g. Jun-24: Ferrari acquired XYZ...), and must contain full proper sentences without the use of semi-colons 
+-- Each bullet point must start with the company name (e.g. Jun-24: Ferrari acquired XYZ)  
+-- Include developments from the last three years maximum, not older than that 
+-- Everything reported cannot be considered as news. For e.g. “In 2023, Company recorded a profit of £xx” is not considered as a news as it is a trading update. However, “The company refinanced its loan maturing in Dec-24” is a news. 
+-- Following news are priority, other news MUST NOT be included. The order of priority is: (1) Debt issuance or debt refinancing (2) Restructuring (primarily debt restructuring), (3) Wind-up petition, creditor-enforcement actions, bankruptcy, or lawsuits 4) Mergers, acquisitions and divestments completed by the company (5) Equity investment made within the company or new ownership, (6) Credit Ratings published by Moody’s, Fitch or S&P, (7) Changes in management personnel within the company (ONLY Chairman, CEO, Managing Director or CFO, not other Directors), (8) Facility and operations openings/expansion/closures, (9) Dividends payment, share repurchase or new share allocation 
+
+- Sources to be used for this section:  
+-- Key news should be sourced using Web Search, particularly from the news sections on the company’s official website, as well as news articles posted by news outlet (e.g. Yahoo Finance, BBC etc.). Web Search can be complemented by any important news/developments reported in the annual reports/financial statements 
+
+- Notes for this section: 
+-- If key developments are limited, you can just provide a few of them, not 8-10, as long as they are relevant."""
 
 finance_pairs = [
     (
@@ -140,26 +142,27 @@ stakeholders_pairs = [
 
 biz_overview_pairs = [
     (
-        ["Find the variables 'Primary Activity', 'Business Review', 'Introduction', 'Bank Debt/Borrowings/Creditors'"],
+        ["Find the variables 'Primary Activity', 'Business Review', 'Review of Business', 'Introduction', 'Principal Risks and Uncertainties', 'Key Performance Indicators', 'Bank Debt/Borrowings/Creditors'"],
         ),
     (
-        ["This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 6-7 bullet points with sentences, using the latest available annual reports/financial statements of the company — Include 1-2 bullet point sentences on what the company does — Include 1 bullet point on the products/services the company offers — Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers) — Include 1 bullet point on who are the customers of the company — If available, include 1 bullet point on any important key news of the company in the last one year (e.g. new owner, important acquisition/divestment, refinancing etc.) - Include 1 bullet point on stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; covenant breach; dropping profitability; mass lay-offs, approaching maturities etc.)"]
+        ["This section provides a high-level overview on what the company does, its operations, locations, products, customers and any recent key updates (e.g. owner change, acquisition/divestment, refinancing activity, delayed/missed payments, credit rating downgrades, covenant breach, restructuring talks, bankruptcy, wind-up petitions, lawsuit etc.), in a bullet point format consisting of 7-8 bullet points with sentences, using the latest available annual reports/financial statements of the company — Include 1-2 bullet point sentences on what the company does — Include 1 bullet point on the products/services the company offers — Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers) — Include 1 bullet point on who are the customers of the company — Include 1 bullet point on any important updates regarding the company in the last one year (e.g. Owner change, acquisition/divestment, refinancing activity, delayed/missed payments, credit rating downgrades, covenant breach, restructuring talks, bankruptcy, wind-up petitions, lawsuit etc.) - Include 1 bullet point on ongoing stress triggers of the company (e.g., 40% revenue from top 1 customer; high fixed costs; collateral shortfall; aggressive capex; approaching debt maturities; dropping profitability; mass lay-offs; missed payment etc.)"]
     )
 ]
 
 biz_overview_web = """
-- This section provides a high-level overview on what the company does, its operations, locations, products, customers and any ongoing debt/financial issues, in a bullet point format consisting of 6-8 bullet points with sentences:
+- This section provides a high-level overview on what the company does, its operations, locations, products, customers and any recent key updates (e.g. owner change, acquisition/divestment, refinancing activity, delayed/missed payments, credit rating downgrades, covenant breach, restructuring talks, bankruptcy, wind-up petitions, lawsuit etc.), in a bullet point format consisting of 7-8 bullet points, in a bullet point format consisting of 7-8 bullet points with sentences: 
 -- Include 1-2 bullet point sentences on what the company does
 -- Include 1 bullet point on the products/services the company offers
 —- If the company is owned by a private equity firm, include 1 bullet point on who owns its and when they bought the stake in the company
 -- Include 1 bullet point on where the company has its operations (e.g. manufacturing facilities, operating plants, offices, customers)
 -- Include 1 bullet point on who are the customers of the company
-—- If available, include 1 bullet point on any important key news of the company in the last one year (e.g. new owner, important acquisition/divestment, refinancing etc.)
--- Include 1 bullet point on the latest Credit Ratings from all three outlets (Moody’s, S&P and Fitch), where available (e.g. Fitch rated Company BBB+/Stable in Oct-25; Moody’s downgraded Company Rating to B-/Negative in Aug-25 etc.)
-- Each bullet must begin with the company name, "The company", or “It”. Make sure each bullet point is a proper sentence, which do not contain any sub-headings, colon or semi-colons
+-- If the company is owned by a private equity firm, include 1 bullet point on who owns its and when they bought the stake in the company 
+-- If available, include 1 bullet point on any important updates regarding the company in the last one year (e.g. Owner change, acquisition/divestment, refinancing activity, delayed/missed payments, credit rating downgrades, covenant breach, restructuring talks, bankruptcy, wind-up petitions, lawsuit etc.) 
+-- If available, include 1 bullet point on the latest Credit Ratings from all three outlets (Moody’s, S&P and Fitch), where available (e.g. Fitch rated Company BBB+/Stable in Oct-25; Moody’s downgraded Company Rating to B-/Negative in Aug-25 etc.) 
+- First bullet must begin with the company name e.g. Rexel Limited is a wind farm o&m company, operating in the UK 
+- The following bullet points must begin "The company", or “It”. Make sure each bullet point is a proper sentence, which do not contain any sub-headings, colon or semi-colons 
 - Sources to be used for this section: 
--- The bullet points regarding what the company does, its products/services, operations, customers can be sourced through Web Search, using the company’s official website. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report
--- The bullet point regarding Credit Ratings can be sourced through Web Search, using press articles from Moody’s, S&P and Fitch
+-- The bullet points can be sourced through Web Search, using the company’s official website, and other key reliable sources. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the financial statements 
 - Notes for this section:
 -- If information for any of the bullet point is not available through Web Search, do not include that specific bullet point as incorrect information is strictly prohibited
 """
