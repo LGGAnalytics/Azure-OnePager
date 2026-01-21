@@ -92,6 +92,33 @@ finance_pairs = [
     )
 ]
 
+# FINANCIAL HIGHLIGHTS COMMENTARY - Narrative context for WHY numbers changed
+finance_commentary_pairs = [
+    (
+        # RAG queries targeting narrative/explanatory sections
+        ["FIND 'Business Review' section explaining company performance, revenue drivers, and business developments. FILES FROM 2024."],
+        ["FIND 'Primary Activity' or 'Principal Activities' section describing main business operations and changes. FILES FROM 2024."],
+        ["FIND 'Financial Review' or 'Finance Review' section with management commentary on financial results. FILES FROM 2024."],
+        ["FIND 'Strategic Report' section explaining business strategy, performance drivers, and key decisions. FILES FROM 2024."],
+        ["FIND 'Key Performance Indicators' or 'KPIs' section with performance metrics and explanations. FILES FROM 2024."],
+        ["FIND 'Directors Report' section with commentary on company performance and significant events. FILES FROM 2024."],
+        ["FIND 'Going Concern' section explaining financial position and future outlook. FILES FROM 2024."],
+        ["FIND 'Borrowings' or 'Bank Debt' notes explaining debt changes, new facilities, or refinancing. FILES FROM 2024."],
+        ["FIND 'Acquisitions' or 'Business Combinations' notes explaining any company acquisitions or disposals. FILES FROM 2024."],
+    ),
+    (
+        # LLM questions - extract the WHY behind financial performance
+        ['Extract key drivers and reasons for revenue changes mentioned in the Business Review. What caused revenue to increase or decrease?'],
+        ['Extract the main business activities and any changes to operations that impacted financial performance.'],
+        ['Extract management commentary explaining financial results, margin changes, and profitability drivers.'],
+        ['Extract strategic initiatives, investments, or decisions that impacted financial performance.'],
+        ['Extract KPI explanations and what drove improvements or declines in key metrics.'],
+        ['Extract significant events, operational changes, or market conditions mentioned by directors.'],
+        ['Extract going concern considerations, cash flow drivers, and liquidity explanations.'],
+        ['Extract explanations for debt changes, new borrowings, refinancing, or repayments.'],
+        ['Extract details on acquisitions, disposals, or investments that impacted cash flows and financials.'],
+    )
+]
 
 # CAPITAL STRUCTURE
 
@@ -122,6 +149,29 @@ capital_pairs = [
     )
 ]
 
+# CAPITAL STRUCTURE COMMENTARY - Narrative context for WHY debt/capital changed
+capital_commentary_pairs = [
+    (
+        # RAG queries targeting debt/capital narrative sections
+        [f"FIND 'Borrowings' or 'Bank Borrowings' notes explaining debt facilities, terms, and changes. FILES FROM {datetime.now().year - 1}."],
+        [f"FIND 'Bank Debt' or 'Debt Facilities' section explaining loan terms, covenants, and refinancing. FILES FROM {datetime.now().year - 1}."],
+        [f"FIND 'Creditors' notes explaining amounts due to banks and financial institutions. FILES FROM {datetime.now().year - 1}."],
+        [f"FIND 'Going Concern' section explaining liquidity position and debt servicing ability. FILES FROM {datetime.now().year - 1}."],
+        [f"FIND 'Financial Review' or 'Finance Review' with commentary on debt, financing, and capital structure. FILES FROM {datetime.now().year - 1}."],
+        [f"FIND 'Cash Flow' commentary explaining financing activities and debt movements. FILES FROM {datetime.now().year - 1}."],
+        [f"FIND 'Events After Balance Sheet' or 'Subsequent Events' explaining recent debt changes or refinancing. FILES FROM {datetime.now().year - 1}."],
+    ),
+    (
+        # LLM questions - extract the WHY behind capital structure changes
+        ['Extract explanations for borrowing changes, new facilities, or debt repayments mentioned in the notes.'],
+        ['Extract details on debt facility terms, interest rates, maturity dates, and any refinancing activity.'],
+        ['Extract information on creditor relationships, payment terms, and any changes to credit facilities.'],
+        ['Extract going concern considerations related to debt servicing, covenant compliance, and liquidity.'],
+        ['Extract management commentary on financing strategy, capital structure decisions, and debt management.'],
+        ['Extract explanations for financing cash flows, including new borrowings, repayments, and equity movements.'],
+        ['Extract any post-balance sheet events related to debt refinancing, new facilities, or capital changes.'],
+    )
+]
 
 stakeholders_pairs = [
     (

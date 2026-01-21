@@ -11,7 +11,7 @@ from dotenv import load_dotenv, find_dotenv
 from openai import AzureOpenAI, APIConnectionError, OpenAI
 from scripts.default_prompts import new_system_finance_prompt
 
-from scripts.section_prompts import finance_pairs, capital_pairs, stakeholders_pairs, biz_overview_pairs, revenue_pairs, section4a, section4b, section5, biz_overview_web, stakeholders_web
+from scripts.section_prompts import finance_pairs, finance_commentary_pairs, capital_pairs, capital_commentary_pairs, stakeholders_pairs, biz_overview_pairs, revenue_pairs, section4a, section4b, section5, biz_overview_web, stakeholders_web
 from scripts.section_formatting import system_mod, finance_calculations, default_gpt_prompt, section3
 from utils.formatting_tools import *
 
@@ -915,9 +915,9 @@ class AsyncProfileAgent:
             section_built = await self._sections(pairs=finance_pairs_flat)
             ctx_text_formatted = "\n\n".join(section_built)
 
-            # Use enhanced Responses API for complex financial calculations
+            # Building table with enhanced calculations
             resp = await self._answer_enhanced(
-                question=finance_formatting_2,
+                question=finance_table,
                 ctx_text=ctx_text_formatted,
                 temperature=0.4,
                 calculations=finance_calculations,
@@ -925,8 +925,40 @@ class AsyncProfileAgent:
                 verbosity="medium"  # Show reasoning steps in logs
             )
 
+            # Fetch narrative context for commentary (WHY the numbers changed)
+            logging.info(f'Fetching narrative context for commentary')
+            commentary_pairs_flat = list(zip(finance_commentary_pairs[1], finance_commentary_pairs[0]))
+            commentary_context_built = await self._sections(pairs=commentary_pairs_flat)
+            commentary_narrative_ctx = "\n\n".join(commentary_context_built)
+
+            finance_commentary_ctx = f"""
+                <Financial Highlights Table>
+                {resp['answer']}
+                </Financial Highlights Table>
+
+                <Financial Highlights Numerical Context>
+                {ctx_text_formatted}
+                </Financial Highlights Numerical Context>
+
+                <Narrative Context - Business Reviews and Management Commentary>
+                {commentary_narrative_ctx}
+                </Narrative Context - Business Reviews and Management Commentary>
+            """
+
+            # Building commentary
+            resp2 = await self._answer_enhanced(
+                question=finance_commentary,
+                ctx_text=finance_commentary_ctx,
+                temperature=0.4,
+                calculations=finance_calculations,
+                reasoning_effort="medium",  # Maximum reasoning for calculations
+                verbosity="medium"  # Show reasoning steps in logs
+            )
+
+            final_resp = "\n\n".join([resp["answer"], resp2["answer"]])
+
             logging.info(f'Finished running {section}')
-            return resp['answer']
+            return final_resp
         elif section == 'GENERATE CAPITAL STRUCTURE':
             logging.info(f'Started running {section}')
             capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
@@ -935,15 +967,45 @@ class AsyncProfileAgent:
 
             # Use enhanced Responses API for complex capital structure analysis
             resp = await self._answer_enhanced(
-                question=capital_structure_formatting_2,
+                question=capital_structure_table,
                 ctx_text=ctx_text_formatted,
                 temperature=0.4,
-                reasoning_effort="high",  # Maximum reasoning for calculations
+                reasoning_effort="medium",  # Maximum reasoning for calculations
                 verbosity="medium"  # Show reasoning steps in logs
             )
 
+            # Fetch narrative context for commentary (WHY debt/capital changed)
+            logging.info(f'Fetching narrative context for capital structure commentary')
+            capital_commentary_pairs_flat = list(zip(capital_commentary_pairs[1], capital_commentary_pairs[0]))
+            capital_narrative_built = await self._sections(pairs=capital_commentary_pairs_flat)
+            capital_narrative_ctx = "\n\n".join(capital_narrative_built)
+
+            cap_commentary_ctx = f"""
+                <Capital Structure Table>
+                {resp['answer']}
+                </Capital Structure Table>
+
+                <Capital Structure Numerical Context>
+                {ctx_text_formatted}
+                </Capital Structure Numerical Context>
+
+                <Narrative Context - Debt and Financing Commentary>
+                {capital_narrative_ctx}
+                </Narrative Context - Debt and Financing Commentary>
+            """
+
+            resp2 = await self._answer_enhanced(
+                question=capital_structure_commentary,
+                ctx_text=cap_commentary_ctx,
+                temperature=0.4,
+                reasoning_effort="medium",  # Maximum reasoning for calculations
+                verbosity="medium"  # Show reasoning steps in logs
+            )
+
+            final_resp = "\n\n".join([resp["answer"], resp2["answer"]])
+
             logging.info(f'Finished running {section}')
-            return resp['answer']
+            return final_resp
         elif section == 'GENERATE REVENUE SPLIT':
             logging.info(f'Started running {section}')
             revenue_pairs_flat = list(zip(revenue_pairs[1], revenue_pairs[0]))  # [(r, q), (r, q), ...]

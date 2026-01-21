@@ -264,57 +264,114 @@ Sources
 - Source 1... 
 """
 
+finance_table = """ 
+
+Follow the formatting and instructions for each section of the output. 
+
+
+- Add a single blank line, then a heading line: 6. Financial Highlights 
+
+
+SECTION 1 — TABLE 
+
+- Output a valid Table with header: Metric,FY24,FY23,FY22 
+
+- One data row per metric. 
+
+- Use "n.a." / "n.m." exactly when unavailable. 
+
+- Do NOT add any text before or after the Table in this section. 
+
+
+Formatting example (shape only; values are illustrative): 
+ 
+6. Financial Highlights 
+ 
+
+| Metric | FY24 | FY23 | FY22 | 
+
+| --- | --- | --- | --- | 
+
+| Revenue (Turnover) | £576.8m [#2] | £81.4m [#6] | £32.8m [#5] | 
+
+| Revenue growth % (yoy) | +608.6% [#2][#6] | +148.0% [#5] | n.a. | 
+
+| Gross profit | n.a. | £48.4m [#3][#6] | £14.3m [#3] | 
+
+"""
+
+finance_commentary = """
+Follow the formatting and instructions for each section of the output. 
+Your focus in to find the WHY behind the numbers in the table using the context provided.
+
+SECTION 2 — COMMENTARY
+- After the Table, add a single blank line, then a heading line: Commentary - do NOT add anything besides that in the headling line
+- Write a tight, 8-9 bullet narrative (no colons) complementing the numbers in the table above, flagging what matters for credit. Each bullet should explain the trend of each item over the years and also mention the reason behind change in numbers (e.g. Revenue improved from £2.5m in FY21 to £7m in FY23, attributed to increase in volume of….)
+- Essentially, take the numbers from the table above, analyse the trends, search within the financial statements, what are the drivers behind this change e.g. why did revenue increase from FY22 to FY24, was it because the sales volume increased or did any particular business segment do better or was it because they acquired a new company etc. This has to be seen across multiple topics to have insightful commentary, that not just repeats what is already explained in the table, but also explained WHY these changes happened over the years
+- To locate these drivers or important reasons to supplement the numbers from the table, look into the following sections of the financial statements particularly: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Key Peformance Indicators' and 'Going Concern' and other sections,
+- The bullet points should be based on the following topics:
+  1. Revenue change and drivers (include the overall trend e.g. Revenue increased from £5m in FY22 to £10m in FY24, and supplement it with the drivers e.g. because company acquired its competitor.)
+  2. Gross profit movement and drivers (include the overall trend e.g. Gross profit margin  decreased from 25.2% in FY22 to 20.0% in FY24, and supplement it with the drivers e.g. because cost inflation faced by the company)
+  3. EBITDA change and drivers (include the overall trend and supplement it with the drivers e.g. cost control)
+  4. Net working capital change and drivers (include the overall trend and supplement it with the drivers)
+  5. Capex development and drivers (include the overall trend and supplement it with the drivers e.g. new capital investment projects)
+  6. CFADS changes and drivers (include the overall trend and supplement it with the drivers)
+  7. Other investing cash flow changes and drivers (include the overall trend and supplement it with the drivers e.g. new acquisitions, disposal of businesses etc.)
+  8. Financing cash flow dynamics and drivers (include the overall trend and supplement it with the drivers e.g. new loan issuance, loan repayment, dividends paid etc.)
+  9. Total debt and leverage trend and drivers (include the overall trend and supplement it with the drivers e.g. new loan issuance, drawdown on RCF, Low EBITDA etc.)
+- Commentary bullets must be detailed, in proper full sentences, and AVOID sub-headings and semi-colons
+- Write each bullet so a reader unfamiliar with the company can clearly understand the drivers and implications
+- If any information/reasoning regarding any topic of the bullet points is unavailable, please do not include it, rather than including wrong/inaccurate information
+- Base all points strictly on the Table values; do not invent numbers.
+ 
+
+SECTION 3 - SOURCES 
+
+- After the COMMENTARY, add a single blank line, then a heading line: Sources 
+- Point out all the sources used by the original input with the correct number index like [#6], and CITE THE COMPLETE SOURCE like which report it was used, etc. 
+
+
+Formatting example (shape only; values are illustrative): 
+
+COMMENTARY 
+
+- Brief point 1… 
+- Brief point 2… 
+- Brief point 3… 
+
+Sources 
+- Source 1... 
+
+"""
+
 
 capital_structure_formatting_2 = """
 Return THREE sections in this exact order: 
 
- 
-
 - Add a single blank line, then a heading line: 7. Capital Structure 
-
- 
 
 SECTION 1 — TABLE 
 
 - header (only 2 columns): Metric, FY-latest year available example: FY-24 
-
 - CRITICAL: Display ONLY the latest fiscal year (e.g., FY24). Do NOT include FY23, FY22, or any prior years even if they appear in the source data. 
-
 - One data row per each debt facility (including one for lease liability), Gross external debt, Cash, Net external debt, Liquidity, EBITDA, Leverage. There should be 4 columns, Facility Name/Other metric, Interest Rate, Maturity, Amount (£x.xm) 
-
 - Use the following canonical metric names (match exactly when present in the source)to provide the table: 
-
 * Facility Name (including lease liabilities) - Row (multiple rows depending on the number of facilities) - (example: debt facility includes term loans, RCF, notes, bonds, loan notes, invoice discounting facilities, working capital facility, lease liabilities and others mentioned. They cannot include internal debt facility such as loan from parent company, loan from related parties, loan from shareholders etc.)
-
 * Interest Rate - Column  
-
 * Maturity - Column 
-
 * Amount Outstanding - Column 
-
 * Gross External Debt - Row 
-
 * Closing Cash - Row 
-
 * Net external debt - Row  
-
 * Liquidity - Row  
-
 * EBITDA/Adjusted EBITDA - Row 
-
 * Leverage - Row  
-
 - Use "n.a." / "n.m." exactly when unavailable or not meaningful. 
-
 - Always append source indices to numeric values like: £171.9m [#10] or 9.6x [#10]. 
-
 - If a total is shown explicitly in the source (e.g., “Bank loans + RCF outstanding (excl. leases)”), include it. If it is not shown and all needed components are present (e.g., Facility B1 + Facility B2 + RCF drawn), you may compute it and include the computed total; otherwise use "n.a.". 
-
 - If EBITDA or Net External Debt is ≤ 0, set Leverage (Net Debt/EBITDA) to "n.m.". 
-
 - As a matter of checking accuracy, the leverage in capital structure should match the leverage of the latest year in the financial highlights table, because both are the same values 
 
- 
 
 SECTION 2 — COMMENTARY 
 
@@ -335,11 +392,8 @@ SECTION 2 — COMMENTARY
 SECTION 3 — SOURCES 
 
 - After the COMMENTARY, add a single blank line, then a heading line: Sources 
-
 - List all sources cited in the Table with their bracket numbers (e.g., [#10]). 
-
 - For each, include a brief description: document title, section/page (if available), and what it substantiates. 
-
 - Keep one source per line. 
 
 Formatting example (shape only; values are illustrative - NOTE: Only ONE year column): 
@@ -347,46 +401,121 @@ Formatting example (shape only; values are illustrative - NOTE: Only ONE year co
 7. Capital Structure 
 
 | Debt Facility | Interest Rate | Maturity | Amount Outstanding (£m)| 
-
 | --- | --- | --- | --- | 
-
 | £100m RCF | EURBIOR + 5.00% | Jun-27 | £101.2m | 
-
 | £200m Senior Secured Notes | 8.75% | Aug-29 | £205.1m | 
-
 | Lease Liability | - | - | £15.0m | 
-
 | Gross External Debt | - | - | £321.3m | 
-
 | Closing Cash | - | - | £50.0m | 
-
 | Net External Debt | - | - | £271.3m | 
-
 | Liquidity (cash + undrawn facilities) | - | - | £100.0m | 
-
 | EBITDA | - | - | £25.0m | 
-
 | Leverage | - | - | 10.9x | 
  
 
 COMMENTARY 
 
 - Brief point 1… 
-
 - Brief point 2… 
-
 - Brief point 3… 
 
- 
 
 Sources 
 
 - [#1] Title / section / page — what it supports. 
-
 - [#4] Title / section / page — what it supports. 
-
 - [#10] Title / section / page — what it supports. 
 """ 
+
+
+capital_structure_table = """
+Return the sections in this exact order: 
+
+- Add a single blank line, then a heading line: 7. Capital Structure 
+
+
+SECTION 1 — TABLE 
+
+- header (only 2 columns): Metric, FY-latest year available example: FY-24 
+- CRITICAL: Display ONLY the latest fiscal year (e.g., FY24). Do NOT include FY23, FY22, or any prior years even if they appear in the source data. 
+- One data row per each debt facility (including one for lease liability), Gross external debt, Cash, Net external debt, Liquidity, EBITDA, Leverage. There should be 4 columns, Facility Name/Other metric, Interest Rate, Maturity, Amount (£x.xm) 
+- Use the following canonical metric names (match exactly when present in the source)to provide the table: 
+* Facility Name (including lease liabilities) - Row (multiple rows depending on the number of facilities) - (example: debt facility includes term loans, RCF, notes, bonds, loan notes, invoice discounting facilities, working capital facility, lease liabilities and others mentioned. They cannot include internal debt facility such as loan from parent company, loan from related parties, loan from shareholders etc.)
+* Interest Rate - Column  
+* Maturity - Column 
+* Amount Outstanding - Column 
+* Gross External Debt - Row 
+* Closing Cash - Row 
+* Net external debt - Row  
+* Liquidity - Row  
+* EBITDA/Adjusted EBITDA - Row 
+* Leverage - Row  
+- Use "n.a." / "n.m." exactly when unavailable or not meaningful. 
+- Always append source indices to numeric values like: £171.9m [#10] or 9.6x [#10]. 
+- If a total is shown explicitly in the source (e.g., “Bank loans + RCF outstanding (excl. leases)”), include it. If it is not shown and all needed components are present (e.g., Facility B1 + Facility B2 + RCF drawn), you may compute it and include the computed total; otherwise use "n.a.". 
+- If EBITDA or Net External Debt is ≤ 0, set Leverage (Net Debt/EBITDA) to "n.m.". 
+- As a matter of checking accuracy, the leverage in capital structure should match the leverage of the latest year in the financial highlights table, because both are the same values 
+
+Formatting example (shape only; values are illustrative - NOTE: Only ONE year column): 
+
+7. Capital Structure 
+
+| Debt Facility | Interest Rate | Maturity | Amount Outstanding (£m)| 
+| --- | --- | --- | --- | 
+| £100m RCF | EURBIOR + 5.00% | Jun-27 | £101.2m | 
+| £200m Senior Secured Notes | 8.75% | Aug-29 | £205.1m | 
+| Lease Liability | - | - | £15.0m | 
+| Gross External Debt | - | - | £321.3m | 
+| Closing Cash | - | - | £50.0m | 
+| Net External Debt | - | - | £271.3m | 
+| Liquidity (cash + undrawn facilities) | - | - | £100.0m | 
+| EBITDA | - | - | £25.0m | 
+| Leverage | - | - | 10.9x |
+"""
+
+
+capital_structure_commentary = """
+Follow the formatting and instructions for each section of the output. 
+Your focus in to find the WHY behind the numbers in the table using the context provided.
+
+SECTION 2 — COMMENTARY 
+
+- After the Table, add a single blank line, then a heading line: COMMENTARY
+- Write a tight, 6-7 bullet narrative complementing the capital structure table above, flagging what matters for credit. The bullet points should be insightful and need to be derived from the following sections of the financial accounts: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Going Concern' sections.
+- The bullet points should be based ONLY on the following topics, sourced from the financial statements:
+ 1. Recent refinancing actions completed by the company in recent year (e.g. The company recently refinanced its loan maturing in Feb-24, pushing the maturity by 2 years to Feb-26)
+  2. Debt covenants including actual covenant terms and any recent covenant tests (e.g. Company’s debt facility has an interest cover ratio covenant, which shouldn’t exceed more than 3.5x, and is tested twice a year etc.)
+  3. Debt security including collateral and security package set against the drawn secured debt (e.g. The debt facility is secured against all the assets of the company, and its subsidiaries)
+  4. Liquidity position including cash, committed undrawn facilities, overdraft, and uncommitted accordion if available. (e.g. the company has total liquidity of £60m, including £10m in cash and undrawn RCF of £50m, with an uncommitted accordion of £60m, signalling good liquidity for upcoming maturities)
+  5. Upcoming maturities and headroom (e.g. The company does not have any maturities until 2028 etc.)
+- Commentary bullets must be detailed, in proper full sentences. AVOID sub-headings and semi-colon
+- Each commentary bullet must be written clearly enough for a reader unfamiliar with the company to understand the meaning, impact, and implications
+- If any information regarding any bullet point is unavailable, please do not include it, rather than including wrong information
+- Base all points strictly on the Table values; do not invent numbers.
+ 
+SECTION 3 — SOURCES 
+
+- After the COMMENTARY, add a single blank line, then a heading line: Sources 
+- List all sources cited in the Table with their bracket numbers (e.g., [#10]). 
+- For each, include a brief description: document title, section/page (if available), and what it substantiates. 
+- Keep one source per line. 
+
+Formatting example (shape only; values are illustrative - NOTE: Only ONE year column): 
+
+COMMENTARY 
+
+- Brief point 1… 
+- Brief point 2… 
+- Brief point 3… 
+
+
+Sources 
+
+- [#1] Title / section / page — what it supports. 
+- [#4] Title / section / page — what it supports. 
+- [#10] Title / section / page — what it supports. 
+"""
+
 
 section3 = """
 Add a blank line, then a heading line: 3. Revenue Split
@@ -426,9 +555,8 @@ OTHER TABLES FOLLOW SIMILAR MARKDOWN FORMAT
 
 Sources:
 - [#1] Title / section / page — what it supports.
-
-
 """
+
 
 section4a = """
 
