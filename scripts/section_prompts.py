@@ -2,7 +2,7 @@ from datetime import datetime
 
 revenue_pairs = [
     (
-        [f"FIND THE VARIABLES 'Revenue' and 'Turnover'. FILES FROM LATEST YEAR."],
+        [f"FIND THE VARIABLES 'Revenue' and 'Turnover' and 'Geography' and 'Business Segments'. FILES FROM 2024."],
     ),
     (
         ['This section provides the revenue segmentation of the company’s latest available revenue/turnover in the form of a table, using the latest available annual report/financial statement of the company: -- This can be revenue by geography, customer geography, products, type of business, business segments or/and any other type of split. If any of this type is not available, include what the company reports, as it is -- If multiple types of revenue segmentations are available e.g. revenue split by geography and revenue split by business segments, provide both of them, as reported in the report -- For the revenue split, using the actual values of each segment, calculate percentage shares -- Report both actual values and the percentage shares for each -- Make sure the total of the split must always be the same as the total revenue/turnover of the latest year']
@@ -86,7 +86,7 @@ finance_pairs = [
         ['Change in Cash (Use Cash Flow Statement – Always Given)'],
         ['Foreign Exchange Gains/Losses (Use Cash Flow Statement – Always Given)'],
         ['Closing Cash (Use Cash Flow Statement – Always Given).'],
-        ['Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt + Lease Liabilities (This only includes external debt e.g. bank loans, bonds, RCFs etc. and lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.)) '],
+        ['Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt + Lease Liabilities (This only includes external debt e.g. bank loans, bonds, RCFs etc. and lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.)) - In case the lease liabilities is not available, please count it as 0 and add it with the bank debt to get the total debt '],
         ['Net Debt (Always Calculate Manually): Net Debt: Total Debt – Closing Cash'],
         ['Leverage (Always Calculate Manually): Net Debt / EBITDA (put n.m. if it is negative)'],
     )
