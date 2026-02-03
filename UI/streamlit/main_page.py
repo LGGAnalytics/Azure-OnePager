@@ -137,7 +137,7 @@ if "pdf_model" not in st.session_state:
 if "pdf_ready" not in st.session_state:
     st.session_state.pdf_ready = False
 
-LOGO = 'LGGAdvisors_Logo.png'
+LOGO = 'logo_teneo.png'
 
 st.logo(
     str(LOGO),                 # main logo
