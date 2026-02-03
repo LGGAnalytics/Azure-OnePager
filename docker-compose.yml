@@ -44,10 +44,6 @@ services:
 
       # Companies House API
       - COMPANIES_HOUSE_API_KEY=${COMPANIES_HOUSE_API_KEY}
-
-      # Supabase (if used)
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_KEY=${SUPABASE_KEY}
     volumes:
       # Mount local directory for development (comment out for production)
       - .:/home/appuser/app
