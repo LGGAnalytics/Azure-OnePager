@@ -334,6 +334,8 @@ def stream_answer(prompt: str, section_build = False, section = ''):
 
     except Exception as e:
         answer_text = f"ERROR. \n {e}"
+    finally:
+        asyncio.run(agent.close())
 
     # 3. measure total time
     elapsed = time.perf_counter() - start_time

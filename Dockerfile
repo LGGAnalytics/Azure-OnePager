@@ -20,6 +20,7 @@ ENV PYTHONUNBUFFERED=1 \
 # - libgl1: OpenGL libraries for OpenCV
 # - libglib2.0-0: Required for OpenCV
 # - curl: Health checks and debugging
+# - libreoffice-writer: DOCX to PDF conversion (headless)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     tesseract-ocr \
@@ -27,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     curl \
+    libreoffice-writer \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security

@@ -35,15 +35,12 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
+          dockerfilePath: Dockerfile
           registryUrl: teneobot.azurecr.io
           registryUsername: ${{ secrets.TENEOBOT_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.TENEOBOT_REGISTRY_PASSWORD }}
           containerAppName: teneo-bot
           resourceGroup: teneo-lpvp
           imageToBuild: teneobot.azurecr.io/teneo-bot:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
 
 

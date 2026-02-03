@@ -71,12 +71,12 @@ OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY")        # required
 
 @traceable(run_type="llm", name="General Assistant")
 @observe(as_type="generation", name="General Assistant")
-async def async_general_assistant_async(prompt_sys, prompt_user, OPENAI_API_KEY, deployment, reasoning_effort = "medium"):
+async def async_general_assistant_async(prompt_sys, prompt_user, OPENAI_API_KEY, deployment, reasoning_effort = "medium", client=None):
     """
-    Async version: Designed to receive two text inputs and create a 
+    Async version: Designed to receive two text inputs and create a
     summary out of them in order to join both prompts into one
-    """    
-    web_openai = AsyncOpenAI(api_key=OPENAI_API_KEY)
+    """
+    web_openai = client or AsyncOpenAI(api_key=OPENAI_API_KEY)
 
     REASONING_MODELS = {
         "o3", "o3-mini", "o3-mini-high", "o4-mini", 'gpt-5'
@@ -159,9 +159,14 @@ class AsyncProfileAgent:
         self.max_text_recall_size = max_text_recall_size
         self.max_chars = max_chars
         
-        self.azure_credentials = AzureKeyCredential(SEARCH_KEY)  # Replace with actual
-        # NOTE: search_client is now created per-request for thread safety in async context
-        # See _retrieve_hybrid_enhanced for isolated client creation
+        self.azure_credentials = AzureKeyCredential(SEARCH_KEY)
+        # Shared search client — AsyncSearchClient is safe for concurrent async use
+        from azure.search.documents.aio import SearchClient as AsyncSearchClient
+        self.search_client = AsyncSearchClient(
+            endpoint=SEARCH_ENDPOINT,
+            index_name=SEARCH_INDEX,
+            credential=self.azure_credentials
+        )
         self.az_openai = AsyncAzureOpenAI(
             azure_endpoint=AOAI_ENDPOINT,
             api_key=AOAI_KEY,
@@ -194,12 +199,16 @@ class AsyncProfileAgent:
             self.evaluation_results = []  # Store all evaluations
 
 
+    async def close(self):
+        """Close shared clients to free resources. Call when the agent is done."""
+        await self.search_client.close()
+
     # =================== HELPER FUNCTIONS ============
     @property
     def semaphore(self):
         """Lazy initialization of semaphore in async context"""
         if self._semaphore is None:
-            self._semaphore = asyncio.Semaphore(3)
+            self._semaphore = asyncio.Semaphore(5)
         return self._semaphore
 
     @traceable(run_type="chain", name="Filter company name")
@@ -307,7 +316,7 @@ class AsyncProfileAgent:
         #     ]
         # )
 
-        resp = await async_general_assistant_async(instruction, prompt, OPENAI_API_KEY, 'gpt-4o')
+        resp = await async_general_assistant_async(instruction, prompt, OPENAI_API_KEY, 'gpt-4o', client=self.openai)
 
         try:
             import json
@@ -327,15 +336,7 @@ class AsyncProfileAgent:
         race conditions when multiple sections query in parallel.
         """
 
-        # Create isolated search client for THIS request only
-        # This prevents concurrent searches from interfering with each other
-        from azure.search.documents.aio import SearchClient as AsyncSearchClient
-
-        sc = AsyncSearchClient(
-            endpoint=SEARCH_ENDPOINT,
-            index_name=SEARCH_INDEX,
-            credential=self.azure_credentials
-        )
+        sc = self.search_client
 
         flt = self._company_filter()
         bm25_query = await self.bm25_creator(query_nl)
@@ -362,9 +363,6 @@ class AsyncProfileAgent:
 
         # Eagerly consume the async iterator to avoid state corruption
         results_list = [r async for r in results]
-
-        # Close the isolated search client to free resources
-        await sc.close()
 
         for r in results_list:  # ← Regular for loop
             d = r.copy() if hasattr(r, "copy") else {k2: r[k2] for k2 in r}
@@ -850,7 +848,7 @@ class AsyncProfileAgent:
             all_answers.extend(batch_answers)
 
             if i + batch_size < len(pairs):
-                await asyncio.sleep(20.0)
+                await asyncio.sleep(10.0)
         
         return all_answers
     
@@ -912,8 +910,16 @@ class AsyncProfileAgent:
         elif section == 'GENERATE FINANCIAL HIGHLIGHTS':
             logging.info(f'Started running {section}')
             finance_pairs_flat = list(zip(finance_pairs[1], finance_pairs[0]))  # [(r, q), (r, q), ...]
-            section_built = await self._sections(pairs=finance_pairs_flat)
+            commentary_pairs_flat = list(zip(finance_commentary_pairs[1], finance_commentary_pairs[0]))
+
+            # Run metric and commentary retrieval in parallel
+            logging.info(f'Fetching metric and commentary context in parallel')
+            section_built, commentary_context_built = await asyncio.gather(
+                self._sections(pairs=finance_pairs_flat),
+                self._sections(pairs=commentary_pairs_flat),
+            )
             ctx_text_formatted = "\n\n".join(section_built)
+            commentary_narrative_ctx = "\n\n".join(commentary_context_built)
 
             # Building table with enhanced calculations
             resp = await self._answer_enhanced(
@@ -924,12 +930,6 @@ class AsyncProfileAgent:
                 reasoning_effort="medium",  # Maximum reasoning for calculations
                 verbosity="medium"  # Show reasoning steps in logs
             )
-
-            # Fetch narrative context for commentary (WHY the numbers changed)
-            logging.info(f'Fetching narrative context for commentary')
-            commentary_pairs_flat = list(zip(finance_commentary_pairs[1], finance_commentary_pairs[0]))
-            commentary_context_built = await self._sections(pairs=commentary_pairs_flat)
-            commentary_narrative_ctx = "\n\n".join(commentary_context_built)
 
             finance_commentary_ctx = f"""
                 <Financial Highlights Table>
@@ -962,8 +962,16 @@ class AsyncProfileAgent:
         elif section == 'GENERATE CAPITAL STRUCTURE':
             logging.info(f'Started running {section}')
             capital_pairs_flat = list(zip(capital_pairs[1], capital_pairs[0]))  # [(r, q), (r, q), ...]
-            section_built = await self._sections(pairs=capital_pairs_flat)
+            capital_commentary_pairs_flat = list(zip(capital_commentary_pairs[1], capital_commentary_pairs[0]))
+
+            # Run metric and commentary retrieval in parallel
+            logging.info(f'Fetching metric and commentary context in parallel')
+            section_built, capital_narrative_built = await asyncio.gather(
+                self._sections(pairs=capital_pairs_flat),
+                self._sections(pairs=capital_commentary_pairs_flat),
+            )
             ctx_text_formatted = "\n\n".join(section_built)
+            capital_narrative_ctx = "\n\n".join(capital_narrative_built)
 
             # Use enhanced Responses API for complex capital structure analysis
             resp = await self._answer_enhanced(
@@ -973,12 +981,6 @@ class AsyncProfileAgent:
                 reasoning_effort="medium",  # Maximum reasoning for calculations
                 verbosity="medium"  # Show reasoning steps in logs
             )
-
-            # Fetch narrative context for commentary (WHY debt/capital changed)
-            logging.info(f'Fetching narrative context for capital structure commentary')
-            capital_commentary_pairs_flat = list(zip(capital_commentary_pairs[1], capital_commentary_pairs[0]))
-            capital_narrative_built = await self._sections(pairs=capital_commentary_pairs_flat)
-            capital_narrative_ctx = "\n\n".join(capital_narrative_built)
 
             cap_commentary_ctx = f"""
                 <Capital Structure Table>
