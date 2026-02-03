@@ -17,14 +17,14 @@ ENV PYTHONUNBUFFERED=1 \
 # - libgomp1: Required for OpenCV
 # - tesseract-ocr: OCR engine for unstructured document processing
 # - poppler-utils: PDF utilities for document processing
-# - libgl1-mesa-glx: OpenGL libraries for OpenCV
+# - libgl1: OpenGL libraries for OpenCV
 # - libglib2.0-0: Required for OpenCV
 # - curl: Health checks and debugging
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     tesseract-ocr \
     poppler-utils \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     curl \
     && rm -rf /var/lib/apt/lists/*
