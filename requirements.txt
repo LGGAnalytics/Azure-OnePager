@@ -30,6 +30,7 @@ lxml
 opencv-python
 reportlab
 python-pptx
+docx2pdf
 unstructured[all-docs]
 
 # Utilities

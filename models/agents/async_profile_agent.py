@@ -319,7 +319,7 @@ class AsyncProfileAgent:
     
     @traceable(run_type="retriever", name="Azure Hybrid Search")
     @observe(as_type="retriever", name="Azure Hybrid Search")
-    async def _retrieve_hybrid_enhanced(self, query_nl, k: int = 50, top_n = 30, fields=VECTOR_FIELD, max_text_recall_size: int = 800):
+    async def _retrieve_hybrid_enhanced(self, query_nl, k: int = 50, top_n = 20, fields=VECTOR_FIELD, max_text_recall_size: int = 800):
         """
         search operation that mixes bm25 quey with vector search
 
@@ -1136,27 +1136,38 @@ class AsyncProfileAgent:
                 elapsed = time.time() - section_start
                 return section, None, elapsed, e
 
-        # Start all sections
-        for section in sections:
-            yield f"🔄 Starting: **{section_names[section]}**"
+        # Split sections into 3 phases to avoid rate limits:
+        # Phase 1: All lightweight sections in parallel
+        # Phase 2: Capital Structure alone
+        # Phase 3: Financial Highlights alone
+        heavy_sections = {'GENERATE CAPITAL STRUCTURE', 'GENERATE FINANCIAL HIGHLIGHTS'}
+        light_sections = [s for s in sections if s not in heavy_sections]
 
-        tasks = [process_section_with_updates(s) for s in sections]
+        phases = [
+            ("Phase 1 — General sections", light_sections),
+            ("Phase 2 — Capital Structure", ['GENERATE CAPITAL STRUCTURE']),
+            ("Phase 3 — Financial Highlights", ['GENERATE FINANCIAL HIGHLIGHTS']),
+        ]
 
-        # Monitor as they complete
-        for coro in asyncio.as_completed(tasks):
-            section, result, elapsed, error = await coro
-            completed_count += 1
+        for phase_label, phase_sections in phases:
+            yield f"🔄 **{phase_label}** ({', '.join(section_names[s] for s in phase_sections)})"
 
-            if error:
-                yield f"❌ Failed: **{section_names[section]}** - {type(error).__name__}: {str(error)[:100]}"
-                logging.error(f"Section {section} failed: {error}")
-            elif result is None:
-                yield f"⚠️ Warning: **{section_names[section]}** returned no content"
-            else:
-                completed_results[section] = result
-                mins = int(elapsed // 60)
-                secs = int(elapsed % 60)
-                yield f"✅ Completed ({completed_count}/{len(sections)}): **{section_names[section]}** - {len(result):,} chars in {mins}m {secs}s"
+            tasks = [process_section_with_updates(s) for s in phase_sections]
+
+            for coro in asyncio.as_completed(tasks):
+                section, result, elapsed, error = await coro
+                completed_count += 1
+
+                if error:
+                    yield f"❌ Failed: **{section_names[section]}** - {type(error).__name__}: {str(error)[:100]}"
+                    logging.error(f"Section {section} failed: {error}")
+                elif result is None:
+                    yield f"⚠️ Warning: **{section_names[section]}** returned no content"
+                else:
+                    completed_results[section] = result
+                    mins = int(elapsed // 60)
+                    secs = int(elapsed % 60)
+                    yield f"✅ Completed ({completed_count}/{len(sections)}): **{section_names[section]}** - {len(result):,} chars in {mins}m {secs}s"
 
         # Build final text in correct order
         self.final_text = "\n\n".join(

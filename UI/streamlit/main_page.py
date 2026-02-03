@@ -6,6 +6,7 @@ import re
 import time
 import textwrap
 import asyncio
+import zipfile
 from io import BytesIO
 from typing import Tuple
 import json
@@ -51,6 +52,8 @@ from scripts.default_prompts import default_gpt_prompt,  new_system_finance_prom
 from scripts.section_formatting import finance_calculations, system_mod
 
 from utils.pdf_tools import markdown_table_to_docx
+from utils.formatting_tools import docx_bytes_to_pdf_bytes
+from utils.formatting_tools import docx_bytes_to_pdf_bytes
 
 load_dotenv(find_dotenv(), override=True)
 OPENAI_API_KEY  = os.getenv("FELIPE_OPENAI_API_KEY")        # required
@@ -165,8 +168,19 @@ async def check_actions(prompt, client, deployment) -> bool:
 
     for call in calls:
         if call.function.name == "create_company_profile":
+            # Enforce company selection before profile creation
+            if not st.session_state.company_name:
+                st.warning("Please select a company out of the list and write it down, before creating a profile.")
+                st.session_state.history.append({
+                    "q": prompt,
+                    "a": "Please select a company out of the list and write it down, before creating a profile."
+                })
+                return True
+
             args = json.loads(call.function.arguments or "{}")
             company = args.get("companyName") or "(unknown)"
+            # client.company_name = company
+
 
             # Create status container for streaming updates
             with st.status("Generating company profile...", expanded=True) as status_container:
@@ -198,11 +212,30 @@ async def check_actions(prompt, client, deployment) -> bool:
                 logo_path="logo_teneo.png"
             )
 
+            # Convert DOCX to PDF before building ZIP
+            docx_bytes = docx_buffer.getvalue()
+            try:
+                pdf_bytes = docx_bytes_to_pdf_bytes(docx_bytes)
+            except Exception as e:
+                print(f"[PDF conversion] unexpected error: {e}")
+                pdf_bytes = None
+
+            # Build a ZIP with DOCX + PDF
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr(f"{company}_profile.docx", docx_bytes)
+                if pdf_bytes:
+                    zf.writestr(f"{company}_profile.pdf", pdf_bytes)
+            zip_buffer.seek(0)
+
+            if not pdf_bytes:
+                st.warning("PDF conversion unavailable — ZIP will contain DOCX only.")
+
             st.download_button(
-                "Download Profile Document",
-                data=docx_buffer,
-                file_name=f"{company}_profile.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "Download Profile (DOCX + PDF)",
+                data=zip_buffer,
+                file_name=f"{company}_profile.zip",
+                mime="application/zip",
             )
 
             # Persist in chat history

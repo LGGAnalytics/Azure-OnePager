@@ -1064,7 +1064,15 @@ def _docx_bytes_to_pdf_bytes_with_docx2pdf(docx_bytes: bytes) -> Optional[bytes]
     
 def _docx_bytes_to_pdf_bytes_with_lo(docx_bytes: bytes) -> Optional[bytes]:
     """Try converting via LibreOffice (soffice --headless). Returns None if not installed/fails."""
-    soffice = shutil.which("soffice") or shutil.which("libreoffice")
+    soffice = (
+        shutil.which("soffice")
+        or shutil.which("libreoffice")
+        # macOS default install path (not on PATH)
+        or next(
+            (p for p in ["/Applications/LibreOffice.app/Contents/MacOS/soffice"] if Path(p).exists()),
+            None,
+        )
+    )
     if not soffice:
         return None
     try:
@@ -1079,6 +1087,7 @@ def _docx_bytes_to_pdf_bytes_with_lo(docx_bytes: bytes) -> Optional[bytes]:
                 check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                timeout=120,
             )
             out_path = out_dir / "doc.pdf"
             if out_path.exists():
@@ -1096,9 +1105,9 @@ def docx_bytes_to_pdf_bytes(docx_bytes: bytes) -> Optional[bytes]:
     
     pdf = _docx_bytes_to_pdf_bytes_with_lo(docx_bytes)
     if pdf:
-        return _docx_bytes_to_pdf_bytes_with_lo(docx_bytes)
-    
-    return 'Unable to transform to pdf'
+        return pdf
+
+    return None
 
 def save_docx_to_pdf_via_libreoffice(doc, pdf_path: str):
     tmpdir = tempfile.mkdtemp()
