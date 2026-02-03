@@ -7,6 +7,7 @@ import time
 import textwrap
 import asyncio
 import zipfile
+import base64
 from io import BytesIO
 from typing import Tuple
 import json
@@ -231,10 +232,28 @@ async def check_actions(prompt, client, deployment) -> bool:
             if not pdf_bytes:
                 st.warning("PDF conversion unavailable — ZIP will contain DOCX only.")
 
+            # Auto-download the ZIP via JavaScript
+            b64 = base64.b64encode(zip_buffer.getvalue()).decode()
+            file_name = f"{company}_profile.zip"
+            st.components.v1.html(
+                f"""
+                <script>
+                    const link = document.createElement('a');
+                    link.href = 'data:application/zip;base64,{b64}';
+                    link.download = '{file_name}';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                </script>
+                """,
+                height=0,
+            )
+
+            # Keep button as fallback in case auto-download is blocked
             st.download_button(
                 "Download Profile (DOCX + PDF)",
                 data=zip_buffer,
-                file_name=f"{company}_profile.zip",
+                file_name=file_name,
                 mime="application/zip",
             )
 

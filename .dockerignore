@@ -66,6 +66,7 @@ rags/
 learning_material/
 engines/
 *.png
+!logo_teneo.png
 *.jpg
 *.jpeg
 report.pdf
