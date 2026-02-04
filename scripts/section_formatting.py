@@ -301,11 +301,12 @@ Formatting example (shape only; values are illustrative):
 """
 
 finance_commentary = """
-Follow the formatting and instructions for each section of the output. 
+Follow the formatting and instructions for each section of the output.
 Your focus in to find the WHY behind the numbers in the table using the context provided.
+IMPORTANT: Do NOT reproduce or repeat the Financial Highlights Table. The table is already included separately. Only output the COMMENTARY and SOURCES sections below.
 
 SECTION 2 — COMMENTARY
-- After the Table, add a single blank line, then a heading line: Commentary - do NOT add anything besides that in the headling line
+- Start with a heading line: Commentary - do NOT add anything besides that in the heading line
 - Write a tight, 8-9 bullet narrative (no colons) complementing the numbers in the table above, flagging what matters for credit. Each bullet should explain the trend of each item over the years and also mention the reason behind change in numbers (e.g. Revenue improved from £2.5m in FY21 to £7m in FY23, attributed to increase in volume of….)
 - Essentially, take the numbers from the table above, analyse the trends, search within the financial statements, what are the drivers behind this change e.g. why did revenue increase from FY22 to FY24, was it because the sales volume increased or did any particular business segment do better or was it because they acquired a new company etc. This has to be seen across multiple topics to have insightful commentary, that not just repeats what is already explained in the table, but also explained WHY these changes happened over the years
 - To locate these drivers or important reasons to supplement the numbers from the table, look into the following sections of the financial statements particularly: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Key Peformance Indicators' and 'Going Concern' and other sections,
@@ -475,10 +476,11 @@ Formatting example (shape only; values are illustrative - NOTE: Only ONE year co
 
 
 capital_structure_commentary = """
-Follow the formatting and instructions for each section of the output. 
+Follow the formatting and instructions for each section of the output.
 Your focus in to find the WHY behind the numbers in the table using the context provided.
+IMPORTANT: Do NOT reproduce or repeat the Capital Structure Table. The table is already included separately. Only output the COMMENTARY and SOURCES sections below.
 
-SECTION 2 — COMMENTARY 
+SECTION 2 — COMMENTARY
 
 - After the Table, add a single blank line, then a heading line: COMMENTARY
 - Write a tight, 6-7 bullet narrative complementing the capital structure table above, flagging what matters for credit. The bullet points should be insightful and need to be derived from the following sections of the financial accounts: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Going Concern' sections.
