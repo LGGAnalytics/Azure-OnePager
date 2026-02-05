@@ -430,92 +430,93 @@ Sources
 
 
 capital_structure_table = """
-Return the sections in this exact order: 
-
-- Add a single blank line, then a heading line: 7. Capital Structure 
-
-
-SECTION 1 — TABLE 
-
-- header (only 2 columns): Metric, FY-latest year available example: FY-24 
-- CRITICAL: Display ONLY the latest fiscal year (e.g., FY24). Do NOT include FY23, FY22, or any prior years even if they appear in the source data. 
-- One data row per each debt facility (including one for lease liability), Gross external debt, Cash, Net external debt, Liquidity, EBITDA, Leverage. There should be 4 columns, Facility Name/Other metric, Interest Rate, Maturity, Amount (£x.xm) 
-- Use the following canonical metric names (match exactly when present in the source)to provide the table: 
-* Facility Name (including lease liabilities) - Row (multiple rows depending on the number of facilities) - (example: debt facility includes term loans, RCF, notes, bonds, loan notes, invoice discounting facilities, working capital facility, lease liabilities and others mentioned. They cannot include internal debt facility such as loan from parent company, loan from related parties, loan from shareholders etc.)
-* Interest Rate - Column  
-* Maturity - Column 
-* Amount Outstanding - Column 
-* Gross External Debt - Row 
-* Closing Cash - Row 
-* Net external debt - Row  
-* Liquidity - Row  
-* EBITDA/Adjusted EBITDA - Row 
-* Leverage - Row  
-- Use "n.a." / "n.m." exactly when unavailable or not meaningful. 
-- Always append source indices to numeric values like: £171.9m [#10] or 9.6x [#10]. 
-- If a total is shown explicitly in the source (e.g., “Bank loans + RCF outstanding (excl. leases)”), include it. If it is not shown and all needed components are present (e.g., Facility B1 + Facility B2 + RCF drawn), you may compute it and include the computed total; otherwise use "n.a.". 
-- If EBITDA or Net External Debt is ≤ 0, set Leverage (Net Debt/EBITDA) to "n.m.". 
-- As a matter of checking accuracy, the leverage in capital structure should match the leverage of the latest year in the financial highlights table, because both are the same values 
-
-Formatting example (shape only; values are illustrative - NOTE: Only ONE year column): 
-
-7. Capital Structure 
-
-| Debt Facility | Interest Rate | Maturity | Amount Outstanding (£m)| 
-| --- | --- | --- | --- | 
-| £100m RCF | EURBIOR + 5.00% | Jun-27 | £101.2m | 
-| £200m Senior Secured Notes | 8.75% | Aug-29 | £205.1m | 
-| Lease Liability | - | - | £15.0m | 
-| Gross External Debt | - | - | £321.3m | 
-| Closing Cash | - | - | £50.0m | 
-| Net External Debt | - | - | £271.3m | 
-| Liquidity (cash + undrawn facilities) | - | - | £100.0m | 
-| EBITDA | - | - | £25.0m | 
+Return the sections in this exact order:  
+ 
+- Add a single blank line, then a heading line: 7. Capital Structure  
+ 
+ 
+SECTION 1 — TABLE  
+ 
+- header (only 2 columns): Metric, FY-latest year available example: FY-24  
+- CRITICAL: Display ONLY the latest fiscal year (e.g., FY24). Do NOT include FY23, FY22, or any prior years even if they appear in the source data.  
+- One data row per each debt facility (including one for lease liability), Gross external debt, Cash, Net external debt, Liquidity, EBITDA, Leverage. There should be 4 columns, Facility Name/Other metric, Interest Rate, Maturity, Amount (£x.xm)  
+- Use the following canonical metric names (match exactly when present in the source)to provide the table:  
+* Facility Name (including lease liabilities) - Row (multiple rows depending on the number of facilities) - (example: debt facility includes term loans, RCF, notes, bonds, loan notes, invoice discounting facilities, working capital facility, preference shares, lease liabilities and others mentioned. They cannot include internal debt facility such as loan from parent company, loan from related parties, loan from shareholders etc.) 
+* Interest Rate - Column   
+* Maturity - Column  
+* Amount Outstanding - Column  
+* Gross External Debt - Row  
+* Closing Cash - Row  
+* Net external debt - Row   
+* Liquidity - Row   
+* EBITDA/Adjusted EBITDA - Row  
+* Leverage - Row   
+- Use "n.a." / "n.m." exactly when unavailable or not meaningful.  
+- Always append source indices to numeric values like: £171.9m [#10] or 9.6x [#10].  
+- If a total is shown explicitly in the source (e.g., “Bank loans + RCF outstanding (excl. leases)”), include it. If it is not shown and all needed components are present (e.g., Facility B1 + Facility B2 + RCF drawn), you may compute it and include the computed total. Don’t put n.a. if lease liabilities is not present or reported, exclude it and calculate gross external debt. Similarly, if undrawn facilities is not provided, put closing cash as the liquidity 
+- If EBITDA or Net External Debt is ≤ 0, set Leverage (Net Debt/EBITDA) to "n.m.".  
+- As a matter of checking accuracy, the leverage in capital structure should match the leverage of the latest year in the financial highlights table, because both are the same values  
+ 
+Formatting example (shape only; values are illustrative - NOTE: Only ONE year column):  
+ 
+7. Capital Structure  
+ 
+| Debt Facility | Interest Rate | Maturity | Amount Outstanding (£m)|  
+| --- | --- | --- | --- |  
+| £100m RCF | EURBIOR + 5.00% | Jun-27 | £101.2m |  
+| £200m Senior Secured Notes | 8.75% | Aug-29 | £205.1m |  
+| Lease Liability | - | - | £15.0m |  
+| Gross External Debt | - | - | £321.3m |  
+| Closing Cash | - | - | £50.0m |  
+| Net External Debt | - | - | £271.3m |  
+| Liquidity (cash + undrawn facilities) | - | - | £100.0m |  
+| EBITDA | - | - | £25.0m |  
 | Leverage | - | - | 10.9x |
 """
 
 
 capital_structure_commentary = """
-Follow the formatting and instructions for each section of the output.
-Your focus in to find the WHY behind the numbers in the table using the context provided.
-IMPORTANT: Do NOT reproduce or repeat the Capital Structure Table. The table is already included separately. Only output the COMMENTARY and SOURCES sections below.
-
-SECTION 2 — COMMENTARY
-
-- After the Table, add a single blank line, then a heading line: COMMENTARY
-- Write a tight, 6-7 bullet narrative complementing the capital structure table above, flagging what matters for credit. The bullet points should be insightful and need to be derived from the following sections of the financial accounts: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Going Concern' sections.
-- The bullet points should be based ONLY on the following topics, sourced from the financial statements:
- 1. Recent refinancing actions completed by the company in recent year (e.g. The company recently refinanced its loan maturing in Feb-24, pushing the maturity by 2 years to Feb-26)
-  2. Debt covenants including actual covenant terms and any recent covenant tests (e.g. Company’s debt facility has an interest cover ratio covenant, which shouldn’t exceed more than 3.5x, and is tested twice a year etc.)
-  3. Debt security including collateral and security package set against the drawn secured debt (e.g. The debt facility is secured against all the assets of the company, and its subsidiaries)
-  4. Liquidity position including cash, committed undrawn facilities, overdraft, and uncommitted accordion if available. (e.g. the company has total liquidity of £60m, including £10m in cash and undrawn RCF of £50m, with an uncommitted accordion of £60m, signalling good liquidity for upcoming maturities)
-  5. Upcoming maturities and headroom (e.g. The company does not have any maturities until 2028 etc.)
-- Commentary bullets must be detailed, in proper full sentences. AVOID sub-headings and semi-colon
-- Each commentary bullet must be written clearly enough for a reader unfamiliar with the company to understand the meaning, impact, and implications
-- If any information regarding any bullet point is unavailable, please do not include it, rather than including wrong information
-- Base all points strictly on the Table values; do not invent numbers.
+Follow the formatting and instructions for each section of the output. 
+Your focus in to find the WHY behind the numbers in the table using the context provided. 
+IMPORTANT: Do NOT reproduce or repeat the Capital Structure Table. The table is already included separately. Only output the COMMENTARY and SOURCES sections below. 
  
-SECTION 3 — SOURCES 
+SECTION 2 — COMMENTARY 
+ 
+- After the Table, add a single blank line, then a heading line: COMMENTARY 
+- Write a tight, 6-7 bullet narrative complementing the capital structure table above, flagging what matters for credit. The bullet points should be insightful and need to be derived from the following sections of the financial accounts: 'Primary Activity' and 'Business Review' and 'Review of Business' and 'Financial Review' and 'Bank Debt' and 'Borrowings' and 'Creditors' and 'Going Concern' sections. 
+- The bullet points should be based ONLY on the following topics, sourced from the financial statements: 
+1. Recent refinancing actions completed by the company in recent year (e.g. The company recently refinanced its loan maturing in Feb-24, pushing the maturity by 2 years to Feb-26) 
+  2. Debt covenants including actual covenant terms and any recent covenant tests (e.g. Company’s debt facility has an interest cover ratio covenant, which shouldn’t exceed more than 3.5x, and is tested twice a year etc.) 
+  3. Debt security including collateral and security package set against the drawn secured debt (e.g. The debt facility is secured against all the assets of the company, and its subsidiaries) 
+  4. Liquidity position including cash, committed undrawn facilities, overdraft, and uncommitted accordion if available. (e.g. the company has total liquidity of £60m, including £10m in cash and undrawn RCF of £50m, with an uncommitted accordion of £60m, signalling good liquidity for upcoming maturities) 
+  5. Upcoming maturities and headroom (e.g. The company does not have any maturities until 2028 etc.) 
+- Commentary bullets must be detailed, in proper full sentences. AVOID sub-headings and semi-colon 
+- Each commentary bullet must be written clearly enough for a reader unfamiliar with the company to understand the meaning, impact, and implications 
+- If any information regarding any bullet point is unavailable, please do not include it, rather than including wrong information 
+- Base all points strictly on the Table values; do not invent numbers. 
+ 
+SECTION 3 — SOURCES  
+ 
+- After the COMMENTARY, add a single blank line, then a heading line: Sources  
+- List all sources cited in the Table with their bracket numbers (e.g., [#10]).  
+- For each, include a brief description: document title, section/page (if available), and what it substantiates.  
+- Keep one source per line.  
+ 
+Formatting example (shape only; values are illustrative - NOTE: Only ONE year column):  
+ 
+COMMENTARY  
+ 
+- Brief point 1…  
+- Brief point 2…  
+- Brief point 3…  
+ 
+ 
+Sources  
+ 
+- [#1] Title / section / page — what it supports.  
+- [#4] Title / section / page — what it supports.  
+- [#10] Title / section / page — what it supports.  
 
-- After the COMMENTARY, add a single blank line, then a heading line: Sources 
-- List all sources cited in the Table with their bracket numbers (e.g., [#10]). 
-- For each, include a brief description: document title, section/page (if available), and what it substantiates. 
-- Keep one source per line. 
-
-Formatting example (shape only; values are illustrative - NOTE: Only ONE year column): 
-
-COMMENTARY 
-
-- Brief point 1… 
-- Brief point 2… 
-- Brief point 3… 
-
-
-Sources 
-
-- [#1] Title / section / page — what it supports. 
-- [#4] Title / section / page — what it supports. 
-- [#10] Title / section / page — what it supports. 
 """
 
 
@@ -561,29 +562,32 @@ Sources:
 
 
 section4a = """
+Add a blank line, then a heading line: 4a. Products/Services Overview. 
 
-Add a blank line, then a heading line: 4a. Products/Services Overview.
+4a. Products/Services Overview: 
 
-4a. Products/Services Overview:
-- This section details out all the products and service offering of the company, using the latest available annual reports/financial statements of the company as well as Web Search
--- Include each product/service with a high-level brief description, in a sentence format
--- Use MARKDOWN styling to make all product/service names bold
--- EACH product/service name must be a separate bullet point
+- This section details out only the top main products and service offering of the company, using the latest available annual reports/financial statements of the company as well as Web Search 
+-- Include each product/service with a high-level brief description, in a sentence format 
+-- Use MARKDOWN styling to make all product/service names bold 
+-- EACH product/service name must be a separate bullet point 
+
 - Sources to be used for this section: 
--- This information should be sourced through Web Search, using company’s official website. The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report
--- If any of the above source suggestions does not return results for any part, please scan and check other sections of the reports or do Web Search to see if relevant information can be found
-- Notes for this section:
--- If this information is unavailable, please suggest so, rather than including incorrect information
+-- This information should be sourced through Web Search, using ONLY company’s official website. Company websites usually have products/services/segments listed in their About us section or might have a separate section entirely for its products/services/segments, which can be used to include information. Focus only on the main offerings. 
+-- The Web Search can be complemented by using Primary Activity, Business Review, Introduction or Strategic Report section of the annual report 
+-- If any of the above source suggestions does not return results, check other credible web sources 
 
-Formatting example (shape only; values are illustrative):
+- Notes for this section: 
+-- If this information is unavailable, please suggest so, rather than including incorrect information 
 
-4a. Products/Services Overview
+Formatting example (shape only; values are illustrative): 
 
-- **Product A** Brief description of the product.
-- **Product B** Brief description of the product.
+4a. Products/Services Overview 
 
-Sources
-- [#1] Title / section / page — what it supports.
+- **Product A** Brief description of the product. 
+- **Product B** Brief description of the product. 
+
+Sources 
+- [#1] Title / section / page — what it supports. 
 """
 
 section4b = """
@@ -631,29 +635,28 @@ Formatting example (shape only; values are illustrative):
 
 
 capital_calculations = """
-Capital Structure Table Metrics and Calculations:
+Capital Structure Table Metrics and Calculations: 
  
-- The table includes capital structure information for the latest year, using the available annual report/financial statement of the company. It should list out all the debt facilities with the following columns:
--- Name of the Facility (e.g. £300m Term loan, $200m RCF, £100m Senior Secured Notes etc.)
--- Interest Rate (e.g. 5.25%, EURIBOR + 3.75% etc.)
--- Maturity (This is the latest repayment date of the debt facility. It should be provided in the format mmm-yy e.g. Jun-25)
--- Amount Outstanding (Provide it in millions, rounded to 1 decimal point e.g. £1.2m)
-- Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included.
-- The table must also contain the following rows:
--- Gross External Debt (Sum of amount outstanding for all debt facilities)
--- Cash (Closing Cash)
--- Net External Debt (Gross Debt – Closing Cash)
--- Liquidity (Closing cash + any undrawn facilities, e.g. undrawn amount of RCF, credit lines or overdrafts). Provide this in millions, rounded to 1 decimal place (e.g. £1.2m)
--- EBITDA
--- Leverage (Net Debt / EBITDA)
-- Make sure debt and leverage matches the amount in the financial highlights section
+- The table includes capital structure information for the latest year, using the available annual report/financial statement of the company. It should list out all the debt facilities with the following columns: 
+-- Name of the Facility (e.g. £300m Term loan, $200m RCF, £100m Senior Secured Notes etc.) 
+-- Interest Rate (e.g. 5.25%, EURIBOR + 3.75% etc.) 
+-- Maturity (This is the latest repayment date of the debt facility. It should be provided in the format mmm-yy e.g. Jun-25) 
+-- Amount Outstanding (Provide it in millions, rounded to 1 decimal point e.g. £1.2m) 
+- Lease liabilities is also counted as a debt facility (only financial leases, no operational leases). Internal loans such as Shareholder loans, loans from related parties, loans from subsidiaries MUST never be included. 
+- The table must also contain the following rows: 
+-- Gross External Debt (Sum of amount outstanding for all debt facilities. If lease liabilities is not available or reported for the company, still calculate the total by adding all debt facilities outstanding and provide the value rather than putting n.a.) 
+-- Cash (Closing Cash) 
+-- Net External Debt (Gross Debt – Closing Cash) 
+-- Liquidity (Closing cash + any undrawn facilities, e.g. undrawn amount of RCF, credit lines or overdrafts. If any undrawn facilities is not reported, include closing cash as the liquidity value rather than putting n.a.) 
+-- EBITDA/Adjusted EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value). This value should either be available or calculated, never n.a. 
+-- Leverage (Net External Debt / EBITDA) 
+- Make sure debt and leverage matches the amount in the financial highlights section 
 - For the table provide data for the latest year only. All values must be shown in millions, rounded to 1 decimal point (e.g. £1.2m)
 """
 
 finance_calculations = """
 Financial Highlights Table Metrics and Calculations: 
 
- 
 
 - The table with the following financial information for the last three years, using the last three available annual reports/financial statements of the company. It should have rows (some of which are provided and some of which have to be calculated using provided formulae) including: 
 
@@ -661,7 +664,7 @@ Financial Highlights Table Metrics and Calculations:
 
 -- Gross Profit (Use Income Statement – Always Given): Revenue – Cost of Goods Sold (ONLY use this formula if the report does not already provide the gross profit value) 
 
--- EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value) 
+-- EBITDA (Check all sections of the report, EBITDA or Adjusted EBITDA might be provided – If not provided, calculate manually): Operating Profit + Depreciation and Amortization (ONLY use this formula if the report does not already provide the EBITDA/Adjusted EBITDA value. This value should either be available or calculated, never n.a.)  
 
 -- Revenue Growth % (Always Calculate Manually): (RevenueT0÷RevenueT−1)−1 
 
@@ -691,7 +694,7 @@ Financial Highlights Table Metrics and Calculations:
 
 -- Closing Cash (Use Cash Flow Statement – Always Given) 
 
--- Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt (This only includes external debt e.g. bank loans, bonds, RCFs, notes, loan notes, invoice discounting facility, preference shares, working capital facility etc.) + Lease Liabilities (lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.))
+-- Total Debt (From Debt or Bank Debt or Borrowings or Creditors section – Always Calculate Manually): Bank Debt (This only includes external debt e.g. bank loans, bonds, RCFs, notes, loan notes, invoice discounting facility, preference shares, working capital facility etc.) + Lease Liabilities (lease liabilities (only financial leases, not operating leases), and no internal debt (e.g. shareholder loans, loans from related parties, loans from subsidiaries etc.). If lease liabilities is not available or reported for the company, please only include bank debt, rather than providing n.a.)
 
 -- Net Debt (Always Calculate Manually): Net Debt: Total Debt – Closing Cash 
 

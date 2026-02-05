@@ -186,20 +186,12 @@ async def check_actions(prompt, client, deployment) -> bool:
             # Create status container for streaming updates
             with st.status("Generating company profile...", expanded=True) as status_container:
                 progress_text = st.empty()
-                updates_container = st.container()
-
                 updates = []
 
                 # Stream progress updates
                 async for update in client.generate_company_profile_streaming():
                     updates.append(update)
-
-                    # Show latest update prominently
-                    progress_text.markdown(f"### {update}")
-
-                    # Show all updates in scrollable container
-                    with updates_container:
-                        st.markdown("\n\n".join(updates))
+                    progress_text.markdown("\n\n".join(updates))
 
                 status_container.update(label="✅ Profile generation complete!", state="complete")
 
