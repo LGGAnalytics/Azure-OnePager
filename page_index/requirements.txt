@@ -1,0 +1,73 @@
+# =========================
+# Core Python utilities
+# =========================
+python-dotenv
+pillow
+lxml
+tiktoken
+rank-bm25
+pysqlite3-binary
+
+# =========================
+# LangChain / LangGraph
+# =========================
+langchain==0.3.27
+langchain-community==0.3.29
+langchain-core==0.3.75
+langchain-openai==0.3.32
+langchain-groq==0.3.7
+langgraph==0.6.11
+langchain-chroma
+
+# =========================
+# Vector DB / RAG
+# =========================
+chromadb
+
+# =========================
+# Azure SDKs (used in your code)
+# =========================
+azure-storage-blob>=12.20.0
+azure-identity>=1.17.0
+azure-search-documents==11.6.0b12
+
+# =========================
+# Document / Media processing
+# =========================
+pypdf2
+pymupdf
+opencv-python
+reportlab
+python-pptx
+unstructured[all-docs]
+
+# =========================
+# UI (used by Final_UI.py)
+# =========================
+streamlit
+
+# =========================
+# Local LLM (HuggingFace)
+# =========================
+torch
+transformers
+accelerate
+bitsandbytes
+sentencepiece
+
+# =========================
+# PageIndex dependencies
+# =========================
+openai>=1.50.0
+pyyaml>=6.0
+
+# =========================
+# OCR / PDF to Markdown
+# =========================
+pymupdf4llm>=0.0.10
+
+# =========================
+# Test utilities
+# =========================
+pandas>=2.0.0
+tabulate>=0.9.0
