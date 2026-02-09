@@ -141,7 +141,7 @@ if "pdf_model" not in st.session_state:
 if "pdf_ready" not in st.session_state:
     st.session_state.pdf_ready = False
 
-LOGO = 'logo_teneo.png'
+LOGO = Path(__file__).resolve().parents[2] / 'utils' / 'content' / 'logo_teneo.png'
 
 st.logo(
     str(LOGO),                 # main logo
