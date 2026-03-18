@@ -11,7 +11,7 @@ from azure.search.documents.models import VectorizableTextQuery
 from azure.core.exceptions import HttpResponseError
 from azure.search.documents.models import HybridSearch
 
-from openai import AzureOpenAI, AsyncAzureOpenAI, APIConnectionError
+from openai import OpenAI, AsyncOpenAI, APIConnectionError
 
 load_dotenv(find_dotenv(), override=True)
 
@@ -22,25 +22,19 @@ SEARCH_KEY      = os.getenv("AZURE_SEARCH_API_KEY")  # omit if using AAD/RBAC
 VECTOR_FIELD    = os.getenv("VECTOR_FIELD", "text_vector_v4")
 TEXT_FIELD      = os.getenv("TEXT_FIELD", "chunk")
 
-AOAI_ENDPOINT   = os.environ["AZURE_OPENAI_ENDPOINT"]            # https://<resource>.openai.azure.com
-AOAI_API_VER    = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-10-21")
 AOAI_DEPLOYMENT = os.environ["AZURE_OPENAI_DEPLOYMENT"]          # e.g., gpt-4o-mini / o3-mini / gpt-5 preview
-AOAI_KEY        = os.getenv("AZURE_OPENAI_API_KEY")              # omit if using AAD
+OPENAI_API_KEY  = os.getenv("OPENAI_API_KEY")
 
 # ---- Clients ----
 def get_search_client() -> SearchClient:
     cred = AzureKeyCredential(SEARCH_KEY) if SEARCH_KEY else DefaultAzureCredential()
     return SearchClient(SEARCH_ENDPOINT, SEARCH_INDEX, credential=cred)
 
-def get_aoai_client() -> AzureOpenAI:
-    if AOAI_KEY:
-        return AzureOpenAI(azure_endpoint=AOAI_ENDPOINT, api_key=AOAI_KEY, api_version=AOAI_API_VER)
-    return AzureOpenAI(azure_endpoint=AOAI_ENDPOINT, azure_ad_token_provider=DefaultAzureCredential().get_token, api_version=AOAI_API_VER)
+def get_aoai_client() -> OpenAI:
+    return OpenAI(api_key=OPENAI_API_KEY)
 
-def get_async_aoai_client() -> AsyncAzureOpenAI:
-    if AOAI_KEY:
-        return AsyncAzureOpenAI(azure_endpoint=AOAI_ENDPOINT, api_key=AOAI_KEY, api_version=AOAI_API_VER)
-    return AsyncAzureOpenAI(azure_endpoint=AOAI_ENDPOINT, azure_ad_token_provider=DefaultAzureCredential().get_token, api_version=AOAI_API_VER)
+def get_async_aoai_client() -> AsyncOpenAI:
+    return AsyncOpenAI(api_key=OPENAI_API_KEY)
 
 # ---- Retrieval (integrated vectorization first, lexical fallback) ----
 def retrieve(query: str, k: int = 10):

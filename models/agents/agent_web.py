@@ -7,11 +7,10 @@ from models.rags.hybrid_rag import (
     retrieve_hybrid_enhanced,
     build_context,
     get_aoai_client,
-    get_async_aoai_client
 )
 from typing import List, Dict, Optional
 from models.agents.agent_assistants import question_to_machine, summarizer, general_assistant, maybe_route_to_action
-from openai import OpenAI, APIConnectionError
+from openai import OpenAI, AsyncOpenAI, APIConnectionError
 import streamlit as st
 from scripts.default_prompts import default_gpt_prompt
 import time
@@ -72,7 +71,7 @@ class WebAgent():
 
         # OpenAI standard client
         self.web_openai = OpenAI(api_key=OPENAI_API_KEY)
-        self.client = get_async_aoai_client()
+        self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
     
     def _web_search(self, messages):

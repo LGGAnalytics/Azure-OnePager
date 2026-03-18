@@ -167,11 +167,7 @@ class AsyncProfileAgent:
             index_name=SEARCH_INDEX,
             credential=self.azure_credentials
         )
-        self.az_openai = AsyncAzureOpenAI(
-            azure_endpoint=AOAI_ENDPOINT,
-            api_key=AOAI_KEY,
-            api_version=AOAI_API_VER
-        )
+        self.az_openai = AsyncOpenAI(api_key=OPENAI_API_KEY)
         self.openai = wrappers.wrap_openai(AsyncOpenAI(api_key=OPENAI_API_KEY))
 
         self.profile_prompt = profile_prompt
